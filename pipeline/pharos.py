@@ -31,6 +31,7 @@ import re
 import sqlite3
 import sys
 import time
+import unicodedata
 import urllib.parse
 import urllib.request
 from datetime import datetime, timezone
@@ -41,6 +42,7 @@ SCHEMA_FILE = os.path.join(HERE, 'schema.sql')
 LEGACY_FILE = os.path.join(HERE, 'gdpr_database.json')
 EXPORT_DIR = os.path.join(HERE, 'exports')
 # The Pharos website reads a compact copy of the database from its data/ folder
+REVIEW_DIR = os.path.join(HERE, 'review')
 SITE_DATA_DIR = os.path.normpath(os.path.join(HERE, '..', 'site', 'data'))
 SUMMARY_SHARD = 250  # summaries are split into files of this many cases, loaded only when a case is opened
 
@@ -398,18 +400,22 @@ def step_gdprhub(db, delay=0.7):
                 summary = _wiki_to_text(re.split(r'^==', body, flags=re.M)[0])
                 src = next((f[k] for k in (f'Original_Source_Link_{n}' for n in range(1, 6))
                             if (f.get(k) or '').startswith('http')), None)
+                names, links = _party_fields(f)
+                authority = clean(f.get('DPA_With_Country') or f.get('DPA_Abbrevation'))
+                checked = db.execute('SELECT controller FROM party_checks WHERE case_id = ?', (page['title'],)).fetchone()
+                controller = checked['controller'] if checked else resolve_controller(party_roles(page['title'], authority, names))[0]
                 upsert(db, run, {
                     'case_id': page['title'],
                     'source': 'gdprhub',
                     'country': country_name(f.get('Jurisdiction')),
                     'country_code': country_code(f.get('Jurisdiction')),
-                    'authority': clean(f.get('DPA_With_Country') or f.get('DPA_Abbrevation')),
+                    'authority': authority,
                     'decision_date': date,
                     'date_precision': precision,
                     'fine_eur': parse_amount(f.get('Fine')) if currency == 'EUR' else None,
                     'fine_original': f.get('Fine'),
                     'currency': currency if f.get('Fine') else None,
-                    'controller': clean(f.get('Party_Name_1')),
+                    'controller': controller,  # see PARTIES: the first party is often the complainant
                     'articles_raw': '; '.join(arts) or None,
                     'violation_type': None,  # GDPRhub's 'Type' is the procedure (Complaint / Own initiative), not the violation
                     'outcome': clean(f.get('Outcome')),
@@ -418,9 +424,194 @@ def step_gdprhub(db, delay=0.7):
                     'source_page': 'https://gdprhub.eu/index.php?title=' + urllib.parse.quote(page['title'].replace(' ', '_')),
                     'attribution': ATTRIBUTION['gdprhub'],
                 })
+                save_parties(db, page['title'], page['title'], authority, names, links)
             db.commit()
             print(f'    {min(i + 50, len(titles))}/{len(titles)}')
             time.sleep(delay)
+
+
+# ----- PARTIES: WHO IS THE DECISION ABOUT? -----
+# GDPRhub lists up to four parties with no role, often the complainant first. Each party gets a role
+# from evidence in the record itself; the controller is named only when that evidence is clear.
+# Unclear cases go to a review list (parties-review), and Lorenzo's answers (party_checks) always win.
+_LABEL_RESP = re.compile(r'(?:\([^)]*\b|^|\b)(?:controllers?|processors?|defendants?|respondents?|accused|controlled (?:party|entity))\b(?![^(]*\bdata subject)', re.I)
+_LABEL_COMP = re.compile(r'\([^)]*\b(?:data subjects?|complainants?|claimants?|plaintiffs?|applicants?|petitioners?)\b|^(?:complainants?|claimants?)\b', re.I)
+_COMPLAINANT = re.compile(r"""\b(?:complainants?|data\s+subjects?|claimants?|plaintiffs?|petitioners?|
+    represented\s+by|users?|customers?|citizens?|patients?|employees?|workers?|trabajadores|parents?|
+    private\s+(?:individual|person)|an?\s+(?:unnamed\s+)?(?:individual|person|citizen))\b""", re.I | re.X)
+_NGOS = re.compile(r'\b(?:noyb|la quadrature du net|privacy international|iccl|irish council for civil liberties|bits of freedom|'
+                   r'epicenter\.?works|digitalcourage|datenschutzverein|open rights group|panoptykon|homo digitalis|'
+                   r'consumer institute|verbraucherzentrale|consumentenbond|facua|ocu\b)', re.I)
+_HIDDEN = re.compile(r'^(?:anonymous|anoymous|anonymised|anonymized|unknown|unnamed|n/?a|-+|([A-Z])\1{0,3}|(?:[A-Z]\.){1,4}|[A-Z]\.[A-Z]\.[A-Z])$', re.I)
+_HIDDEN_RESP = re.compile(r"^(?:anonymous|anoymous|unknown|unnamed)\b|name not disclosed|\banonymi[sz]ed\b|^data controller\b|^[A-Z]$", re.I)
+_AUTHORITY = re.compile(r"""\b(?:data\s+protection\s+(?:authority|inspectorate|commission(?:er)?|agency|ombudsman|board)|
+    supervisory\s+authority|datatilsynet|datainspektionen|integritetsskyddsmyndigheten|personvernnemnda|privacy\s+appeals\s+board|
+    autoriteit\s+persoonsgegevens|garante\s+per\s+la\s+protezione|commission\s+nationale|information\s+commissioner|
+    edpb|european\s+data\s+protection\s+board|andmekaitse|persónuvernd|personuvernd)\b""", re.I | re.X)
+_PERSON = re.compile(r'\*\*|^(?:mr|mrs|ms|dr|prof)\.?\s', re.I)
+_AUTHORITY_SHORT = {'dpa', 'ico', 'cnil', 'aepd', 'apd', 'gba', 'dsb', 'vdai', 'uodo', 'hdpa', 'ip', 'aki'}
+
+
+def _words(s):
+    s = unicodedata.normalize('NFKD', s or '').encode('ascii', 'ignore').decode().lower()
+    return re.sub(r'[^a-z0-9 ]+', ' ', s).split()
+
+
+def _in_title(name, title):
+    """Most of the party's distinctive words appear in the GDPRhub page title, which names the case."""
+    stop = {'the', 'and', 'ltd', 'limited', 'gmbh', 'inc', 'llc', 'spa', 'srl', 'plc', 'sa', 'ag', 'bv', 'as', 'ab', 'oy', 'sl', 'of', 'de', 'la'}
+    w = [x for x in _words(name.split(' (')[0]) if len(x) > 2 and x not in stop]
+    t = set(_words(title))
+    return bool(w) and sum(x in t for x in w) / len(w) >= 0.6
+
+
+def party_roles(title, authority, names):
+    """[(position, name, role, reason)] for each named party; a name written twice is kept once."""
+    out, seen = [], set()
+    a = (authority or '').split(' (')[0].strip().lower()
+    for pos, p in enumerate(names, 1):
+        p = (p or '').strip()
+        key = ' '.join(_words(p))
+        if not p or key in seen:
+            continue
+        seen.add(key)
+        n = p.split(' (')[0].strip().lower()
+        if _LABEL_RESP.search(p) and not _LABEL_COMP.search(p):
+            role, why = 'respondent', 'the source labels it as controller, processor or defendant'
+        elif _LABEL_COMP.search(p):
+            role, why = 'complainant', 'the source labels it as data subject or complainant'
+        elif (a and n == a) or n in _AUTHORITY_SHORT or _AUTHORITY.search(p):
+            role, why = 'authority', 'it is the regulator or an appeal body'
+        elif _NGOS.search(p) or _COMPLAINANT.search(p):
+            role, why = 'complainant', 'the name describes who complained'
+        elif _HIDDEN.match(p):
+            role, why = 'anonymous', 'the name is hidden'
+        elif _in_title(p, title):
+            role, why = 'respondent', 'the case title names it'
+        elif _PERSON.search(p):
+            role, why = 'person', 'a private person, role not stated'
+        else:
+            role, why = 'unknown', None
+        out.append((pos, p, role, why))
+    return out
+
+
+def party_name(p):
+    """The name without role words the editor added: 'Vs. ', 'Respondent: ', '(controller/respondent)'."""
+    p = re.sub(r'^(?:vs\.?|respondent:|controller:|defendant:)\s*', '', p.strip(), flags=re.I)
+    p = re.sub(r'\s*\((?:the\s+)?(?:data\s+)?(?:controllers?|processors?|respondents?|defendants?)(?:\s*/\s*[\w ]+)?\)\s*$', '', p, flags=re.I)
+    p = re.sub(r'\s+-\s+(?:the\s+)?(?:data\s+)?(?:controller|processor|respondent|defendant)\s*$', '', p, flags=re.I)
+    return p.strip() or None
+
+
+def resolve_controller(roles):
+    """(controller or None, status) from party_roles(). status: 'clear', 'review' or 'none'."""
+    if not roles:
+        return None, 'none'
+    resp = [r for r in roles if r[2] == 'respondent']
+    open_ = [r for r in roles if r[2] in ('unknown', 'person')]
+    if resp and not open_:
+        names = [party_name(r[1]) for r in resp]
+        if any(n is None or _HIDDEN_RESP.search(n) for n in names):
+            return None, 'none'                    # the company's name is hidden in the source
+        return ' and '.join(names), 'clear'
+    if resp or len(open_) > 1:
+        return None, 'review'
+    if len(open_) == 1:
+        if open_[0][2] == 'person':
+            return None, 'review'
+        name = party_name(open_[0][1])
+        if name is None or _HIDDEN_RESP.search(name):
+            return None, 'none'                    # described but not named, e.g. 'Logistics company (anonymized)'
+        return name, 'clear'
+    return None, 'none'
+
+
+def save_parties(db, case_id, title, authority, names, links):
+    """Store the parties with their roles and return the controller: Lorenzo's check if any, else the rules'."""
+    roles = party_roles(title, authority, names)
+    db.execute('DELETE FROM case_parties WHERE case_id = ?', (case_id,))
+    db.executemany('INSERT INTO case_parties (case_id, position, name, link, role, reason) VALUES (?,?,?,?,?,?)',
+                   [(case_id, pos, name, (links[pos - 1] or None) if pos <= len(links) else None, role, why)
+                    for pos, name, role, why in roles])
+    checked = db.execute('SELECT controller FROM party_checks WHERE case_id = ?', (case_id,)).fetchone()
+    return checked['controller'] if checked else resolve_controller(roles)[0]
+
+
+def _party_fields(f):
+    return ([clean(f.get(f'Party_Name_{k}')) for k in range(1, 5)],
+            [clean(f.get(f'Party_Link_{k}')) for k in range(1, 5)])
+
+
+def step_parties(db, delay=1.0):
+    """Re-read the party lists of the GDPRhub cases already in the database and set the controller again.
+    Changes nothing else, so it can run without a full refresh."""
+    with Run(db, 'parties') as run:
+        rows = {r['case_id']: r for r in db.execute("SELECT case_id, authority, controller FROM cases WHERE source = 'gdprhub'")}
+        ids = list(rows)
+        for i in range(0, len(ids), 50):
+            j = _hub({'action': 'query', 'titles': '|'.join(ids[i:i + 50]), 'prop': 'revisions',
+                      'rvprop': 'content', 'formatversion': 2})
+            back = {n['to']: n['from'] for n in j.get('query', {}).get('normalized', [])}
+            for page in j.get('query', {}).get('pages', []):
+                cid = back.get(page['title'], page['title'])
+                text = (page.get('revisions') or [{}])[0].get('content')
+                f = _template(text) if text else None
+                if cid not in rows or not f:
+                    continue
+                run.fetched += 1
+                names, links = _party_fields(f)
+                controller = save_parties(db, cid, cid, rows[cid]['authority'], names, links)
+                if controller != rows[cid]['controller']:
+                    db.execute('UPDATE cases SET controller = ?, updated_at = ? WHERE case_id = ?', (controller, now(), cid))
+                    run.updated += 1
+            db.commit()
+            time.sleep(delay)
+
+
+def step_parties_review(db):
+    """Write review/parties.csv: the cases where the rules could not tell who the decision is about.
+    Fill in the 'controller' column (or write NONE), then run: python pharos.py parties-apply"""
+    os.makedirs(REVIEW_DIR, exist_ok=True)
+    path = os.path.join(REVIEW_DIR, 'parties.csv')
+    checked = {r[0] for r in db.execute('SELECT case_id FROM party_checks')}
+    out = []
+    for c in db.execute("SELECT case_id, pharos_id, authority, decision_date, fine_eur, source_page FROM cases "
+                        "WHERE source = 'gdprhub' ORDER BY decision_date DESC"):
+        if c['case_id'] in checked:
+            continue
+        roles = [(r['position'], r['name'], r['role'], r['reason']) for r in
+                 db.execute('SELECT * FROM case_parties WHERE case_id = ? ORDER BY position', (c['case_id'],))]
+        if resolve_controller(roles)[1] != 'review':
+            continue
+        out.append({'case_id': c['case_id'], 'fino_id': c['pharos_id'], 'regulator': c['authority'],
+                    'date': c['decision_date'], 'fine_eur': c['fine_eur'],
+                    'parties': ' | '.join(f'{name} [{role}]' for _, name, role, _ in roles),
+                    'controller': '', 'note': '', 'gdprhub': c['source_page']})
+    with open(path, 'w', newline='', encoding='utf-8-sig') as f:
+        w = csv.DictWriter(f, fieldnames=['case_id', 'fino_id', 'regulator', 'date', 'fine_eur', 'parties',
+                                          'controller', 'note', 'gdprhub'])
+        w.writeheader()
+        w.writerows(out)
+    print(f'  {len(out)} cases to check, written to {path}')
+
+
+def step_parties_apply(db):
+    """Read review/parties.csv and save every filled-in answer as a check that wins over the rules."""
+    path = os.path.join(REVIEW_DIR, 'parties.csv')
+    with Run(db, 'parties-apply') as run, open(path, encoding='utf-8-sig') as f:
+        for r in csv.DictReader(f):
+            answer = (r.get('controller') or '').strip()
+            if not answer:
+                continue
+            run.fetched += 1
+            controller = None if answer.upper() == 'NONE' else answer
+            db.execute('INSERT INTO party_checks (case_id, controller, note, checked_at) VALUES (?,?,?,?) '
+                       'ON CONFLICT(case_id) DO UPDATE SET controller = excluded.controller, note = excluded.note, '
+                       'checked_at = excluded.checked_at', (r['case_id'], controller, (r.get('note') or '').strip() or None, now()))
+            db.execute('UPDATE cases SET controller = ?, updated_at = ? WHERE case_id = ?', (controller, now(), r['case_id']))
+            run.updated += 1
+        db.commit()
 
 
 # ----- STEP: LINK THE SAME DECISION ACROSS SOURCES -----
@@ -569,6 +760,9 @@ def step_export(db):
             'licence': 'CC BY-NC-SA 4.0 — https://creativecommons.org/licenses/by-nc-sa/4.0/',
             'sources': list(ATTRIBUTION.values()),
             'stats': stats,
+            # when the sources were last read; later steps (fixes, exports) do not make the data newer
+            'last_fetch': db.execute("SELECT MAX(finished_at) FROM runs WHERE status = 'ok' "
+                                     "AND step IN ('cms', 'gdprhub', 'update')").fetchone()[0],
         }
         with open(os.path.join(EXPORT_DIR, 'cases.json'), 'w', encoding='utf-8') as f:
             json.dump({'meta': meta, 'cases': rows}, f, ensure_ascii=False, separators=(',', ':'))
@@ -576,6 +770,11 @@ def step_export(db):
             json.dump(meta, f, ensure_ascii=False, indent=2)
         run.inserted = len(rows)
         if os.path.isdir(os.path.dirname(SITE_DATA_DIR)):
+            named = parties_named(db)
+            own = {c for c, in db.execute("SELECT case_id FROM cases WHERE summary IS NOT NULL AND summary != ''")}
+            for r in rows:
+                r['parties_named'] = named.get(r['case_id'])
+                r['has_own_summary'] = r['case_id'] in own
             export_site(rows, meta)
             run.notes.append(f'website data written to {SITE_DATA_DIR}')
 
@@ -583,14 +782,26 @@ def step_export(db):
 SITE_FIELDS = ['pharos_id', 'case_id', 'source', 'country', 'country_code', 'authority', 'decision_date',
                'date_precision', 'fine_eur', 'fine_original', 'currency', 'controller', 'sector_tag', 'articles',
                'categories', 'violation_type', 'best_outcome', 'source_url', 'source_page', 'gdprhub_page',
-               'summary_by']
+               'summary_by', 'parties_named']
 
 
 def summary_by(r):
     """Who wrote the summary the site shows: the case's own source, or GDPRhub through a linked page."""
     if not r['best_summary']:
         return None
-    return r['source'] if r['summary'] else 'gdprhub'
+    return r['source'] if r['has_own_summary'] else 'gdprhub'
+
+
+def parties_named(db):
+    """For decisions whose controller is not clear: the parties the source names, minus complainants,
+    regulators and hidden names, so the site can show them without saying who is who."""
+    out = {}
+    for cid, in db.execute("SELECT case_id FROM cases WHERE source = 'gdprhub' AND controller IS NULL"):
+        roles = [(r['position'], r['name'], r['role'], r['reason']) for r in
+                 db.execute('SELECT * FROM case_parties WHERE case_id = ? ORDER BY position', (cid,))]
+        if resolve_controller(roles)[1] == 'review':
+            out[cid] = '; '.join(party_name(r[1]) or r[1] for r in roles if r[2] in ('respondent', 'unknown', 'person'))
+    return out
 
 
 def export_site(rows, meta):
@@ -598,10 +809,11 @@ def export_site(rows, meta):
     summaries/N.json: the summaries of rows N*250 ... N*250+249, in the same order."""
     shard_dir = os.path.join(SITE_DATA_DIR, 'summaries')
     os.makedirs(shard_dir, exist_ok=True)
-    for old in os.listdir(shard_dir):  # shard count can shrink
-        os.remove(os.path.join(shard_dir, old))
+    # build everything before touching the old files, so a failure leaves the site as it was
     site = {'meta': meta | {'fields': SITE_FIELDS, 'summary_shard': SUMMARY_SHARD},
             'rows': [[summary_by(r) if k == 'summary_by' else r[k] for k in SITE_FIELDS] for r in rows]}
+    for old in os.listdir(shard_dir):  # shard count can shrink
+        os.remove(os.path.join(shard_dir, old))
     with open(os.path.join(SITE_DATA_DIR, 'cases.json'), 'w', encoding='utf-8') as f:
         json.dump(site, f, ensure_ascii=False, separators=(',', ':'))
     with open(os.path.join(SITE_DATA_DIR, 'stats.json'), 'w', encoding='utf-8') as f:
@@ -631,8 +843,8 @@ def step_stats(db):
 # ----- MAIN -----
 def main():
     p = argparse.ArgumentParser(description='GDPR enforcement database pipeline')
-    p.add_argument('step', choices=['migrate', 'fix-ids', 'cms', 'cms-summaries', 'gdprhub', 'link', 'normalise',
-                                    'export', 'stats', 'update'])
+    p.add_argument('step', choices=['migrate', 'fix-ids', 'cms', 'cms-summaries', 'gdprhub', 'parties',
+                                    'parties-review', 'parties-apply', 'link', 'normalise', 'export', 'stats', 'update'])
     p.add_argument('--limit', type=int, default=50, help='cms-summaries: how many case pages to fetch')
     a = p.parse_args()
     if hasattr(sys.stdout, 'reconfigure'):
@@ -649,6 +861,12 @@ def main():
             step_cms_summaries(db, a.limit)
         elif a.step == 'gdprhub':
             step_gdprhub(db)
+        elif a.step == 'parties':
+            step_parties(db)
+        elif a.step == 'parties-review':
+            step_parties_review(db)
+        elif a.step == 'parties-apply':
+            step_parties_apply(db)
         elif a.step == 'link':
             step_link(db)
         elif a.step == 'normalise':

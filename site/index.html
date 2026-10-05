@@ -388,7 +388,7 @@ footer .mail { font-family: var(--mono); user-select: all; }
   fetch('data/stats.json').then(r => r.ok ? r.json() : null).then(m => {
     if (!m || !m.stats) return;
     const s = m.stats, f = n => Number(n).toLocaleString('en-GB');
-    const d = new Date(m.generated_at.replace(' ', 'T') + 'Z').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+    const d = new Date((m.last_fetch || m.generated_at).replace(' ', 'T') + 'Z').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
     const li = document.querySelectorAll('#figures b');
     li[0].textContent = f(s.cases); li[1].textContent = s.countries;
     li[2].textContent = '€' + (s.total_fines_eur / 1e9).toFixed(2) + ' billion'; li[3].textContent = d;

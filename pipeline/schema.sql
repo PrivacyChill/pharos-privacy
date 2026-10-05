@@ -74,6 +74,27 @@ CREATE TABLE IF NOT EXISTS case_links (
     PRIMARY KEY (primary_id, duplicate_id)
 );
 
+-- ----- PARTIES (GDPRhub lists up to four parties per decision, without saying who is who) -----
+-- Every party is kept as the source wrote it. 'role' is what the rules in pharos.py could tell
+-- from the record itself; cases.controller is filled only when that evidence is clear.
+CREATE TABLE IF NOT EXISTS case_parties (
+    case_id   TEXT NOT NULL REFERENCES cases (case_id) ON DELETE CASCADE,
+    position  INTEGER NOT NULL,                -- 1-4, as listed by the source
+    name      TEXT NOT NULL,
+    link      TEXT,
+    role      TEXT NOT NULL CHECK (role IN ('respondent', 'complainant', 'authority', 'anonymous', 'person', 'unknown')),
+    reason    TEXT,                            -- why the rules gave this role
+    PRIMARY KEY (case_id, position)
+);
+
+-- Lorenzo's own check of who a decision is about. It always wins over the rules.
+CREATE TABLE IF NOT EXISTS party_checks (
+    case_id     TEXT PRIMARY KEY REFERENCES cases (case_id) ON DELETE CASCADE,
+    controller  TEXT,                          -- NULL = no organisation can be named
+    note        TEXT,
+    checked_at  TEXT NOT NULL
+);
+
 -- ----- ID HISTORY (IDs are stable; any correction is recorded here) -----
 CREATE TABLE IF NOT EXISTS id_history (
     case_id    TEXT NOT NULL REFERENCES cases (case_id) ON DELETE CASCADE,

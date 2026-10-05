@@ -475,7 +475,7 @@ const CASES = DATA.rows.map((r, i) => {
   c.cats = (c.categories || '').split(',').map(s => s.trim()).filter(Boolean);
   /* GDPRhub page titles end with the regulator's own reference, e.g. "CNIL (France) - SAN-2024-021" */
   c.ref = c.source === 'gdprhub' && c.case_id.includes(' - ') ? c.case_id.split(' - ').slice(1).join(' - ') : null;
-  c.hay = [c.controller, c.authority, c.pharos_id, c.ref, c.violation_type, c.categories, c.summary].filter(Boolean).join(' ').toLowerCase();
+  c.hay = [c.controller, c.parties_named, c.authority, c.pharos_id, c.ref, c.violation_type, c.categories, c.summary].filter(Boolean).join(' ').toLowerCase();
   return c;
 });
 const BY_SLUG = new Map(CASES.map(c => [slug(c.pharos_id), c]));
@@ -486,7 +486,13 @@ const ALL_FINES = CASES.filter(c => c.fine_eur).map(c => c.fine_eur).sort((a, b)
 const BY_ART = {};
 for (const c of CASES) for (const n of c.arts) (BY_ART[n] ||= []).push(c);
 const CHAPTER = Object.fromEntries(GDPR.chapters.map(ch => [ch.id, ch]));
-const UPDATED = (() => { const s = DATA.meta.generated_at.slice(0, 10).split('-'); return `${+s[2]} ${MONTHS[s[1] - 1]} ${s[0]}`; })();
+/* The party a decision is about. When the source names several parties without saying who is who,
+   they are shown as named, marked as not yet checked, and never presented as the one fined. */
+const party = c => c.controller ? { name: c.controller, cls: '' }
+  : c.parties_named ? { name: c.parties_named.split('; ').join(' · '), cls: 'unnamed', unchecked: true }
+  : { name: 'Party not named', cls: 'unnamed' };
+/* the date the sources were last read, not the date of the last export */
+const UPDATED = (() => { const s = (DATA.meta.last_fetch || DATA.meta.generated_at).slice(0, 10).split('-'); return `${+s[2]} ${MONTHS[s[1] - 1]} ${s[0]}`; })();
 
 /* ---------- Shared bits ---------- */
 const MINI = `<svg class="mini" viewBox="0 0 200 180" role="img" aria-label="Fino, the site's mascot">
@@ -636,7 +642,7 @@ function renderResults() {
     const about = c.violation_type || c.categories || '';
     return `<li><a href="#d-${slug(c.pharos_id)}">
       <span class="dt">${esc(d.short)}</span>
-      <span class="who"><b class="${c.controller ? '' : 'unnamed'}">${esc(c.controller || 'Party not named')}</b>${about ? `<span>${esc(about)}</span>` : ''}${c.arts.length ? `<small>${c.arts.slice(0, 5).map(n => 'Art. ' + n).join(', ')}${c.arts.length > 5 ? ' …' : ''}</small>` : ''}</span>
+      <span class="who"><b class="${party(c).cls}">${esc(party(c).name)}</b>${party(c).unchecked ? '<small>Named in the source, roles not yet checked</small>' : ''}${about ? `<span>${esc(about)}</span>` : ''}${c.arts.length ? `<small>${c.arts.slice(0, 5).map(n => 'Art. ' + n).join(', ')}${c.arts.length > 5 ? ' …' : ''}</small>` : ''}</span>
       <span class="cty">${esc(c.country || '')}</span>
       <span class="amt ${f.none ? 'none' : ''}">${esc(f.label)}</span>
     </a></li>`;
@@ -721,7 +727,8 @@ function renderDecision(c) {
     <div class="head">
       <div>
         <p class="eyebrow">${esc(authority(c.authority))} &middot; ${esc(d.main)}</p>
-        <h1 class="${c.controller ? '' : 'unnamed'}">${esc(c.controller || 'Party not named')}</h1>
+        <h1 class="${party(c).cls}">${esc(party(c).name)}</h1>
+        ${party(c).unchecked ? '<p class="legend" style="margin:0 0 12px">The source names these parties without saying which one the decision is about. I&rsquo;m checking it.</p>' : ''}
         <p class="lede">${about}</p>
       </div>
       <div class="fine"><span class="lbl">Fine</span><span class="amt ${f.none ? 'none' : ''}">${esc(f.label)}</span>${pill}</div>
@@ -753,7 +760,7 @@ function renderDecision(c) {
           : `<p class="big">No euro amount to compare.</p><p class="sub">This decision has no fine in euro, so it isn&rsquo;t placed among the others.</p>`}
         </section>
         <section><h2 class="sec-h">Similar decisions</h2>
-          ${sims.length ? `<ul class="sim">${sims.map(s => `<li><a href="#d-${slug(s.pharos_id)}"><b>${esc(s.controller || 'Party not named')}</b><span>${[s.year || 'No date', s.fine_eur ? eur(s.fine_eur) : 'No euro fine', s.arts.slice(0, 3).map(n => 'Art. ' + n).join(', ')].filter(Boolean).join(' · ')}</span></a></li>`).join('')}</ul>
+          ${sims.length ? `<ul class="sim">${sims.map(s => `<li><a href="#d-${slug(s.pharos_id)}"><b>${esc(party(s).name)}</b><span>${[s.year || 'No date', s.fine_eur ? eur(s.fine_eur) : 'No euro fine', s.arts.slice(0, 3).map(n => 'Art. ' + n).join(', ')].filter(Boolean).join(' · ')}</span></a></li>`).join('')}</ul>
             <p class="legend">Same country, overlapping articles or topics.</p>` : '<p class="note">No similar decisions from the same country yet.</p>'}
         </section>
       </aside>
@@ -862,7 +869,7 @@ function renderArticle(n) {
         <section class="card">
           <h2 class="sec-h">In the fines database</h2>
           ${st.list.length ? `<p class="stat">Cited in <b>${num(st.list.length)}</b> decisions${st.fined.length ? `, with ${bigEur(st.total)} in fines` : ''}.</p>
-            ${top.length ? `<p class="legend" style="margin:0 0 4px">Biggest fines citing Article ${n}</p><ul class="sim">${top.map(s => `<li><a href="#d-${slug(s.pharos_id)}"><b>${esc(s.controller || 'Party not named')}</b><span>${esc(s.country)} · ${s.year} · ${eur(s.fine_eur)}</span></a></li>`).join('')}</ul>` : ''}
+            ${top.length ? `<p class="legend" style="margin:0 0 4px">Biggest fines citing Article ${n}</p><ul class="sim">${top.map(s => `<li><a href="#d-${slug(s.pharos_id)}"><b>${esc(party(s).name || 'Party not named')}</b><span>${esc(s.country)} · ${s.year} · ${eur(s.fine_eur)}</span></a></li>`).join('')}</ul>` : ''}
             <p style="margin:16px 0 0"><a class="btn small latte" href="#fines" data-art="${n}">See all ${num(st.list.length)} decisions &rarr;</a></p>`
           : '<p class="note">No decision in the database cites this article yet.</p>'}
         </section>
@@ -925,11 +932,12 @@ function sheet(c) {
     ? `<p>Bigger than ${Math.round(k.below / k.n * 100)}% of the ${num(k.n)} fines in ${esc(c.country)}, and ${Math.round(k.eu_below / k.eu_n * 100)}% of the ${num(k.eu_n)} fines in the Fino database (data of ${UPDATED}).</p>`
     : '<p class="s-small">No fine in euro, so it is not compared with the others.</p>'}`;
   const sims = include.similar ? similar(c) : [];
-  const simH = !include.similar ? '' : `<h3>Similar decisions</h3>${sims.length ? `<table>${sims.map(s => `<tr><td>${esc(s.pharos_id)}</td><td>${esc(s.controller || 'Party not named')} &middot; ${s.year || 'no date'} &middot; ${s.fine_eur ? eur(s.fine_eur) : 'no euro fine'}</td></tr>`).join('')}</table>` : '<p class="s-small">None from the same country yet.</p>'}`;
+  const simH = !include.similar ? '' : `<h3>Similar decisions</h3>${sims.length ? `<table>${sims.map(s => `<tr><td>${esc(s.pharos_id)}</td><td>${esc(party(s).name)} &middot; ${s.year || 'no date'} &middot; ${s.fine_eur ? eur(s.fine_eur) : 'no euro fine'}</td></tr>`).join('')}</table>` : '<p class="s-small">None from the same country yet.</p>'}`;
   const src = sourceLinks(c);
   return `
     <div class="s-top"><div class="s-brand">${SHEET_MARK}Fino</div><div class="s-kind">Decision record<br>${esc(c.pharos_id)}</div></div>
-    <h2 class="s-title">${esc(c.controller || 'Party not named')}</h2>
+    <h2 class="s-title">${esc(party(c).name)}</h2>
+    ${party(c).unchecked ? '<p class="s-small">Named in the source; which of them the decision is about has not been checked yet.</p>' : ''}
     <p class="s-meta">${esc(authority(c.authority))} &middot; ${esc(d.main)} &middot; ${esc(c.country || '')}</p>
     <div class="s-fine"><b>${esc(f.label)}</b>${c.best_outcome ? `<span>${esc(c.best_outcome)}</span>` : ''}</div>
     <div class="cite"><small>Cite as</small>${esc(citation(c))}</div>
