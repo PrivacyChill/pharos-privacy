@@ -1,0 +1,31 @@
+group,pattern,status,note
+Google (Alphabet),^google\b,ready,"Google LLC (US parent), Google Ireland Limited (EU headquarters) and national Google companies."
+Meta,^(meta platforms|meta ireland|facebook|instagram|whatsapp)\b,ready,"Meta Platforms, Inc. (US parent), Meta Platforms Ireland (EU headquarters, formerly Facebook Ireland); Instagram and WhatsApp are Meta companies."
+Amazon,^amazon\b,ready,"Amazon Europe Core (Luxembourg, EU headquarters), Amazon Web Services and national logistics companies."
+Microsoft,^(microsoft|linkedin)\b,ready,"Microsoft Corporation (US parent), Microsoft Ireland Operations; LinkedIn has been a Microsoft company since 2016."
+TikTok (ByteDance),^tiktok\b,ready,"TikTok Technology Limited (Ireland, EU headquarters) and TikTok Limited."
+Uber,^uber\b,ready,"Uber Technologies, Inc. (US parent) and Uber B.V. (Netherlands, EU headquarters)."
+Clearview AI,^clearview a[il]\b,ready,"Clearview AI, Inc. (US); some sources spell it 'Clearview Al'."
+OpenAI,^openai\b,ready,"OpenAI OpCo, LLC and OpenAI, L.L.C. (US)."
+X (Twitter),^(twitter|x corp)\b,ready,Twitter International (Ireland) and its national companies.
+Airbnb,^airbnb\b,ready,Airbnb Ireland UC (EU headquarters).
+Glovo,^(glovo|foodinho)\b,ready,Foodinho is Glovo's Italian company.
+Klarna,^klarna\b,ready,Klarna Bank AB (Sweden).
+Vinted,^vinted\b,ready,Vinted UAB (Lithuania).
+Experian,^experian\b,ready,National Experian companies.
+Equifax,^equifax\b,ready,National Equifax companies.
+CaixaBank,^caixabank\b,ready,CaixaBank and its consumer finance company.
+BBVA,^(bbva|banco bilbao vizcaya)\b,ready,Banco Bilbao Vizcaya Argentaria and its branches.
+Santander,^(banco santander|santander)\b,ready,Santander group banks in several countries.
+Intesa Sanpaolo,^intesa sanpaolo\b,ready,Intesa Sanpaolo and its insurance company.
+UniCredit,^unicredit\b,ready,UniCredit and its banks in other countries.
+ING,^ing bank\b,ready,ING Bank N.V. and its branches.
+Iberdrola,^iberdrola\b,ready,Iberdrola and Iberdrola Clientes.
+Free (Iliad),^free( mobile| sas)?$,ready,Free and Free Mobile (Iliad group); other companies called 'Free ...' are not included.
+Vodafone,^vodafone\b,to check,"Same brand, but ownership differs: Vodafone Spain was sold to Zegona (2024) and Vodafone Italy to Swisscom (2025)."
+Orange,^orange\b,to check,"Same brand; check Orange Bank (sold in 2024) and the year of each decision."
+Telefonica,^(telefonica|movistar)\b,to check,Telefonica companies; check each one.
+Enel,^enel\b,to check,Enel sold its Romanian companies in 2023; check the year of each decision.
+Digi,^digi\b,to check,Digi sold its Hungarian company in 2022; check the year of each decision.
+Raiffeisen,^raiffeisen\b,to check,"Raiffeisen Bank International and the Austrian Raiffeisen banks are separate groups."
+Carrefour,carrefour,to check,"Some Carrefour finance companies are joint ventures with banks."

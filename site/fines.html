@@ -224,6 +224,16 @@ h1.unnamed { font-style: italic; font-weight: 400; color: var(--muted); }
 .sim b { display: block; overflow-wrap: anywhere; }
 .sim span { display: block; font-family: var(--mono); font-size: 0.8rem; color: var(--muted); font-variant-numeric: tabular-nums; }
 .sources { padding-block: 24px 64px; }
+.orgs { list-style: none; margin: 0 0 14px; padding: 0; border-top: 2px solid var(--ink); }
+.orgs li { border-bottom: 1px solid var(--line); padding: 10px 4px; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 12px; }
+.orgs li.me b::after { content: "this decision"; margin-left: 8px; font-family: var(--mono); font-size: 0.68rem; letter-spacing: .06em; text-transform: uppercase;
+  padding: 2px 6px; border-radius: 6px; background: var(--neutral-bg); color: var(--muted); font-weight: 400; vertical-align: 2px; }
+.orgs b { overflow-wrap: anywhere; }
+.orgs span { grid-column: 1; font-family: var(--mono); font-size: 0.78rem; color: var(--muted); }
+.orgs em { grid-column: 2; grid-row: 1 / span 2; align-self: center; font-style: normal; font-family: var(--mono); font-size: 0.85rem; text-align: right; font-variant-numeric: tabular-nums; }
+.active { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 0 0 4px; }
+.active .chip { background: var(--latte); color: var(--latte-ink); border-color: var(--latte); display: inline-flex; gap: 8px; align-items: center; }
+.active .chip span { font-family: var(--mono); font-size: 0.7rem; letter-spacing: .06em; text-transform: uppercase; color: var(--latte-muted); }
 .links { list-style: none; margin: 0 0 18px; padding: 0; display: flex; flex-wrap: wrap; gap: 12px; }
 .fine-print { font-size: 0.92rem; color: var(--muted); margin: 0; max-width: 52em; }
 .fine-print + .fine-print { margin-top: 8px; }
@@ -483,6 +493,21 @@ const FINES_BY_CC = {};
 for (const c of CASES) if (c.fine_eur) (FINES_BY_CC[c.country_code] ||= []).push(c.fine_eur);
 for (const k in FINES_BY_CC) FINES_BY_CC[k].sort((a, b) => a - b);
 const ALL_FINES = CASES.filter(c => c.fine_eur).map(c => c.fine_eur).sort((a, b) => a - b);
+/* Same company: 'org' is the pipeline's key for one legal entity. Same group: 'org_group', only for groups
+   a person has checked (organisations.csv). Each company is shown with the countries where it was fined. */
+const BY_ORG = {}, BY_GROUP = {};
+for (const c of CASES) {
+  if (c.org) (BY_ORG[c.org] ||= []).push(c);
+  if (c.org_group) (BY_GROUP[c.org_group] ||= []).push(c);
+}
+const ORG_NAME = {};
+for (const [k, list] of Object.entries(BY_ORG)) {
+  const n = {};
+  for (const c of list) n[c.controller] = (n[c.controller] || 0) + (/[a-z]/.test(c.controller) ? 2 : 1);  // prefer the usual capitals
+  ORG_NAME[k] = Object.entries(n).sort((a, b) => b[1] - a[1])[0][0];
+}
+const countriesOf = list => [...new Set(list.map(c => c.country).filter(Boolean))].sort();
+const sumFines = list => list.reduce((a, c) => a + (c.fine_eur || 0), 0);
 const BY_ART = {};
 for (const c of CASES) for (const n of c.arts) (BY_ART[n] ||= []).push(c);
 const CHAPTER = Object.fromEntries(GDPR.chapters.map(ch => [ch.id, ch]));
@@ -536,7 +561,7 @@ function context(c) {
 }
 
 /* ---------- View: browse ---------- */
-const state = { q: '', country: '', year: '', sector: '', art: '', outcome: '', band: '', sort: 'new', shown: 40, scroll: 0 };
+const state = { q: '', country: '', year: '', sector: '', art: '', outcome: '', band: '', org: '', group: '', sort: 'new', shown: 40, scroll: 0 };
 const BANDS = [['', 'Any'], ['0-1e4', 'Under €10k'], ['1e4-1e5', '€10k–100k'], ['1e5-1e6', '€100k–1m'], ['1e6-1e7', '€1m–10m'], ['1e7-1e12', 'Over €10m']];
 function options(values, cur, all) {
   return `<option value="">${all}</option>` + values.map(([v, l]) => `<option value="${esc(v)}"${String(v) === String(cur) ? ' selected' : ''}>${esc(l)}</option>`).join('');
@@ -549,6 +574,8 @@ const ARTS = Object.keys(BY_ART).map(Number).sort((a, b) => a - b).map(n => [n, 
 const OUTCOMES = [['fine', 'With a fine'], ['found', 'Violation, no fine'], ['rejected', 'Rejected'], ['other', 'Other or not given']];
 
 function matches(c) {
+  if (state.org && c.org !== state.org) return false;
+  if (state.group && c.org_group !== state.group) return false;
   if (state.country && c.country !== state.country) return false;
   if (state.year && c.year !== state.year) return false;
   if (state.sector && c.sector_tag !== state.sector) return false;
@@ -619,9 +646,11 @@ function renderResults() {
   const list = sorted(CASES.filter(matches));
   const fines = list.filter(c => c.fine_eur).map(c => c.fine_eur);
   const total = fines.reduce((a, b) => a + b, 0);
-  const filtered = state.q || state.country || state.year || state.sector || state.art || state.outcome || state.band;
+  const filtered = state.q || state.country || state.year || state.sector || state.art || state.outcome || state.band || state.org || state.group;
+  const active = state.org ? ['Company', ORG_NAME[state.org] || state.org, 'org'] : state.group ? ['Group', state.group, 'group'] : null;
   $('tally').innerHTML = `
     <div>
+      ${active ? `<p class="active"><button type="button" class="chip" id="drop-org" aria-label="Remove the ${active[0].toLowerCase()} filter"><span>${active[0]}</span>${esc(active[1])} &times;</button></p>` : ''}
       <p class="big"><b>${num(list.length)}</b> ${list.length === 1 ? 'decision' : 'decisions'}${filtered ? ' match' : ''}</p>
       <p class="sub">${fines.length ? `${bigEur(total)} in ${num(fines.length)} ${fines.length === 1 ? 'fine' : 'fines'} &middot; typical fine ${eur(median(fines))} &middot; biggest ${eur(Math.max(...fines))}` : 'No euro fines in this selection'}</p>
     </div>
@@ -631,7 +660,8 @@ function renderResults() {
       <select id="sort">${options([['new', 'Newest first'], ['old', 'Oldest first'], ['big', 'Biggest fine'], ['small', 'Smallest fine']], state.sort, '').replace('<option value=""></option>', '')}</select>
     </div>`;
   $('sort').addEventListener('change', e => { state.sort = e.target.value; renderResults(); });
-  if ($('clear')) $('clear').addEventListener('click', () => { Object.assign(state, { q: '', country: '', year: '', sector: '', art: '', outcome: '', band: '', shown: 40 }); renderBrowse(); });
+  if ($('drop-org')) $('drop-org').addEventListener('click', () => { state.org = ''; state.group = ''; state.shown = 40; renderResults(); });
+  if ($('clear')) $('clear').addEventListener('click', () => { Object.assign(state, { q: '', country: '', year: '', sector: '', art: '', outcome: '', band: '', org: '', group: '', shown: 40 }); renderBrowse(); });
 
   if (!list.length) {
     $('results').innerHTML = `<li style="border:0"><div class="empty-list">${MINI}<p class="bubble">Nothing matches all of that. Try removing a filter, or a shorter search word.</p></div></li>`;
@@ -713,6 +743,33 @@ function sourceLinks(c) {
   return out;
 }
 let fromBrowse = false;
+function companyBlock(c) {
+  const list = c.org ? BY_ORG[c.org] : null;
+  if (!list || list.length < 2) return '';
+  const others = list.filter(x => x !== c).sort((a, b) => (b.decision_date || '').localeCompare(a.decision_date || ''));
+  const total = sumFines(list);
+  return `<section><h2 class="sec-h">Same company</h2>
+    <p class="stat" style="font-size:1.15rem">${num(list.length)} decisions against ${esc(ORG_NAME[c.org])}${total ? `, ${bigEur(total)} in fines` : ''}.</p>
+    <p class="legend" style="margin:0 0 8px">Decisions in ${esc(countriesOf(list).join(', '))}.</p>
+    <ul class="sim">${others.slice(0, 3).map(s => `<li><a href="#d-${slug(s.pharos_id)}"><b>${esc(s.country)} &middot; ${esc(when(s.decision_date, s.date_precision).short)}</b><span>${s.fine_eur ? eur(s.fine_eur) : 'No euro fine'}${s.arts.length ? ' · ' + s.arts.slice(0, 3).map(n => 'Art. ' + n).join(', ') : ''}</span></a></li>`).join('')}</ul>
+    <p style="margin:14px 0 0"><a class="btn small latte" href="#fines" data-org="${esc(c.org)}">All ${num(list.length)} decisions &rarr;</a></p>
+  </section>`;
+}
+function groupBlock(c) {
+  const list = c.org_group ? BY_GROUP[c.org_group] : null;
+  if (!list) return '';
+  const members = {};
+  for (const x of list) (members[x.org] ||= []).push(x);
+  if (Object.keys(members).length < 2) return '';
+  const rows = Object.entries(members).sort((a, b) => sumFines(b[1]) - sumFines(a[1]) || b[1].length - a[1].length);
+  const note = (DATA.meta.groups || {})[c.org_group];
+  return `<section><h2 class="sec-h">Same group: ${esc(c.org_group)}</h2>
+    <p class="stat" style="font-size:1.15rem">${num(list.length)} decisions against ${rows.length} companies in the group${sumFines(list) ? `, ${bigEur(sumFines(list))} in fines` : ''}.</p>
+    ${note ? `<p class="legend" style="margin:0 0 8px">${esc(note)}</p>` : ''}
+    <ul class="orgs">${rows.map(([k, l]) => `<li class="${k === c.org ? 'me' : ''}"><b>${esc(ORG_NAME[k])}</b><span>Decisions in ${esc(countriesOf(l).join(', '))} &middot; ${num(l.length)} ${l.length === 1 ? 'decision' : 'decisions'}</span><em>${sumFines(l) ? eur(sumFines(l)) : '&ndash;'}</em></li>`).join('')}</ul>
+    <p style="margin:0"><a class="btn small latte" href="#fines" data-group="${esc(c.org_group)}">All ${num(list.length)} decisions in the group &rarr;</a></p>
+  </section>`;
+}
 function renderDecision(c) {
   const d = when(c.decision_date, c.date_precision), f = fineInfo(c), k = context(c), sims = similar(c);
   const about = c.violation_type ? `<span class="hl">${esc(c.violation_type)}</span>` : c.categories ? `About: ${esc(c.categories)}` : '';
@@ -761,6 +818,8 @@ function renderDecision(c) {
             <p class="legend">Each dot is one fine in ${esc(c.country)}. The scale grows tenfold at each line.</p>`
           : `<p class="big">No euro amount to compare.</p><p class="sub">This decision has no fine in euro, so it isn&rsquo;t placed among the others.</p>`}
         </section>
+        ${companyBlock(c)}
+        ${groupBlock(c)}
         <section><h2 class="sec-h">Similar decisions</h2>
           ${sims.length ? `<ul class="sim">${sims.map(s => `<li><a href="#d-${slug(s.pharos_id)}"><b>${esc(party(s).name)}</b><span>${[s.year || 'No date', s.fine_eur ? eur(s.fine_eur) : 'No euro fine', s.arts.slice(0, 3).map(n => 'Art. ' + n).join(', ')].filter(Boolean).join(' · ')}</span></a></li>`).join('')}</ul>
             <p class="legend">Same country, overlapping articles or topics.</p>` : '<p class="note">No similar decisions from the same country yet.</p>'}
@@ -774,6 +833,10 @@ function renderDecision(c) {
     <p class="fine-print">The facts on this page come from the sources above, as they recorded them. Nothing has been estimated or filled in. Not legal advice.</p>
     <p class="fine-print">Spotted a mistake? Write to <span class="mail">angelillolorenzo@gmail.com</span> and quote ${esc(c.pharos_id)}.</p>
   </div></section>`;
+  document.querySelectorAll('[data-org], [data-group]').forEach(a => a.addEventListener('click', () => {
+    Object.assign(state, { q: '', country: '', year: '', sector: '', art: '', outcome: '', band: '', shown: 40,
+                           org: a.dataset.org || '', group: a.dataset.group || '' });
+  }));
   $('copy-cite').addEventListener('click', () => {
     const text = citation(c);
     const done = m => { $('copied').textContent = m; };
@@ -888,7 +951,7 @@ function renderArticle(n) {
     </nav>
   </div>`;
   const all = document.querySelector('[data-art]');
-  if (all) all.addEventListener('click', () => { Object.assign(state, { q: '', country: '', year: '', sector: '', art: String(n), outcome: '', band: '', shown: 40 }); });
+  if (all) all.addEventListener('click', () => { Object.assign(state, { q: '', country: '', year: '', sector: '', art: String(n), outcome: '', band: '', org: '', group: '', shown: 40 }); });
 }
 
 /* ---------- View: export sheet ---------- */

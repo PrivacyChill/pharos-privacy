@@ -43,6 +43,8 @@ LEGACY_FILE = os.path.join(HERE, 'gdpr_database.json')
 EXPORT_DIR = os.path.join(HERE, 'exports')
 # The Pharos website reads a compact copy of the database from its data/ folder
 REVIEW_DIR = os.path.join(HERE, 'review')
+GROUPS_FILE = os.path.join(HERE, 'organisations.csv')
+SAME_FILE = os.path.join(HERE, 'same_company.csv')
 SITE_DATA_DIR = os.path.normpath(os.path.join(HERE, '..', 'site', 'data'))
 SUMMARY_SHARD = 250  # summaries are split into files of this many cases, loaded only when a case is opened
 
@@ -431,6 +433,173 @@ def step_gdprhub(db, delay=0.7):
             print(f'    {min(i + 50, len(titles))}/{len(titles)}')
             time.sleep(delay)
 
+
+# ----- ORGANISATIONS -----
+# Level 1, same company: names are compared without capitals, accents, punctuation, notes in brackets and
+# differences in how the company form is written ('S.A.' = 'SA'). Different company forms are never merged.
+# A name without a company form ('Vodafone') only matches within the same country, and a name that only
+# describes a party ('Company', 'Private individual') is never grouped.
+# Level 2, same group: organisations.csv, written by hand, because a name cannot prove who owns whom
+# (WhatsApp belongs to Meta, LinkedIn to Microsoft). Only groups marked 'ready' reach the site.
+_GENERIC_WORDS = set("""
+a an the of and for in on at to de del la el los las di da do du des der die das und et
+private public individual individuals person persons people natural legal entity entities company companies firm business
+undertaking organisation organization controller processor data subject owner owners officer officers police employee employees
+employer physician doctor doctors dentist dental pharmacy pharmacist hospital clinic medical health healthcare care centre center
+office practice homeowners homeowner housing property community association associations club union federation party political
+candidate candidates parliamentary elections election mayor municipality municipal city town council local authority
+website websites operator operators online shop shops store stores retailer retail supermarket restaurant restaurants bar bars hotel hotels
+cafe gym school schools university teacher student students kindergarten bank banks insurance insurer insurers telecommunications
+telecommunication telecom telecoms provider providers service services media newspaper publisher broadcaster agency agencies
+attorney lawyer law notary bailiff accountant consultant consultancy sole trader traders self employed entrepreneur
+covid 19 test testing betting place places gaming casino job jobcenter jobcentre landlord tenant tenants building
+construction real estate agent agents car dealer dealership garage taxi transport transportation logistics energy electricity
+gas water utility utilities supplier suppliers debt collection collecting collector collectors marketing advertising call
+department ministry government state regional region national federal court church religious foundation charity non profit
+nonprofit ngo sports sport fitness security guard guards camera cameras video surveillance cctv app application platform social
+network networks commerce ecommerce mail order delivery courier postal post family member members former ex staff manager
+director managing head chief citizen citizens resident residents neighbour neighbor neighbours neighbors unknown unnamed anonymous
+redacted s
+""".split())
+_FORMS = {'sa', 'sau', 'sl', 'slu', 'slp', 'spa', 'srl', 'srls', 'sas', 'sarl', 'ltd', 'inc', 'llc', 'gmbh', 'ag', 'kg', 'kgaa',
+          'bv', 'nv', 'plc', 'ab', 'as', 'asa', 'aps', 'oy', 'oyj', 'kft', 'zrt', 'nyrt', 'spzoo', 'sro', 'doo', 'dd', 'ehf', 'hf',
+          'uc', 'dac', 'se', 'ae', 'oe', 'ike', 'epe', 'sc', 'scs', 'scc', 'sca', 'scrl', 'cv', 'ug', 'ou', 'ad', 'eood', 'ood',
+          'sia', 'uab', 'corp', 'lda', 'sgps', 'snc', 'sprl', 'bvba', 'cvba', 'efc', 'sccl', 'aeie', 'smsa'}
+_SYN = {'limited': 'ltd', 'incorporated': 'inc', 'corporation': 'corp'}
+
+
+def _org_tokens(name):
+    s = re.sub(r'\([^)]*\)', ' ', name or '')                      # notes in brackets: '(Facebook)', '(ARPAC)'
+    s = unicodedata.normalize('NFKD', s).encode('ascii', 'ignore').decode().lower().replace('&', ' and ')
+    words, out, run = re.sub(r'[^a-z0-9]+', ' ', s).split(), [], []
+    for w in words + ['']:                                          # 's a u' -> 'sau'
+        if len(w) == 1:
+            run.append(w)
+            continue
+        if run:
+            out.append(''.join(run))
+            run = []
+        if w:
+            out.append(_SYN.get(w, w))
+    out = ' '.join(out).replace('sp zoo', 'spzoo').split()
+    if len(out) > 2 and out[0] == 'sc':                              # Romanian 'S.C. ... S.A.'
+        out = out[1:]
+    return out
+
+
+def org_key(name, country):
+    """The same key means the same company. None for a name that only describes the party."""
+    t = _org_tokens(name)
+    if not t or all(w in _GENERIC_WORDS or w.isdigit() for w in t):
+        return None
+    if any(w in _FORMS for w in t):
+        return ' '.join(t)
+    return f'{country or "??"}: ' + ' '.join(t)
+
+
+def load_same():
+    """{key: main key} for companies a person has said are the same, and the set of keys already decided."""
+    alias, decided = {}, set()
+    if os.path.exists(SAME_FILE):
+        with open(SAME_FILE, encoding='utf-8-sig') as f:
+            for r in csv.DictReader(f):
+                keys = [k for k in (r.get('keys') or '').split(' || ') if k]
+                decided.update(keys)
+                if (r.get('decision') or '').strip().lower() == 'same' and len(keys) > 1:
+                    for k in keys[1:]:
+                        alias[k] = keys[0]
+    return alias, decided
+
+
+def load_groups():
+    """[(group, compiled pattern, status, note)] from organisations.csv."""
+    if not os.path.exists(GROUPS_FILE):
+        return []
+    with open(GROUPS_FILE, encoding='utf-8-sig') as f:
+        return [(r['group'], re.compile(r['pattern'], re.I), r['status'].strip(), r['note'])
+                for r in csv.DictReader(f) if (r.get('pattern') or '').strip()]
+
+
+def org_group(name, groups):
+    """The first group whose pattern matches the name (accents removed), or None."""
+    plain = unicodedata.normalize('NFKD', name or '').encode('ascii', 'ignore').decode().strip()
+    for g, pat, status, note in groups:
+        if pat.search(plain):
+            return g, status
+    return None, None
+
+
+def step_organisations_review(db):
+    """review/organisations.csv: companies that may be the same but are kept apart (same country, same name,
+    different company form or a missing form), and the groups still marked 'to check'.
+    Answer column: 'same' or 'different' for companies, 'ready' or 'no' for groups.
+    Then run: python pharos.py organisations-apply"""
+    os.makedirs(REVIEW_DIR, exist_ok=True)
+    groups = load_groups()
+    alias, decided = load_same()
+    rows = db.execute('SELECT controller, country_code, COUNT(*) n FROM v_cases WHERE controller IS NOT NULL '
+                      'GROUP BY controller, country_code').fetchall()
+    by_stem = {}
+    for r in rows:
+        key = org_key(r['controller'], r['country_code'])
+        if not key:
+            continue
+        key = alias.get(key, key)
+        stem = ' '.join(w for w in _org_tokens(r['controller']) if w not in _FORMS)
+        by_stem.setdefault((r['country_code'], stem), {}).setdefault(key, []).append((r['controller'], r['n']))
+    out = []
+    for (cc, stem), keys in sorted(by_stem.items()):
+        if len(keys) > 1 and not all(k in decided for k in keys):
+            ordered = sorted(keys.items(), key=lambda kv: -sum(n for _, n in kv[1]))   # most decisions first
+            out.append({'kind': 'maybe the same company', 'country': cc,
+                        'names': ' | '.join(f'{names[0][0]} ({sum(n for _, n in names)})' for _, names in ordered),
+                        'answer': '', 'group': '', 'note': '', 'keys': ' || '.join(k for k, _ in ordered)})
+    for g, pat, status, note in groups:
+        if status == 'to check':
+            members = sorted({(r['controller'], r['country_code']) for r in rows if pat.search(
+                unicodedata.normalize('NFKD', r['controller']).encode('ascii', 'ignore').decode())})
+            out.append({'kind': 'group to check', 'country': '', 'names': ' | '.join(f'{n} [{c}]' for n, c in members),
+                        'answer': '', 'group': g, 'note': note, 'keys': ''})
+    path = os.path.join(REVIEW_DIR, 'organisations.csv')
+    with open(path, 'w', newline='', encoding='utf-8-sig') as f:
+        w = csv.DictWriter(f, fieldnames=['kind', 'country', 'names', 'answer', 'group', 'note', 'keys'])
+        w.writeheader()
+        w.writerows(out)
+    print(f'  {len(out)} items to check, written to {path}')
+
+
+def step_organisations_apply(db):
+    """Save the answers from review/organisations.csv: companies into same_company.csv, groups into organisations.csv."""
+    path = os.path.join(REVIEW_DIR, 'organisations.csv')
+    with Run(db, 'organisations-apply') as run, open(path, encoding='utf-8-sig') as f:
+        answers = [r for r in csv.DictReader(f) if (r.get('answer') or '').strip()]
+        run.fetched = len(answers)
+        new_same = [r for r in answers if r['kind'] == 'maybe the same company'
+                    and r['answer'].strip().lower() in ('same', 'different')]
+        if new_same:
+            exists = os.path.exists(SAME_FILE)
+            with open(SAME_FILE, 'a', newline='', encoding='utf-8') as out:
+                w = csv.DictWriter(out, fieldnames=['decision', 'country', 'names', 'keys', 'checked_at'])
+                if not exists:
+                    w.writeheader()
+                for r in new_same:
+                    w.writerow({'decision': r['answer'].strip().lower(), 'country': r['country'], 'names': r['names'],
+                                'keys': r['keys'], 'checked_at': now()})
+                    run.updated += 1
+        verdict = {r['group']: r['answer'].strip().lower() for r in answers if r['kind'] == 'group to check'}
+        if verdict:
+            with open(GROUPS_FILE, encoding='utf-8-sig') as f2:
+                rows = list(csv.DictReader(f2))
+            for r in rows:
+                v = verdict.get(r['group'])
+                if v in ('ready', 'no'):
+                    r['status'] = v
+                    run.updated += 1
+            with open(GROUPS_FILE, 'w', newline='', encoding='utf-8') as f2:
+                w = csv.DictWriter(f2, fieldnames=['group', 'pattern', 'status', 'note'])
+                w.writeheader()
+                w.writerows(rows)
+    print('  Run "python pharos.py export" to put the answers on the website.')
 
 # ----- CMS NAMES -----
 # CMS names the fined party, but sometimes as 'Unknown', as a description with the name in brackets
@@ -827,7 +996,13 @@ def step_export(db):
             own = {c for c, in db.execute("SELECT case_id FROM cases WHERE summary IS NOT NULL AND summary != ''")}
             cms_raw = dict(db.execute("SELECT p.case_id, p.name FROM case_parties p JOIN cases c USING (case_id) "
                                       "WHERE c.source = 'cms_tracker' AND p.position = 1"))
+            groups = load_groups()
+            alias, _ = load_same()
             for r in rows:
+                r['org'] = org_key(r['controller'], r['country_code']) if r['controller'] else None
+                r['org'] = alias.get(r['org'], r['org'])
+                g, status = org_group(r['controller'], groups) if r['org'] else (None, None)
+                r['org_group'] = g if status == 'ready' else None
                 r['parties_named'] = named.get(r['case_id'])
                 r['controller_note'] = cms_name(cms_raw[r['case_id']])[1] if r['case_id'] in cms_raw else None
                 r['has_own_summary'] = r['case_id'] in own
@@ -838,7 +1013,7 @@ def step_export(db):
 SITE_FIELDS = ['pharos_id', 'case_id', 'source', 'country', 'country_code', 'authority', 'decision_date',
                'date_precision', 'fine_eur', 'fine_original', 'currency', 'controller', 'sector_tag', 'articles',
                'categories', 'violation_type', 'best_outcome', 'source_url', 'source_page', 'gdprhub_page',
-               'summary_by', 'parties_named', 'controller_note']
+               'summary_by', 'parties_named', 'controller_note', 'org', 'org_group']
 
 
 def summary_by(r):
@@ -866,7 +1041,8 @@ def export_site(rows, meta):
     shard_dir = os.path.join(SITE_DATA_DIR, 'summaries')
     os.makedirs(shard_dir, exist_ok=True)
     # build everything before touching the old files, so a failure leaves the site as it was
-    site = {'meta': meta | {'fields': SITE_FIELDS, 'summary_shard': SUMMARY_SHARD},
+    groups = {g: note for g, _, status, note in load_groups() if status == 'ready'}
+    site = {'meta': meta | {'fields': SITE_FIELDS, 'summary_shard': SUMMARY_SHARD, 'groups': groups},
             'rows': [[summary_by(r) if k == 'summary_by' else r[k] for k in SITE_FIELDS] for r in rows]}
     for old in os.listdir(shard_dir):  # shard count can shrink
         os.remove(os.path.join(shard_dir, old))
@@ -900,7 +1076,7 @@ def step_stats(db):
 def main():
     p = argparse.ArgumentParser(description='GDPR enforcement database pipeline')
     p.add_argument('step', choices=['migrate', 'fix-ids', 'cms', 'cms-summaries', 'gdprhub', 'parties',
-                                    'parties-review', 'parties-apply', 'cms-names', 'link', 'normalise', 'export', 'stats', 'update'])
+                                    'parties-review', 'parties-apply', 'cms-names', 'organisations-review', 'organisations-apply', 'link', 'normalise', 'export', 'stats', 'update'])
     p.add_argument('--limit', type=int, default=50, help='cms-summaries: how many case pages to fetch')
     a = p.parse_args()
     if hasattr(sys.stdout, 'reconfigure'):
@@ -925,6 +1101,10 @@ def main():
             step_parties_apply(db)
         elif a.step == 'cms-names':
             step_cms_names(db)
+        elif a.step == 'organisations-review':
+            step_organisations_review(db)
+        elif a.step == 'organisations-apply':
+            step_organisations_apply(db)
         elif a.step == 'link':
             step_link(db)
         elif a.step == 'normalise':
