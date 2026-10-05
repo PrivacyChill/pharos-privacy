@@ -307,7 +307,7 @@ def step_cms(db):
                 'date_precision': precision,
                 'fine_eur': parse_amount(r.get('f')),
                 'currency': 'EUR',
-                'controller': clean(r.get('p')),
+                'controller': cms_name(r.get('p'))[0],  # see CMS NAMES; source text kept in case_parties
                 'sector': clean(r.get('s')),
                 'articles_raw': clean(r.get('r')),
                 'violation_type': clean(r.get('t')),
@@ -315,6 +315,8 @@ def step_cms(db):
                 'source_page': f"{CMS_URL}ETid-{r['e']}",
                 'attribution': ATTRIBUTION['cms_tracker'],
             })
+            if clean(r.get('p')):
+                save_cms_party(db, f"ETid-{r['e']}", r.get('p'))
         db.commit()
 
 
@@ -428,6 +430,57 @@ def step_gdprhub(db, delay=0.7):
             db.commit()
             print(f'    {min(i + 50, len(titles))}/{len(titles)}')
             time.sleep(delay)
+
+
+# ----- CMS NAMES -----
+# CMS names the fined party, but sometimes as 'Unknown', as a description with the name in brackets
+# ('Restaurant (SANTI 3000, S.L.)'), or with the amount stuck on. The source text is kept in case_parties;
+# cases.controller gets the cleaned name. Nothing is rewritten unless the rule below is certain.
+_LEGAL_FORM = re.compile(r"""\b(?:s\.?\s?l\.?\s?u?\.?|s\.?\s?a\.?\s?u?\.?|s\.?p\.?a\.?|s\.?r\.?l\.?s?\.?|s\.?a\.?s\.?|gmbh|ag|kg|ltd\.?|limited|
+    plc|inc\.?|llc|b\.?v\.?|n\.?v\.?|a\.?s\.?|a/s|ab|oy|oyj|kft\.?|zrt\.?|sp\.?\s?z\s?o\.?\s?o\.?|s\.?r\.?o\.?|a\.?\s?s\.?|d\.?o\.?o\.?|
+    e\.?\s?k\.?|sas|sarl|ehf\.?|hf\.?|s\.?c\.?)(?=[\s,.)]|$)""", re.I | re.X)
+_CMS_UNKNOWN = re.compile(r'^(?:unknown(?:\s+(?:company|organisation|organization|controller))?|n/?a|not available)$', re.I)
+_CMS_NO_NAME = re.compile(r'^(.*?)\s*(?:\(\s*name not (?:available|published|disclosed)[^)]*\)|-\s*no further details published)\s*$', re.I)
+_CMS_AMOUNT = re.compile(r'\s*(?:(?:EUR|€)\s*[\d][\d.,\s]*|[\d][\d.,]{3,}\s*(?:EUR|€))\s*$', re.I)
+
+
+def cms_name(raw):
+    """(name for the site, description) from the CMS 'Controller/Processor' text."""
+    s = clean(raw)
+    if not s:
+        return None, None
+    s = _CMS_AMOUNT.sub('', s).strip()                     # 'H&M Hennes & Mauritz s.r.l. EUR 50,000'
+    if _CMS_UNKNOWN.match(s):
+        return None, None
+    m = _CMS_NO_NAME.match(s)                              # 'Bank (name not available at the moment)'
+    if m:
+        return None, m.group(1).strip() or None
+    m = re.match(r'^([^()]+?)\s*\(([^()]+)\)$', s)          # 'Restaurant (SANTI 3000, S.L.)'
+    if m and _LEGAL_FORM.search(m.group(2)) and not _LEGAL_FORM.search(m.group(1)):
+        return m.group(2).strip(), m.group(1).strip()
+    return s, None
+
+
+def step_cms_names(db):
+    """Apply cms_name() to the CMS cases already in the database, keeping the source text in case_parties."""
+    with Run(db, 'cms-names') as run:
+        for c in db.execute("SELECT case_id, controller FROM cases WHERE source = 'cms_tracker'").fetchall():
+            run.fetched += 1
+            kept = db.execute('SELECT name FROM case_parties WHERE case_id = ? AND position = 1', (c['case_id'],)).fetchone()
+            raw = kept['name'] if kept else c['controller']   # first run: what is stored is still the source text
+            if raw:
+                save_cms_party(db, c['case_id'], raw)
+            name = cms_name(raw)[0]
+            if name != c['controller']:
+                db.execute('UPDATE cases SET controller = ?, updated_at = ? WHERE case_id = ?', (name, now(), c['case_id']))
+                run.updated += 1
+        db.commit()
+
+
+def save_cms_party(db, case_id, raw):
+    db.execute('DELETE FROM case_parties WHERE case_id = ?', (case_id,))
+    db.execute('INSERT INTO case_parties (case_id, position, name, link, role, reason) VALUES (?,?,?,?,?,?)',
+               (case_id, 1, clean(raw), None, 'respondent', 'CMS lists the party fined'))
 
 
 # ----- PARTIES: WHO IS THE DECISION ABOUT? -----
@@ -772,8 +825,11 @@ def step_export(db):
         if os.path.isdir(os.path.dirname(SITE_DATA_DIR)):
             named = parties_named(db)
             own = {c for c, in db.execute("SELECT case_id FROM cases WHERE summary IS NOT NULL AND summary != ''")}
+            cms_raw = dict(db.execute("SELECT p.case_id, p.name FROM case_parties p JOIN cases c USING (case_id) "
+                                      "WHERE c.source = 'cms_tracker' AND p.position = 1"))
             for r in rows:
                 r['parties_named'] = named.get(r['case_id'])
+                r['controller_note'] = cms_name(cms_raw[r['case_id']])[1] if r['case_id'] in cms_raw else None
                 r['has_own_summary'] = r['case_id'] in own
             export_site(rows, meta)
             run.notes.append(f'website data written to {SITE_DATA_DIR}')
@@ -782,7 +838,7 @@ def step_export(db):
 SITE_FIELDS = ['pharos_id', 'case_id', 'source', 'country', 'country_code', 'authority', 'decision_date',
                'date_precision', 'fine_eur', 'fine_original', 'currency', 'controller', 'sector_tag', 'articles',
                'categories', 'violation_type', 'best_outcome', 'source_url', 'source_page', 'gdprhub_page',
-               'summary_by', 'parties_named']
+               'summary_by', 'parties_named', 'controller_note']
 
 
 def summary_by(r):
@@ -844,7 +900,7 @@ def step_stats(db):
 def main():
     p = argparse.ArgumentParser(description='GDPR enforcement database pipeline')
     p.add_argument('step', choices=['migrate', 'fix-ids', 'cms', 'cms-summaries', 'gdprhub', 'parties',
-                                    'parties-review', 'parties-apply', 'link', 'normalise', 'export', 'stats', 'update'])
+                                    'parties-review', 'parties-apply', 'cms-names', 'link', 'normalise', 'export', 'stats', 'update'])
     p.add_argument('--limit', type=int, default=50, help='cms-summaries: how many case pages to fetch')
     a = p.parse_args()
     if hasattr(sys.stdout, 'reconfigure'):
@@ -867,6 +923,8 @@ def main():
             step_parties_review(db)
         elif a.step == 'parties-apply':
             step_parties_apply(db)
+        elif a.step == 'cms-names':
+            step_cms_names(db)
         elif a.step == 'link':
             step_link(db)
         elif a.step == 'normalise':
