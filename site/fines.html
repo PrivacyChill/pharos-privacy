@@ -442,7 +442,8 @@ footer .mail { color: inherit; }
 const byId = id => document.getElementById(id);
 function boot(DATA) {
 const F = DATA.fields, col = Object.fromEntries(F.map((f, i) => [f, i]));
-const GDPR = DATA.gdpr;
+/* The law text is a separate file. If it fails to load, the decisions still work and the law pages say so. */
+const GDPR = DATA.gdpr || { arts: {}, chapters: [], preamble: { recitals: {} } };
 const SOURCE_NAMES = { cms_tracker: 'CMS Enforcement Tracker', gdprhub: 'GDPRhub (noyb)' };
 const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 const EURLEX = n => `https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:02016R0679-20160504#art_${n}`;
@@ -1020,6 +1021,9 @@ function sheet(c) {
 }
 
 /* ---------- View: design rules ---------- */
+function renderLawMissing() {
+  $('main').innerHTML = `<div class="wrap"><p class="lede" style="padding-block:80px">The text of the GDPR could not be loaded. Please reload the page. If it keeps happening, a content blocker may be stopping it; the official text is on <a href="https://eur-lex.europa.eu/eli/reg/2016/679/oj" rel="noopener">EUR-Lex &nearr;</a>.</p></div>`;
+}
 function renderStyle() {
   $('main').innerHTML = `<div class="wrap">
     <div class="b-head">
@@ -1069,6 +1073,7 @@ function route() {
   $('nav-gdpr').classList.toggle('on', /^(gdpr|art-|rec-)/.test(h));
   if ((m = h.match(/^d-(.+)$/)) && BY_SLUG.has(m[1])) { fromBrowse = wasBrowse || (fromBrowse && lastView.startsWith('x-')); renderDecision(BY_SLUG.get(m[1])); window.scrollTo(0, 0); }
   else if ((m = h.match(/^x-(.+)$/)) && BY_SLUG.has(m[1])) { renderExport(BY_SLUG.get(m[1])); window.scrollTo(0, 0); }
+  else if (!DATA.gdpr && /^(gdpr|art-\d+|rec-\d+)$/.test(h)) { renderLawMissing(); window.scrollTo(0, 0); }
   else if ((m = h.match(/^art-(\d+)$/)) && GDPR.arts[m[1]]) { renderArticle(+m[1]); window.scrollTo(0, 0); }
   else if (h === 'gdpr') { renderGdpr(); bindGdpr(); window.scrollTo(0, 0); }
   else if ((m = h.match(/^rec-(\d+)$/)) && GDPR.preamble.recitals[m[1]]) { if (lastView !== 'gdpr' && !lastView.startsWith('rec-')) { renderGdpr(); bindGdpr(); } openRecital(+m[1]); }
@@ -1091,7 +1096,7 @@ route();
   const get = u => fetch(u).then(r => { if (!r.ok) throw new Error(u); return r.json(); });
   const clean = s => (s && s.replace(/<!--[\s\S]*?-->/g, '').replace(/\s+/g, ' ').trim()) || null;
   try {
-    const [cases, gdpr] = await Promise.all([get('data/cases.json'), get('data/gdpr.json')]);
+    const [cases, gdpr] = await Promise.all([get('data/cases.json'), get('data/reg-2016-679.json').catch(() => null)]);
     const n = Math.ceil(cases.rows.length / cases.meta.summary_shard);
     const sum = (await Promise.all(Array.from({ length: n }, (_, i) => get(`data/summaries/${i}.json`)))).flat().map(clean);
     const by = cases.meta.fields.indexOf('summary_by');

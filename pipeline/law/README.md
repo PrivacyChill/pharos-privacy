@@ -1,6 +1,6 @@
 # Law texts for the website
 
-`site/data/gdpr.json` holds the GDPR as shown on the site: 99 articles, the chapters and
+`site/data/reg-2016-679.json` holds the GDPR as shown on the site: 99 articles, the chapters and
 the preamble (citations and 173 recitals). It is built from the EU Publications Office,
 which serves the same documents as EUR-Lex (eur-lex.europa.eu itself blocks scripts).
 
@@ -14,7 +14,7 @@ curl -sL -H "Accept: application/xhtml+xml" -H "Accept-Language: eng" -o gdpr_ce
 curl -sL -H "Accept: application/xhtml+xml" -H "Accept-Language: eng" -o "corr_32016R0679R%2802%29.html" "http://publications.europa.eu/resource/celex/32016R0679R%2802%29"
 python gdpr_parse.py
 python recitals_parse.py
-python -c "import json; json.dump(json.load(open('gdpr.json', encoding='utf-8')), open('../../site/data/gdpr.json', 'w', encoding='utf-8'), ensure_ascii=False, separators=(',', ':'))"
+python -c "import json; json.dump(json.load(open('gdpr.json', encoding='utf-8')), open('../../site/data/reg-2016-679.json', 'w', encoding='utf-8'), ensure_ascii=False, separators=(',', ':'))"
 ```
 
 - **Articles** come from the consolidated text (CELEX 02016R0679-20160504), which already
