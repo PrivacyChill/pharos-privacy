@@ -10,7 +10,7 @@ website-improvements.md
 pipeline/exports/
 pipeline/__pycache__/
 pipeline/*.backup-*.db
-fonts/
+/fonts/
 
 # Old pre-Sept-2026 scrapers and data, kept locally for reference only
 archive/
