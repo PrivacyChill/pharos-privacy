@@ -1,0 +1,1053 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; connect-src 'self'; base-uri 'self'; form-action 'none'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GDPR fines and decisions · Fino</title>
+<meta name="description" content="Search every GDPR fine and decision from 34 countries, read the GDPR with each article linked to the fines that cite it, and save any decision as a PDF. Free, no sign-up.">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="canonical" href="https://pharosprivacy.com/fines.html">
+<link rel="preload" href="fonts/fraunces-300-800-latin.woff2" as="font" type="font/woff2" crossorigin>
+<script>try { if (localStorage.getItem('mode') === 'light') document.documentElement.dataset.mode = 'light'; } catch (e) {}</script>
+<style>
+/* Fonts are served from this site, so no visitor data goes to a font provider. All under the SIL Open Font License. */
+@font-face { font-family: "Fraunces"; font-style: normal; font-weight: 300 800; font-display: swap; src: url("fonts/fraunces-300-800-latin.woff2") format("woff2"); }
+@font-face { font-family: "Atkinson Hyperlegible"; font-style: normal; font-weight: 400; font-display: swap; src: url("fonts/atkinson-hyperlegible-400-latin.woff2") format("woff2"); }
+@font-face { font-family: "Atkinson Hyperlegible"; font-style: normal; font-weight: 700; font-display: swap; src: url("fonts/atkinson-hyperlegible-700-latin.woff2") format("woff2"); }
+@font-face { font-family: "IBM Plex Mono"; font-style: normal; font-weight: 400; font-display: swap; src: url("fonts/ibm-plex-mono-400-latin.woff2") format("woff2"); }
+@font-face { font-family: "IBM Plex Mono"; font-style: normal; font-weight: 500; font-display: swap; src: url("fonts/ibm-plex-mono-500-latin.woff2") format("woff2"); }
+
+/* Layout: one shell, four views (browse, decision, GDPR article, export sheet), switched by the link anchor.
+   Same tokens as the homepage: espresso by default, latte with the sun/moon button. */
+:root {
+  --bg: #241B17;
+  --surface: #2F2520;
+  --ink: #F4EBE2;
+  --muted: #C2B1A2;
+  --line: #44362F;
+  --dot: #6A574C;
+  --accent: #BFD183;
+  --accent-ink: #151A05;
+  --pink: #F59BB4;
+  --puff: #FFCDB8;
+  --blush: #FF8BA4;
+  --eye: #211915;
+  --soon: #FFB3C6;
+  --soon-bg: #45242D;
+  --live-bg: #33381E;
+  --desk: #1B1411;
+  /* What each colour means (see the Design rules view):
+     green  = you can do something here (solid = the main action, underlined = a link)
+     pink   = look here; emphasis only, never clickable
+     latte  = a panel of tools you set (filters, export options) and where you are in the menu
+     blue   = the official EU source; it always opens EUR-Lex */
+  --latte: #F1EAE1;
+  --latte-ink: #211915;
+  --latte-muted: #6E6158;
+  --latte-line: #D6C7B6;
+  --field: #FFFDF9;
+  --go-deep: #56662A;
+  --official: #9DB8FF;
+  --official-bg: #222C45;
+  --neutral-bg: #3A2F29;
+  color-scheme: dark;
+
+  --display: "Fraunces", "Iowan Old Style", Georgia, serif;
+  --body: "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+}
+:root[data-mode="light"] {
+  --bg: #F1EAE1; --surface: #FBF7F2; --ink: #211915; --muted: #6E6158; --line: #E0D4C6; --dot: #B9A794;
+  --accent: #56662A; --accent-ink: #FFFFFF; --pink: #FFC4D3;
+  --soon: #A3304F; --soon-bg: #FFE1E8; --live-bg: #E6E9CF; --desk: #E4DACD;
+  --latte: #FFFDF9; --latte-line: #E0D4C6; --field: #FFFFFF;
+  --official: #2D4FA8; --official-bg: #E4EAFA; --neutral-bg: #E7DED3;
+  color-scheme: light;
+}
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 1.0625rem; line-height: 1.55; overflow-x: hidden; margin: 0; }
+a { color: inherit; }
+a:focus-visible, button:focus-visible, select:focus-visible, input:focus-visible, label:focus-within { outline: 3px solid var(--accent); outline-offset: 3px; border-radius: 6px; }
+::selection { background: var(--pink); color: #15141F; }
+.wrap { max-width: 1120px; margin-inline: auto; padding-inline: 20px; }
+.mono { font-family: var(--mono); }
+.muted { color: var(--muted); }
+
+/* Header */
+.top .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-block: 18px; flex-wrap: wrap; }
+.brand { display: flex; align-items: center; gap: 10px; text-decoration: none; font-family: var(--display); font-weight: 650; font-size: 1.5rem; font-variation-settings: "SOFT" 100, "opsz" 48; letter-spacing: -0.01em; }
+.brand svg { width: 34px; height: 31px; }
+.top nav { display: flex; gap: 4px; flex-wrap: wrap; margin-left: auto; }
+.top nav a { text-decoration: none; font-size: 0.95rem; padding: 6px 12px; border-radius: 999px; color: var(--muted); }
+.top nav a:hover { color: var(--ink); background: var(--surface); }
+.top nav a.on, .laws > button.on { color: var(--latte-ink); background: var(--latte); box-shadow: inset 0 0 0 1.5px var(--latte-line); }
+.laws { position: relative; }
+.laws > button { display: inline-flex; align-items: center; gap: 5px; font: inherit; font-size: 0.95rem; padding: 6px 12px; border-radius: 999px; border: 0; background: none; color: var(--muted); cursor: pointer; }
+.laws > button:hover { color: var(--ink); background: var(--surface); }
+.laws > button.on:hover { color: var(--latte-ink); background: var(--latte); }
+.laws > button svg { width: 12px; height: 12px; transition: transform .15s ease; }
+.laws > button[aria-expanded="true"] svg { transform: rotate(180deg); }
+.laws-menu { position: absolute; right: 0; top: calc(100% + 8px); z-index: 10; list-style: none; margin: 0; padding: 8px; width: 290px; max-width: calc(100vw - 32px);
+  background: var(--latte); color: var(--latte-ink); border: 2px solid var(--latte-ink); border-radius: 20px; box-shadow: 6px 6px 0 var(--pink); display: grid; gap: 2px; color-scheme: light; }
+.top nav .laws-menu a, .laws-menu .soon-law { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0 10px; padding: 10px 12px; border-radius: 14px; text-decoration: none; color: var(--latte-ink); font-size: 1rem; }
+.top nav .laws-menu a:hover { background: var(--field); color: var(--latte-ink); }
+.top nav .laws-menu a:focus-visible { outline: 3px solid var(--go-deep); outline-offset: 0; }
+.laws-menu b { font-size: 1rem; }
+.laws-menu span { grid-column: 1; font-size: 0.85rem; color: var(--latte-muted); }
+.laws-menu .soon-law { opacity: .75; }
+.laws-menu em { grid-column: 2; grid-row: 1 / span 2; align-self: center; font-style: normal; font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.06em; text-transform: uppercase; padding: 3px 7px; border-radius: 6px; background: #FFE1E8; color: #A3304F; }
+.mode { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); cursor: pointer; padding: 0; }
+.mode:hover { border-color: var(--ink); }
+.mode svg { width: 20px; height: 20px; }
+.mode .moon { display: none; }
+:root[data-mode="light"] .mode .sun { display: none; }
+:root[data-mode="light"] .mode .moon { display: block; }
+.preview { border-bottom: 1px dashed var(--line); font-family: var(--mono); font-size: 0.78rem; color: var(--muted); }
+.preview p { margin: 0; padding-block: 9px; }
+
+/* Shared type */
+.crumbs { font-family: var(--mono); font-size: 0.82rem; color: var(--muted); margin: 30px 0 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.crumbs a { text-decoration: none; }
+.crumbs a:hover { color: var(--ink); text-decoration: underline; }
+.eyebrow { font-family: var(--mono); font-size: 0.8rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin: 0 0 14px; }
+h1 { font-family: var(--display); font-variation-settings: "SOFT" 100, "opsz" 144; font-weight: 560; font-size: clamp(2.2rem, 5vw, 3.9rem); line-height: 1.0; letter-spacing: -0.025em; margin: 0 0 16px; text-wrap: balance; overflow-wrap: anywhere; }
+h1.unnamed { font-style: italic; font-weight: 400; color: var(--muted); }
+.sec-h { font-family: var(--display); font-variation-settings: "SOFT" 100, "opsz" 72; font-weight: 560; font-size: 1.7rem; letter-spacing: -0.015em; line-height: 1.1; margin: 0 0 14px; text-wrap: balance; }
+.lede { margin: 0; font-size: 1.2rem; color: var(--muted); max-width: 36em; }
+.lede strong, .hl { color: var(--ink); font-weight: 700; background: linear-gradient(transparent 62%, var(--pink) 62%, var(--pink) 92%, transparent 92%); }
+.note { color: var(--muted); margin: 0; }
+.legend { font-family: var(--mono); font-size: 0.75rem; color: var(--muted); margin: 8px 0 0; }
+.btn { display: inline-flex; align-items: center; gap: 8px; text-decoration: none; font: inherit; font-weight: 700; padding: 11px 20px; border-radius: 999px; border: 2px solid var(--ink); background: transparent; color: var(--ink); cursor: pointer; transition: transform .15s ease, background .15s ease; }
+.btn:hover { transform: translateY(-2px); background: var(--surface); }
+.btn.primary:hover { background: var(--accent); filter: brightness(1.05); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.btn.small { padding: 7px 14px; font-size: 0.92rem; }
+.btn.latte { background: var(--latte); color: var(--latte-ink); border-color: var(--latte); }
+.btn.latte:hover { background: var(--latte); box-shadow: 4px 4px 0 var(--pink); }
+.pill { justify-self: start; font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; padding: 4px 9px; border-radius: 6px; white-space: nowrap; }
+.pill.bad { background: var(--soon-bg); color: var(--soon); }
+.pill.ok { background: var(--neutral-bg); color: var(--muted); }
+.card { background: var(--surface); border: 2px solid var(--ink); border-radius: 24px; padding: 22px; }
+
+/* ---------- Browse ---------- */
+.b-head { padding-block: 26px 22px; display: grid; gap: 14px; }
+.panel { background: var(--latte); color: var(--latte-ink); border: 2px solid var(--latte-ink); border-radius: 26px; box-shadow: 7px 7px 0 var(--pink); color-scheme: light; }
+.panel :focus-visible { outline-color: var(--go-deep); }
+.finder { display: grid; gap: 14px; padding: 20px; }
+.search { display: flex; align-items: center; gap: 10px; border: 2px solid var(--latte-line); border-radius: 999px; padding: 0 16px; background: var(--field); }
+.search:focus-within { border-color: var(--go-deep); }
+.search svg { width: 20px; height: 20px; flex: none; color: var(--latte-muted); }
+.search input { flex: 1; min-width: 0; border: 0; background: transparent; color: var(--latte-ink); font: inherit; font-size: 1.05rem; padding: 12px 0; outline: none; }
+.search input::placeholder { color: var(--latte-muted); }
+.filters { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }
+.filters label { display: grid; gap: 4px; font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--latte-muted); min-width: 0; }
+.filters select { font: inherit; font-family: var(--body); font-size: 0.95rem; letter-spacing: 0; text-transform: none; color: var(--latte-ink); background: var(--field); border: 1.5px solid var(--latte-line); border-radius: 12px; padding: 9px 10px; width: 100%; min-width: 0; }
+.bands { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.bands span { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--latte-muted); margin-right: 4px; }
+.chip { font: inherit; font-size: 0.88rem; padding: 5px 13px; border-radius: 999px; border: 1.5px solid var(--latte-line); background: var(--field); color: var(--latte-ink); cursor: pointer; }
+.chip:hover { border-color: var(--latte-ink); }
+.chip[aria-pressed="true"] { background: var(--go-deep); border-color: var(--go-deep); color: #FFFFFF; }
+.tally { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: 12px 24px; padding-block: 30px 12px; }
+.tally .big { font-family: var(--display); font-variation-settings: "SOFT" 100, "opsz" 72; font-size: 1.6rem; font-weight: 560; margin: 0; line-height: 1.15; }
+.tally .big b { color: var(--accent); font-weight: 650; }
+.tally .sub { margin: 4px 0 0; color: var(--muted); font-family: var(--mono); font-size: 0.85rem; font-variant-numeric: tabular-nums; }
+.tally .right { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.tally select { font: inherit; font-size: 0.92rem; color: var(--ink); background: var(--surface); border: 1.5px solid var(--line); border-radius: 999px; padding: 7px 12px; }
+.linkbtn { font: inherit; font-size: 0.92rem; background: none; border: 0; color: var(--muted); text-decoration: underline; cursor: pointer; padding: 4px; }
+.linkbtn:hover { color: var(--ink); }
+.results { list-style: none; margin: 0; padding: 0; border-top: 2px solid var(--ink); }
+.results li { border-bottom: 1px solid var(--line); }
+.results a { display: grid; grid-template-columns: 112px minmax(0, 1fr) 130px 150px; gap: 18px; align-items: start; padding: 16px 6px; text-decoration: none; border-radius: 14px; transition: background .15s ease; }
+.results a:hover { background: var(--surface); }
+.results .dt { font-family: var(--mono); font-size: 0.85rem; color: var(--muted); padding-top: 3px; font-variant-numeric: tabular-nums; }
+.results .who { min-width: 0; }
+.results .who b { display: block; font-size: 1.05rem; overflow-wrap: anywhere; }
+.results .who b.unnamed { font-style: italic; font-weight: 400; color: var(--muted); }
+.results .who span { display: block; color: var(--muted); font-size: 0.92rem; }
+.results .who small { display: block; font-family: var(--mono); font-size: 0.75rem; color: var(--muted); margin-top: 4px; }
+.results .cty { color: var(--muted); font-size: 0.95rem; padding-top: 2px; }
+.results .amt { text-align: right; font-family: var(--mono); font-weight: 500; font-variant-numeric: tabular-nums; padding-top: 2px; }
+.results .amt.none { color: var(--muted); font-weight: 400; font-size: 0.85rem; }
+.more { display: flex; justify-content: center; padding-block: 26px 64px; }
+.empty-list { padding: 40px 0; display: grid; grid-template-columns: 92px minmax(0, 1fr); gap: 18px; align-items: center; max-width: 560px; }
+
+/* ---------- Decision ---------- */
+.head { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 340px); gap: 32px 48px; align-items: end; padding-block: 22px 36px; }
+.fine { background: var(--surface); border: 2px solid var(--ink); border-radius: 26px; box-shadow: 7px 7px 0 var(--pink); padding: 22px 24px 20px; display: grid; gap: 6px; }
+.fine .lbl { font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.fine .amt { font-family: var(--display); font-variation-settings: "SOFT" 100, "opsz" 96; font-weight: 600; font-size: clamp(2rem, 4.4vw, 2.9rem); line-height: 1.05; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.fine .amt.none { font-size: 1.6rem; font-weight: 500; }
+.fine .pill { margin-top: 6px; }
+.facts { margin: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-top: 2px solid var(--ink); }
+.facts div { padding: 16px 16px 16px 0; border-bottom: 1px solid var(--line); min-width: 0; }
+.facts dt { font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+.facts dd { margin: 0; overflow-wrap: anywhere; }
+.facts dd small { display: block; color: var(--muted); font-size: 0.85rem; }
+.tools { display: flex; flex-wrap: wrap; gap: 10px; padding-top: 22px; }
+.body { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.75fr); gap: 56px; padding-block: 40px 24px; align-items: start; }
+.body section + section, aside section + section { margin-top: 44px; }
+.summary { font-size: 1.15rem; line-height: 1.6; margin: 0; max-width: 36em; }
+.credit { font-family: var(--mono); font-size: 0.8rem; color: var(--muted); margin: 14px 0 0; }
+.empty { display: grid; grid-template-columns: 92px minmax(0, 1fr); gap: 18px; align-items: center; }
+.bubble { position: relative; background: var(--surface); border: 2px solid var(--ink); border-radius: 20px; padding: 14px 18px; margin: 0; box-shadow: 5px 5px 0 var(--pink); }
+.bubble::after { content: ""; position: absolute; left: -10px; top: 50%; width: 16px; height: 16px; margin-top: -8px; background: var(--surface); border-left: 2px solid var(--ink); border-bottom: 2px solid var(--ink); transform: rotate(45deg); border-bottom-left-radius: 4px; }
+.mini { width: 92px; height: auto; overflow: visible; }
+.rules { list-style: none; margin: 0; padding: 0; border-top: 2px solid var(--ink); }
+.rules li { border-bottom: 1px solid var(--line); }
+.rules a.in, .rules .r { display: grid; grid-template-columns: 76px minmax(0, 1fr) auto; gap: 14px; align-items: baseline; padding: 14px 4px; text-decoration: none; border-radius: 12px; transition: background .15s ease; }
+.rules a.in:hover { background: var(--surface); }
+.rules a.in:hover .no { color: var(--accent); }
+.rules .no { font-family: var(--mono); font-weight: 500; }
+.rules .t { min-width: 0; }
+.rules .t small { display: block; font-family: var(--mono); font-size: 0.78rem; color: var(--muted); margin-top: 2px; }
+.rules .go { font-family: var(--mono); font-size: 0.8rem; color: var(--muted); white-space: nowrap; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0 0; padding: 0; list-style: none; }
+.chips li { font-size: 0.85rem; padding: 3px 9px; border-radius: 6px; background: var(--neutral-bg); color: var(--muted); }
+.ctx .big { font-family: var(--display); font-variation-settings: "SOFT" 100, "opsz" 72; font-weight: 560; font-size: 1.35rem; line-height: 1.2; margin: 0 0 4px; text-wrap: balance; }
+.ctx .big b { color: var(--accent); font-weight: 650; }
+.ctx .sub { color: var(--muted); font-size: 0.92rem; margin: 0 0 12px; }
+.strip { display: block; width: 100%; height: auto; }
+.strip text { font-family: var(--mono); font-size: 10px; fill: var(--muted); }
+.strip .tick { stroke: var(--line); stroke-width: 1; }
+.strip .d { fill: var(--dot); }
+.strip .me { fill: var(--pink); stroke: var(--ink); stroke-width: 2; }
+.strip .pin { stroke: var(--ink); stroke-width: 1; }
+.strip .melbl { fill: var(--ink); font-weight: 500; }
+.sim { list-style: none; margin: 0; padding: 0; border-top: 2px solid var(--ink); }
+.sim li { border-bottom: 1px solid var(--line); }
+.sim a { display: block; padding: 12px 4px; text-decoration: none; border-radius: 12px; }
+.sim a:hover { background: var(--surface); }
+.sim b { display: block; overflow-wrap: anywhere; }
+.sim span { display: block; font-family: var(--mono); font-size: 0.8rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.sources { padding-block: 24px 64px; }
+.links { list-style: none; margin: 0 0 18px; padding: 0; display: flex; flex-wrap: wrap; gap: 12px; }
+.fine-print { font-size: 0.92rem; color: var(--muted); margin: 0; max-width: 52em; }
+.fine-print + .fine-print { margin-top: 8px; }
+.mail { font-family: var(--mono); color: var(--ink); user-select: all; }
+
+/* ---------- GDPR ---------- */
+.law { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 0.7fr); gap: 56px; padding-block: 22px 40px; align-items: start; }
+.law h1 { font-size: clamp(2.2rem, 4.6vw, 3.4rem); margin-bottom: 6px; }
+.law .atitle { font-family: var(--display); font-variation-settings: "SOFT" 100, "opsz" 72; font-weight: 420; font-style: italic; font-size: clamp(1.3rem, 2.4vw, 1.7rem); line-height: 1.2; margin: 0 0 30px; color: var(--muted); text-wrap: balance; }
+.text { font-size: 1.1rem; line-height: 1.65; max-width: 40em; }
+.text p { margin: 0 0 12px; }
+.text .par { display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 6px; margin-bottom: 14px; }
+.text .pn { font-family: var(--mono); font-weight: 500; color: var(--accent); padding-top: 2px; }
+.text .pt { display: grid; grid-template-columns: 38px minmax(0, 1fr); gap: 4px; margin: 0 0 6px; }
+.text .pl { font-family: var(--mono); color: var(--muted); padding-top: 2px; }
+.text .pt .pt .pl { color: var(--muted); }
+.text a.xref { color: var(--accent); font-weight: 700; text-decoration: none; border-bottom: 1.5px solid currentColor; }
+.text a.xref:hover { background: var(--live-bg); }
+.official { display: grid; gap: 10px; }
+.eurlex { display: inline-flex; align-items: center; gap: 8px; text-decoration: none; font-family: var(--mono); font-size: 0.82rem; font-weight: 500; color: var(--official); background: var(--official-bg); border: 1.5px solid currentColor; border-radius: 999px; padding: 5px 12px 5px 6px; white-space: nowrap; transition: transform .15s ease; }
+.eurlex:hover { transform: translateY(-1px); }
+.eurlex .sec { display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--official); color: var(--official-bg); font-family: var(--display); font-weight: 700; font-size: 0.95rem; line-height: 1; }
+.eurlex.small { font-size: 0.74rem; padding: 3px 9px 3px 4px; gap: 6px; }
+.eurlex.small .sec { width: 18px; height: 18px; font-size: 0.8rem; }
+.law .titlerow { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; margin-bottom: 6px; }
+.law .titlerow h1 { margin: 0; }
+.official p { margin: 0; font-size: 0.92rem; color: var(--muted); }
+.stat { font-family: var(--display); font-variation-settings: "SOFT" 100, "opsz" 72; font-weight: 560; font-size: 1.35rem; line-height: 1.2; margin: 0 0 12px; }
+.stat b { color: var(--accent); font-weight: 650; }
+.prevnext { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; border-top: 2px solid var(--ink); padding-block: 18px 64px; }
+.prevnext a { text-decoration: none; max-width: 48%; }
+.prevnext a span { display: block; font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+.prevnext a:hover b { text-decoration: underline; }
+.toc { padding-block: 10px 64px; display: grid; gap: 34px; }
+.toc h2 { font-family: var(--display); font-variation-settings: "SOFT" 100, "opsz" 72; font-weight: 560; font-size: 1.45rem; margin: 0 0 10px; }
+.toc h2 span { display: block; font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); font-weight: 400; }
+.toc ol { list-style: none; margin: 0; padding: 0; border-top: 2px solid var(--ink); columns: 2; column-gap: 32px; }
+.toc li { break-inside: avoid; border-bottom: 1px solid var(--line); }
+.toc ol a { display: grid; grid-template-columns: 74px minmax(0, 1fr) auto; gap: 10px; padding: 9px 4px; text-decoration: none; border-radius: 10px; align-items: baseline; }
+.toc ol a:hover { background: var(--surface); }
+.toc .n { font-family: var(--mono); font-weight: 500; }
+.toc .c { font-family: var(--mono); font-size: 0.75rem; color: var(--muted); white-space: nowrap; }
+.pre-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: 12px 20px; margin-bottom: 10px; }
+.pre-head h2 { margin: 0; }
+.goto { display: flex; align-items: center; gap: 8px; padding: 8px 8px 8px 16px; border-radius: 999px; box-shadow: 4px 4px 0 var(--pink); }
+.goto label { font-family: var(--mono); font-size: 0.78rem; letter-spacing: 0.04em; color: var(--latte-ink); white-space: nowrap; }
+.goto input { font: inherit; width: 4.6em; padding: 6px 10px; border-radius: 999px; border: 1.5px solid var(--latte-line); background: var(--field); color: var(--latte-ink); }
+.goto input:focus-visible { outline: 3px solid var(--go-deep); outline-offset: 1px; }
+.goto .btn { background: var(--go-deep); border-color: var(--go-deep); color: #FFFFFF; padding: 6px 16px; }
+.goto-msg { font-family: var(--mono); font-size: 0.78rem; color: var(--soon); margin: 0; flex-basis: 100%; text-align: right; min-height: 0; }
+.preamble { border-top: 2px solid var(--ink); }
+.preamble > summary { list-style: none; cursor: pointer; display: grid; grid-template-columns: 74px minmax(0, 1fr) auto; gap: 10px; padding: 9px 4px; border-bottom: 1px solid var(--line); border-radius: 10px; align-items: baseline; }
+.preamble > summary::-webkit-details-marker { display: none; }
+.preamble > summary:hover { background: var(--surface); }
+.preamble > summary:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.preamble .tw { font-family: var(--mono); font-size: 0.75rem; color: var(--accent); white-space: nowrap; }
+.preamble .tw::after { content: "Show \25BE"; }
+.preamble[open] .tw::after { content: "Hide \25B4"; }
+.preamble .inner { padding: 10px 0 18px; }
+.preamble .formal { font-family: var(--mono); font-size: 0.85rem; letter-spacing: 0.04em; color: var(--muted); margin: 18px 0 10px; }
+.preamble .cits { margin: 0 0 8px; padding: 0; list-style: none; display: grid; gap: 6px; max-width: 46em; }
+.rec { display: grid; grid-template-columns: 56px minmax(0, 1fr); gap: 8px; padding: 12px 0; border-bottom: 1px solid var(--line); max-width: 52em; scroll-margin-top: 20px; }
+.rec .rn { font-family: var(--mono); font-weight: 500; color: var(--accent); text-decoration: none; padding-top: 2px; }
+.rec .rn:hover { text-decoration: underline; }
+.rec p { margin: 0 0 8px; line-height: 1.6; }
+.rec:target { background: var(--surface); border-radius: 12px; padding-inline: 8px; }
+.rec .fix { display: block; font-family: var(--mono); font-size: 0.75rem; color: var(--muted); }
+.rec-tools { display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: center; gap: 4px 12px; margin: 10px 0 0; }
+.rec-tools .goto { padding: 4px 4px 4px 12px; gap: 6px; box-shadow: none; border-width: 1.5px; }
+.rec-tools .goto label { font-size: 0.72rem; }
+.rec-tools .goto input { width: 3.8em; padding: 3px 8px; font-size: 0.88rem; }
+.rec-tools .goto .btn { padding: 3px 12px; font-size: 0.82rem; border-width: 1.5px; }
+.rec-tools .goto-msg { flex-basis: 100%; text-align: right; font-size: 0.72rem; }
+.pre-end { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px; margin-top: 14px; }
+.pre-end .legend { margin: 0; }
+
+/* ---------- Export sheet ---------- */
+.x-bar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 14px; padding: 16px 20px; margin-block: 24px 14px; }
+.x-bar .btn.primary { background: var(--go-deep); border-color: var(--go-deep); color: #FFFFFF; }
+.x-bar fieldset { border: 0; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; }
+.x-bar legend { float: left; font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--latte-muted); margin-right: 6px; padding: 0; }
+.x-bar label { display: inline-flex; gap: 6px; align-items: center; font-size: 0.95rem; cursor: pointer; }
+.x-bar input { accent-color: var(--go-deep); width: 17px; height: 17px; }
+.desk { background: var(--desk); border-radius: 28px; padding: 32px 16px 40px; margin-bottom: 64px; overflow-x: auto; }
+.sheet { width: 794px; max-width: 100%; margin-inline: auto; background: #FFFDF9; color: #211915; padding: 56px 60px 44px; box-shadow: 0 18px 50px rgba(0,0,0,.35); font-size: 13.5px; line-height: 1.5; border-radius: 4px; }
+.sheet .s-top { display: flex; justify-content: space-between; align-items: center; gap: 16px; border-bottom: 2px solid #211915; padding-bottom: 12px; }
+.sheet .s-brand { display: flex; align-items: center; gap: 8px; font-family: var(--display); font-variation-settings: "SOFT" 100, "opsz" 48; font-weight: 650; font-size: 20px; }
+.sheet .s-brand svg { width: 26px; height: 24px; }
+.sheet .s-kind { font-family: var(--mono); font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: #6E6158; text-align: right; }
+.sheet h2.s-title { font-family: var(--display); font-variation-settings: "SOFT" 100, "opsz" 96; font-weight: 600; font-size: 30px; line-height: 1.08; letter-spacing: -0.02em; margin: 22px 0 4px; overflow-wrap: anywhere; }
+.sheet .s-meta { font-family: var(--mono); font-size: 11px; color: #6E6158; margin: 0 0 14px; }
+.sheet .s-fine { display: flex; gap: 14px; align-items: baseline; flex-wrap: wrap; margin-bottom: 16px; }
+.sheet .s-fine b { font-family: var(--display); font-size: 26px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.sheet .s-fine span { font-family: var(--mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: .06em; background: #FFE1E8; color: #A3304F; padding: 3px 8px; border-radius: 99px; }
+.sheet .cite { border: 1.5px solid #211915; border-radius: 10px; padding: 10px 14px; margin: 0 0 18px; background: #F6F0E8; }
+.sheet .cite small { display: block; font-family: var(--mono); font-size: 9.5px; letter-spacing: .08em; text-transform: uppercase; color: #6E6158; margin-bottom: 3px; }
+.sheet h3 { font-family: var(--display); font-variation-settings: "SOFT" 100, "opsz" 48; font-weight: 600; font-size: 16px; margin: 20px 0 6px; border-bottom: 1px solid #E0D4C6; padding-bottom: 4px; }
+.sheet table { width: 100%; border-collapse: collapse; }
+.sheet table { color: #211915; font-size: 13px; }
+.sheet td { padding: 4px 0; vertical-align: top; border-bottom: 1px solid #EFE6DB; color: #211915; }
+.sheet td:first-child { width: 150px; font-family: var(--mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: .06em; color: #6E6158; padding-top: 6px; }
+.sheet p { margin: 0 0 6px; }
+.sheet .s-small { font-size: 11px; color: #6E6158; }
+.sheet .s-art { margin: 8px 0 12px; padding-left: 12px; border-left: 3px solid #DCE3B8; }
+.sheet .s-art .par { display: grid; grid-template-columns: 22px 1fr; gap: 4px; }
+.sheet .s-art .pt { display: grid; grid-template-columns: 26px 1fr; gap: 2px; }
+.sheet .s-art a { color: inherit; text-decoration: none; }
+.sheet ul { margin: 0; padding-left: 18px; }
+.sheet .url { font-family: var(--mono); font-size: 10.5px; overflow-wrap: anywhere; }
+.sheet .s-foot { margin-top: 26px; border-top: 2px solid #211915; padding-top: 10px; font-size: 10.5px; color: #6E6158; display: grid; gap: 3px; }
+.x-note { font-family: var(--mono); font-size: 0.8rem; color: var(--muted); margin: 0; }
+.rules-grid { list-style: none; margin: 0 0 64px; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.rules-grid li { border: 2px solid var(--ink); border-radius: 22px; padding: 20px; display: grid; gap: 12px; align-content: start; }
+.rules-grid h2 { font-family: var(--display); font-variation-settings: "SOFT" 100, "opsz" 72; font-weight: 560; font-size: 1.3rem; margin: 0; }
+.rules-grid p { margin: 0; color: var(--muted); }
+.rules-grid .demo { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.swatch { width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--ink); flex: none; }
+@media (max-width: 760px) { .rules-grid { grid-template-columns: minmax(0, 1fr); } }
+
+footer { background: var(--ink); color: var(--bg); }
+footer .wrap { padding-block: 40px; display: grid; gap: 10px; font-size: 0.92rem; }
+footer p { margin: 0; max-width: 60em; opacity: .85; }
+footer .mail { color: inherit; }
+
+@media (max-width: 960px) {
+  .filters { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .results a { grid-template-columns: minmax(0, 1fr) auto; gap: 4px 14px; }
+  .results .dt { grid-column: 1; grid-row: 1; padding: 0; }
+  .results .amt { grid-column: 2; grid-row: 1 / span 2; }
+  .results .who { grid-column: 1; }
+  .results .cty { grid-column: 1; font-size: 0.85rem; padding: 0; }
+}
+@media (max-width: 860px) {
+  .top nav { order: 3; width: 100%; margin-left: -12px; }
+  .laws-menu { left: 0; right: auto; }
+  .head { grid-template-columns: minmax(0, 1fr); align-items: start; }
+  .facts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .body, .law { grid-template-columns: minmax(0, 1fr); gap: 44px; }
+  .rules a.in, .rules .r { grid-template-columns: 56px minmax(0, 1fr); }
+  .rules .go { display: none; }
+  .toc ol { columns: 1; }
+  .sheet { padding: 28px 22px; }
+}
+@media (max-width: 480px) {
+  .filters { grid-template-columns: minmax(0, 1fr); }
+  .facts { grid-template-columns: minmax(0, 1fr); }
+  .empty, .empty-list { grid-template-columns: 64px minmax(0, 1fr); }
+  .mini { width: 64px; }
+}
+@media (prefers-reduced-motion: reduce) { .btn, .rules a, .results a { transition: none; } }
+
+/* The export sheet is what the browser saves as a PDF; everything else is hidden */
+@media print {
+  @page { size: A4; margin: 14mm; }
+  body { background: #FFFFFF; }
+  body > *:not(main), .x-bar, .x-note, .crumbs { display: none !important; }
+  .desk { background: none; padding: 0; margin: 0; overflow: visible; }
+  .sheet { box-shadow: none; padding: 0; width: auto; }
+  .sheet h3 { break-after: avoid; }
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="index.html" aria-label="Fino, home">
+      <svg viewBox="0 0 200 180" aria-hidden="true">
+        <path d="M100 24 C152 24 184 60 186 106 C188 148 152 166 100 166 C48 166 12 148 14 106 C16 60 48 24 100 24 Z" fill="var(--puff)" stroke="var(--ink)" stroke-width="9"/>
+        <ellipse cx="78" cy="100" rx="9" ry="13" fill="var(--eye)"/>
+        <ellipse cx="122" cy="100" rx="9" ry="13" fill="var(--eye)"/>
+      </svg>
+      Fino
+    </a>
+    <nav aria-label="Main">
+      <a href="index.html#here">Explainers</a>
+      <a href="#fines" id="nav-fines">Fines</a>
+      <div class="laws" id="laws">
+        <button type="button" id="nav-gdpr" aria-expanded="false" aria-controls="laws-menu">Laws <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5 6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <ul class="laws-menu" id="laws-menu" hidden>
+          <li><a href="#gdpr"><b>GDPR</b><span>General Data Protection Regulation</span></a></li>
+          <li><div class="soon-law"><b>AI Act</b><span>Artificial Intelligence Act</span><em>Coming soon</em></div></li>
+          <li><div class="soon-law"><b>ePrivacy</b><span>Cookies and electronic communications</span><em>Coming soon</em></div></li>
+        </ul>
+      </div>
+      <a href="Tool.html">Tools</a>
+      <a href="About.html">About</a>
+    </nav>
+    <button class="mode" id="mode" type="button" aria-label="Switch to light mode" title="Switch to light mode">
+      <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5a8.5 8.5 0 1 0 11 11z"/></svg>
+    </button>
+  </div>
+</header>
+
+<main id="main"></main>
+
+<footer>
+  <div class="wrap">
+    <p>Decisions from enforcementtracker.com, provided by CMS, and GDPRhub (noyb), under CC BY-NC-SA 4.0. GDPR text from EUR-Lex, &copy; European Union. Not legal advice.</p>
+    <p>Spotted a mistake? <span class="mail">angelillolorenzo@gmail.com</span> &middot; <a href="Privacy.html">Privacy</a></p>
+  </div>
+</footer>
+
+<script>
+const byId = id => document.getElementById(id);
+function boot(DATA) {
+const F = DATA.fields, col = Object.fromEntries(F.map((f, i) => [f, i]));
+const GDPR = DATA.gdpr;
+const SOURCE_NAMES = { cms_tracker: 'CMS Enforcement Tracker', gdprhub: 'GDPRhub (noyb)' };
+const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const EURLEX = n => `https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:02016R0679-20160504#art_${n}`;
+const ELI = 'https://eur-lex.europa.eu/eli/reg/2016/679/oj';
+const EURLEX_RCT = n => `https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:32016R0679#rct_${n}`;
+const EURLEX_BADGE = (href, label, small) => `<a class="eurlex${small ? ' small' : ''}" href="${href}" target="_blank" rel="noopener" title="Opens the official text on EUR-Lex, the EU's law database"><span class="sec" aria-hidden="true">§</span><span class="lbl">${label}</span><span aria-hidden="true">&nearr;</span></a>`;
+
+const SITE = 'pharosprivacy.com';
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const eur = n => '€' + Math.round(n).toLocaleString('en-GB');
+const num = n => n.toLocaleString('en-GB');
+const bigEur = n => n >= 1e9 ? `€${(n / 1e9).toFixed(2)} billion` : n >= 1e6 ? `€${(n / 1e6).toFixed(1)} million` : eur(n);
+const short = n => n >= 1e9 ? '€' + n / 1e9 + 'bn' : n >= 1e6 ? '€' + n / 1e6 + 'm' : n >= 1e3 ? '€' + n / 1e3 + 'k' : '€' + n;
+const slug = id => id.replace(/\//g, '-');
+const today = () => { const d = new Date(); return `${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`; };
+function when(d, p) {
+  if (!d) return { main: 'Date not published', short: 'No date', note: '' };
+  const [y, m, day] = d.split('-');
+  if (p === 'day') return { main: `${+day} ${MONTHS[m - 1]} ${y}`, short: `${+day} ${MONTHS[m - 1].slice(0, 3)} ${y}`, note: '' };
+  if (p === 'month') return { main: `${MONTHS[m - 1]} ${y}`, short: `${MONTHS[m - 1].slice(0, 3)} ${y}`, note: 'Exact day not published' };
+  return { main: y, short: y, note: 'Exact date not published' };
+}
+/* CMS writes some abbreviations in lower case, e.g. "(aepd)" */
+const authority = a => (a || 'Not given').replace(/\(([a-z]{2,8})\)$/, (_, x) => `(${x.toUpperCase()})`);
+const artList = a => (a || '').split(',').map(s => s.trim()).filter(Boolean);
+const artNo = s => +((s.match(/Art\.\s*(\d+)/) || [])[1] || 0);
+const outcomeKind = o => /reject|dismiss|no violation|not upheld|no further/i.test(o || '') ? 'ok' : 'bad';
+const LINK_BASE = id => id; // stays inside this preview
+
+/* ---------- Data, prepared once ---------- */
+const CASES = DATA.rows.map((r, i) => {
+  const c = Object.fromEntries(F.map((f, k) => [f, r[k]]));
+  c.idx = i;
+  c.summary = DATA.sum[i];
+  c.cred = DATA.cred[i];
+  c.year = (c.decision_date || '').slice(0, 4);
+  c.arts = [...new Set(artList(c.articles).map(artNo).filter(Boolean))];
+  c.cats = (c.categories || '').split(',').map(s => s.trim()).filter(Boolean);
+  /* GDPRhub page titles end with the regulator's own reference, e.g. "CNIL (France) - SAN-2024-021" */
+  c.ref = c.source === 'gdprhub' && c.case_id.includes(' - ') ? c.case_id.split(' - ').slice(1).join(' - ') : null;
+  c.hay = [c.controller, c.authority, c.pharos_id, c.ref, c.violation_type, c.categories, c.summary].filter(Boolean).join(' ').toLowerCase();
+  return c;
+});
+const BY_SLUG = new Map(CASES.map(c => [slug(c.pharos_id), c]));
+const FINES_BY_CC = {};
+for (const c of CASES) if (c.fine_eur) (FINES_BY_CC[c.country_code] ||= []).push(c.fine_eur);
+for (const k in FINES_BY_CC) FINES_BY_CC[k].sort((a, b) => a - b);
+const ALL_FINES = CASES.filter(c => c.fine_eur).map(c => c.fine_eur).sort((a, b) => a - b);
+const BY_ART = {};
+for (const c of CASES) for (const n of c.arts) (BY_ART[n] ||= []).push(c);
+const CHAPTER = Object.fromEntries(GDPR.chapters.map(ch => [ch.id, ch]));
+const UPDATED = (() => { const s = DATA.meta.generated_at.slice(0, 10).split('-'); return `${+s[2]} ${MONTHS[s[1] - 1]} ${s[0]}`; })();
+
+/* ---------- Shared bits ---------- */
+const MINI = `<svg class="mini" viewBox="0 0 200 180" role="img" aria-label="Fino, the site's mascot">
+  <ellipse cx="100" cy="172" rx="62" ry="6" fill="var(--ink)" opacity=".12"/>
+  <path d="M100 24 C152 24 184 60 186 106 C188 148 152 166 100 166 C48 166 12 148 14 106 C16 60 48 24 100 24 Z" fill="var(--puff)" stroke="var(--ink)" stroke-width="4"/>
+  <path d="M98 24 C96 14 102 8 110 9" fill="none" stroke="var(--ink)" stroke-width="4" stroke-linecap="round"/>
+  <circle cx="111" cy="9" r="5" fill="var(--accent)" stroke="var(--ink)" stroke-width="2.5"/>
+  <ellipse cx="54" cy="120" rx="14" ry="8" fill="var(--blush)" opacity=".55"/>
+  <ellipse cx="146" cy="120" rx="14" ry="8" fill="var(--blush)" opacity=".55"/>
+  <ellipse cx="78" cy="104" rx="8" ry="11" fill="var(--eye)"/><circle cx="81" cy="99" r="3" fill="#FFFFFF"/>
+  <ellipse cx="122" cy="104" rx="8" ry="11" fill="var(--eye)"/><circle cx="125" cy="99" r="3" fill="#FFFFFF"/>
+  <path d="M92 128 Q100 123 108 128" fill="none" stroke="var(--eye)" stroke-width="3" stroke-linecap="round"/>
+</svg>`;
+const SHEET_MARK = `<svg viewBox="0 0 200 180" aria-hidden="true"><path d="M100 24 C152 24 184 60 186 106 C188 148 152 166 100 166 C48 166 12 148 14 106 C16 60 48 24 100 24 Z" fill="#FFCDB8" stroke="#211915" stroke-width="9"/><ellipse cx="78" cy="100" rx="9" ry="13" fill="#211915"/><ellipse cx="122" cy="100" rx="9" ry="13" fill="#211915"/></svg>`;
+
+function fineInfo(c) {
+  if (c.fine_eur) return { label: eur(c.fine_eur), none: false };
+  if (c.fine_original && c.fine_original !== 'None' && c.currency && c.currency !== 'EUR') return { label: `${c.fine_original} ${c.currency}`, none: false };
+  if (/fine/i.test(c.best_outcome || '')) return { label: 'Amount not published', none: true };
+  return { label: 'No fine', none: true };
+}
+function similar(c) {
+  const out = [];
+  for (const q of CASES) {
+    if (q === c || q.country_code !== c.country_code) continue;
+    const sa = q.arts.filter(n => c.arts.includes(n)).length, sc = q.cats.filter(t => c.cats.includes(t)).length;
+    const score = sa * 2 + sc;
+    if (!score) continue;
+    const dist = c.fine_eur && q.fine_eur ? Math.abs(Math.log10(q.fine_eur) - Math.log10(c.fine_eur)) : 3;
+    out.push([score, dist, q.year, q]);
+  }
+  out.sort((a, b) => b[0] - a[0] || a[1] - b[1] || (b[2] > a[2] ? 1 : -1));
+  return out.slice(0, 3).map(x => x[3]);
+}
+function context(c) {
+  if (!c.fine_eur) return null;
+  const list = FINES_BY_CC[c.country_code] || [];
+  return { below: list.filter(x => x < c.fine_eur).length, n: list.length,
+           eu_below: ALL_FINES.filter(x => x < c.fine_eur).length, eu_n: ALL_FINES.length };
+}
+
+/* ---------- View: browse ---------- */
+const state = { q: '', country: '', year: '', sector: '', art: '', outcome: '', band: '', sort: 'new', shown: 40, scroll: 0 };
+const BANDS = [['', 'Any'], ['0-1e4', 'Under €10k'], ['1e4-1e5', '€10k–100k'], ['1e5-1e6', '€100k–1m'], ['1e6-1e7', '€1m–10m'], ['1e7-1e12', 'Over €10m']];
+function options(values, cur, all) {
+  return `<option value="">${all}</option>` + values.map(([v, l]) => `<option value="${esc(v)}"${String(v) === String(cur) ? ' selected' : ''}>${esc(l)}</option>`).join('');
+}
+function countBy(fn) { const m = new Map(); for (const c of CASES) for (const k of [].concat(fn(c))) if (k) m.set(k, (m.get(k) || 0) + 1); return m; }
+const COUNTRIES = [...countBy(c => c.country)].sort((a, b) => a[0].localeCompare(b[0])).map(([k, n]) => [k, `${k} (${num(n)})`]);
+const YEARS = [...countBy(c => c.year)].sort((a, b) => b[0].localeCompare(a[0])).map(([k, n]) => [k, `${k} (${num(n)})`]);
+const SECTORS = [...countBy(c => c.sector_tag)].sort((a, b) => a[0].localeCompare(b[0])).map(([k, n]) => [k, `${k} (${num(n)})`]);
+const ARTS = Object.keys(BY_ART).map(Number).sort((a, b) => a - b).map(n => [n, `Art. ${n}${GDPR.arts[n] ? ' · ' + GDPR.arts[n].t : ''} (${num(BY_ART[n].length)})`]);
+const OUTCOMES = [['fine', 'With a fine'], ['found', 'Violation, no fine'], ['rejected', 'Rejected'], ['other', 'Other or not given']];
+
+function matches(c) {
+  if (state.country && c.country !== state.country) return false;
+  if (state.year && c.year !== state.year) return false;
+  if (state.sector && c.sector_tag !== state.sector) return false;
+  if (state.art && !c.arts.includes(+state.art)) return false;
+  if (state.outcome) {
+    const o = c.best_outcome || '';
+    const k = c.fine_eur || o === 'Fine issued' ? 'fine' : o === 'Violation found' ? 'found' : o === 'Rejected' ? 'rejected' : 'other';
+    if (k !== state.outcome) return false;
+  }
+  if (state.band) { const [lo, hi] = state.band.split('-').map(Number); if (!c.fine_eur || c.fine_eur < lo || c.fine_eur >= hi) return false; }
+  if (state.q) { for (const w of state.q.toLowerCase().split(/\s+/).filter(Boolean)) if (!c.hay.includes(w)) return false; }
+  return true;
+}
+function sorted(list) {
+  const by = {
+    new: (a, b) => (b.decision_date || '').localeCompare(a.decision_date || ''),
+    old: (a, b) => (a.decision_date || '9999').localeCompare(b.decision_date || '9999'),
+    big: (a, b) => (b.fine_eur || -1) - (a.fine_eur || -1),
+    small: (a, b) => (a.fine_eur || Infinity) - (b.fine_eur || Infinity)
+  }[state.sort];
+  return list.sort(by);
+}
+function median(xs) { if (!xs.length) return 0; const s = [...xs].sort((a, b) => a - b), m = s.length >> 1; return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2; }
+
+function renderBrowse() {
+  $('main').innerHTML = `
+  <div class="wrap">
+    <div class="b-head">
+      <p class="eyebrow" style="margin:28px 0 0">Fines database &middot; updated ${UPDATED}</p>
+      <h1 style="margin:0">Every GDPR fine and decision, <em style="font-weight:420;color:var(--accent)">in one place.</em></h1>
+      <p class="lede">${num(CASES.length)} decisions from ${countBy(c => c.country_code).size} countries, collected by CMS and GDPRhub. Search runs in your browser, so nothing you type leaves your device.</p>
+      <p class="legend" style="margin:0">Beta: while I finish checking for duplicates, a few decisions may appear twice.</p>
+    </div>
+    <form class="finder panel" id="finder" role="search" onsubmit="return false">
+      <label class="search" for="q">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
+        <input id="q" type="search" placeholder="Company, regulator, case number or a word like &ldquo;cookies&rdquo;" value="${esc(state.q)}" autocomplete="off">
+      </label>
+      <div class="filters">
+        <label for="f-country">Country<select id="f-country">${options(COUNTRIES, state.country, 'All countries')}</select></label>
+        <label for="f-year">Year<select id="f-year">${options(YEARS, state.year, 'All years')}</select></label>
+        <label for="f-sector">Sector<select id="f-sector">${options(SECTORS, state.sector, 'All sectors')}</select></label>
+        <label for="f-art">GDPR article<select id="f-art">${options(ARTS, state.art, 'All articles')}</select></label>
+        <label for="f-outcome">Outcome<select id="f-outcome">${options(OUTCOMES, state.outcome, 'All outcomes')}</select></label>
+      </div>
+      <div class="bands" role="group" aria-label="Fine size">
+        <span>Fine size</span>
+        ${BANDS.map(([v, l]) => `<button type="button" class="chip" data-band="${v}" aria-pressed="${state.band === v}">${l}</button>`).join('')}
+      </div>
+    </form>
+    <div class="tally" id="tally"></div>
+    <ul class="results" id="results"></ul>
+    <div class="more" id="more"></div>
+  </div>`;
+  const bind = (id, key) => $(id).addEventListener('change', e => { state[key] = e.target.value; state.shown = 40; renderResults(); });
+  bind('f-country', 'country'); bind('f-year', 'year'); bind('f-sector', 'sector'); bind('f-art', 'art'); bind('f-outcome', 'outcome');
+  let t;
+  $('q').addEventListener('input', e => { clearTimeout(t); t = setTimeout(() => { state.q = e.target.value.trim(); state.shown = 40; renderResults(); }, 120); });
+  $('finder').addEventListener('click', e => {
+    const b = e.target.closest('[data-band]'); if (!b) return;
+    state.band = b.dataset.band; state.shown = 40;
+    document.querySelectorAll('[data-band]').forEach(x => x.setAttribute('aria-pressed', String(x.dataset.band === state.band)));
+    renderResults();
+  });
+  renderResults();
+}
+function renderResults() {
+  const list = sorted(CASES.filter(matches));
+  const fines = list.filter(c => c.fine_eur).map(c => c.fine_eur);
+  const total = fines.reduce((a, b) => a + b, 0);
+  const filtered = state.q || state.country || state.year || state.sector || state.art || state.outcome || state.band;
+  $('tally').innerHTML = `
+    <div>
+      <p class="big"><b>${num(list.length)}</b> ${list.length === 1 ? 'decision' : 'decisions'}${filtered ? ' match' : ''}</p>
+      <p class="sub">${fines.length ? `${bigEur(total)} in ${num(fines.length)} fines &middot; typical fine ${eur(median(fines))} &middot; biggest ${eur(Math.max(...fines))}` : 'No euro fines in this selection'}</p>
+    </div>
+    <div class="right">
+      ${filtered ? '<button type="button" class="linkbtn" id="clear">Clear filters</button>' : ''}
+      <label for="sort" class="legend" style="margin:0">Sort</label>
+      <select id="sort">${options([['new', 'Newest first'], ['old', 'Oldest first'], ['big', 'Biggest fine'], ['small', 'Smallest fine']], state.sort, '').replace('<option value=""></option>', '')}</select>
+    </div>`;
+  $('sort').addEventListener('change', e => { state.sort = e.target.value; renderResults(); });
+  if ($('clear')) $('clear').addEventListener('click', () => { Object.assign(state, { q: '', country: '', year: '', sector: '', art: '', outcome: '', band: '', shown: 40 }); renderBrowse(); });
+
+  if (!list.length) {
+    $('results').innerHTML = `<li style="border:0"><div class="empty-list">${MINI}<p class="bubble">Nothing matches all of that. Try removing a filter, or a shorter search word.</p></div></li>`;
+    $('more').innerHTML = '';
+    return;
+  }
+  $('results').innerHTML = list.slice(0, state.shown).map(c => {
+    const d = when(c.decision_date, c.date_precision), f = fineInfo(c);
+    const about = c.violation_type || c.categories || '';
+    return `<li><a href="#d-${slug(c.pharos_id)}">
+      <span class="dt">${esc(d.short)}</span>
+      <span class="who"><b class="${c.controller ? '' : 'unnamed'}">${esc(c.controller || 'Party not named')}</b>${about ? `<span>${esc(about)}</span>` : ''}${c.arts.length ? `<small>${c.arts.slice(0, 5).map(n => 'Art. ' + n).join(', ')}${c.arts.length > 5 ? ' …' : ''}</small>` : ''}</span>
+      <span class="cty">${esc(c.country || '')}</span>
+      <span class="amt ${f.none ? 'none' : ''}">${esc(f.label)}</span>
+    </a></li>`;
+  }).join('');
+  $('more').innerHTML = list.length > state.shown
+    ? `<button type="button" class="btn" id="more-btn">Show ${Math.min(40, list.length - state.shown)} more <span class="muted" style="font-weight:400">of ${num(list.length - state.shown)} left</span></button>` : '';
+  if ($('more-btn')) $('more-btn').addEventListener('click', () => { state.shown += 40; renderResults(); });
+}
+
+/* ---------- View: decision ---------- */
+function strip(c) {
+  const list = FINES_BY_CC[c.country_code];
+  if (!c.fine_eur || !list) return '';
+  const W = 320, H = 118, L = 24, Rg = 24, top = 34, bot = 26;
+  const lo = Math.floor(Math.log10(Math.max(1, Math.min(...list, c.fine_eur))));
+  const hi = Math.ceil(Math.log10(Math.max(...list, c.fine_eur)));
+  const span = Math.max(1, hi - lo);
+  const x = v => L + (Math.log10(Math.max(v, 1)) - lo) / span * (W - L - Rg);
+  let ticks = '';
+  const every = span > 6 ? 2 : 1;
+  for (let p = lo; p <= hi; p += every) {
+    const tx = x(10 ** p);
+    ticks += `<line class="tick" x1="${tx}" x2="${tx}" y1="${top - 6}" y2="${H - bot + 4}"/><text x="${tx}" y="${H - 8}" text-anchor="middle">${short(10 ** p)}</text>`;
+  }
+  /* each dot is one fine; a fixed pseudo-random height keeps them apart and stable between visits */
+  let dots = '';
+  list.forEach((v, i) => {
+    const jy = top + ((Math.sin(i * 12.9898 + v * 0.0001) * 43758.5453) % 1 + 1) % 1 * (H - bot - top - 4) + 2;
+    dots += `<circle class="d" cx="${x(v).toFixed(1)}" cy="${jy.toFixed(1)}" r="2.2" opacity=".75"/>`;
+  });
+  const mx = x(c.fine_eur), my = (top + H - bot) / 2;
+  const anchor = mx > W * 0.7 ? 'end' : mx < W * 0.3 ? 'start' : 'middle';
+  const lx = anchor === 'end' ? mx + 6 : anchor === 'start' ? mx - 6 : mx;
+  return `<svg class="strip" viewBox="0 0 ${W} ${H}" role="img" aria-label="Every fine in ${esc(c.country)} on a scale from ${short(10 ** lo)} to ${short(10 ** hi)}, with this one highlighted">
+    ${ticks}${dots}
+    <line class="pin" x1="${mx}" x2="${mx}" y1="16" y2="${my - 7}"/>
+    <text class="melbl" x="${lx}" y="12" text-anchor="${anchor}">This fine</text>
+    <circle class="me" cx="${mx}" cy="${my}" r="6.5"/>
+  </svg>`;
+}
+function rulesBlock(c) {
+  const groups = new Map();
+  for (const a of artList(c.articles)) {
+    const n = artNo(a);
+    if (!groups.has(n)) groups.set(n, []);
+    groups.get(n).push(a.replace(/^Art\.\s*/, ''));
+  }
+  if (!groups.size) return `<p class="note">The source doesn&rsquo;t list which GDPR articles were involved.</p>`;
+  return `<ul class="rules">${[...groups.entries()].sort((a, b) => a[0] - b[0]).map(([n, parts]) => {
+    const detail = parts.filter(p => p !== String(n));
+    const head = GDPR.arts[n] ? esc(GDPR.arts[n].t) : '<span class="note">Not a GDPR article number</span>';
+    const inner = `<span class="no">Art. ${n}</span><span class="t">${head}${detail.length ? `<small>${detail.map(esc).join(' · ')}</small>` : ''}</span>`;
+    return GDPR.arts[n] ? `<li><a class="in" href="#art-${n}">${inner}<span class="go">Read &rarr;</span></a></li>` : `<li><div class="r">${inner}</div></li>`;
+  }).join('')}</ul>`;
+}
+function summaryBlock(c) {
+  if (!c.summary) return `<div class="empty">${MINI}<p class="bubble">Nobody has summarised this decision yet. The regulator&rsquo;s own decision is linked below.</p></div>`;
+  const by = c.cred === 'c' ? 'the CMS Enforcement Tracker' : c.source === 'gdprhub' ? 'GDPRhub (noyb), written by its volunteers' : 'the GDPRhub page for this decision, written by its volunteers';
+  return `<p class="summary">${esc(c.summary)}</p><p class="credit">Summary from ${by}, not by Fino. CC BY-NC-SA 4.0.</p>`;
+}
+function sourceLinks(c) {
+  const out = [];
+  if (c.source_url) out.push(['The regulator’s decision', c.source_url, true]);
+  if (c.source === 'cms_tracker' && c.source_page) out.push(['CMS Enforcement Tracker', c.source_page]);
+  if (c.source === 'gdprhub' && c.source_page) out.push(['GDPRhub', c.source_page]);
+  if (c.gdprhub_page) out.push(['GDPRhub', c.gdprhub_page]);
+  return out;
+}
+let fromBrowse = false;
+function renderDecision(c) {
+  const d = when(c.decision_date, c.date_precision), f = fineInfo(c), k = context(c), sims = similar(c);
+  const about = c.violation_type ? `<span class="hl">${esc(c.violation_type)}</span>` : c.categories ? `About: ${esc(c.categories)}` : '';
+  const pill = c.best_outcome ? `<span class="pill ${outcomeKind(c.best_outcome)}">${esc(c.best_outcome)}</span>` : '';
+  const pc = k && Math.round(k.below / k.n * 100), eu = k && Math.round(k.eu_below / k.eu_n * 100);
+  $('main').innerHTML = `
+  <div class="wrap">
+    <nav class="crumbs" aria-label="Breadcrumb">
+      <a href="#fines">${fromBrowse ? '&larr; Back to results' : 'Fines'}</a><span aria-hidden="true">/</span>
+      <span>${esc(c.country || 'No country')}</span><span aria-hidden="true">/</span>
+      <span aria-current="page">${esc(c.pharos_id)}</span>
+    </nav>
+    <div class="head">
+      <div>
+        <p class="eyebrow">${esc(authority(c.authority))} &middot; ${esc(d.main)}</p>
+        <h1 class="${c.controller ? '' : 'unnamed'}">${esc(c.controller || 'Party not named')}</h1>
+        <p class="lede">${about}</p>
+      </div>
+      <div class="fine"><span class="lbl">Fine</span><span class="amt ${f.none ? 'none' : ''}">${esc(f.label)}</span>${pill}</div>
+    </div>
+    <dl class="facts">
+      <div><dt>Regulator</dt><dd>${esc(authority(c.authority))}</dd></div>
+      <div><dt>Decided</dt><dd>${esc(d.main)}${d.note ? `<small>${esc(d.note)}</small>` : ''}</dd></div>
+      <div><dt>Country</dt><dd>${esc(c.country || 'Not given')}</dd></div>
+      <div><dt>Sector</dt><dd>${esc(c.sector_tag || 'Not given')}</dd></div>
+      <div><dt>Regulator&rsquo;s reference</dt><dd class="mono">${esc(c.ref || 'Not recorded')}</dd></div>
+      <div><dt>Fino case number</dt><dd class="mono">${esc(c.pharos_id)}</dd></div>
+    </dl>
+    <div class="tools">
+      <a class="btn primary small" href="#x-${slug(c.pharos_id)}">Export as PDF</a>
+      <button type="button" class="btn small" id="copy-cite">Copy citation</button>
+      <span class="legend" id="copied" aria-live="polite" style="align-self:center"></span>
+    </div>
+    <div class="body">
+      <div>
+        <section><h2 class="sec-h">What happened</h2>${summaryBlock(c)}</section>
+        <section><h2 class="sec-h">Rules involved</h2>${rulesBlock(c)}
+          ${c.cats.length ? `<ul class="chips" aria-label="Topics">${c.cats.map(t => `<li>${esc(t)}</li>`).join('')}</ul>` : ''}</section>
+      </div>
+      <aside>
+        <section class="card ctx"><h2 class="sec-h">How big is it?</h2>
+          ${k ? `<p class="big">Bigger than <b>${pc}%</b> of the ${num(k.n)} fines in ${esc(c.country)}.</p>
+            <p class="sub">Across the whole database, bigger than ${eu}% of ${num(k.eu_n)} fines.</p>${strip(c)}
+            <p class="legend">Each dot is one fine in ${esc(c.country)}. The scale grows tenfold at each line.</p>`
+          : `<p class="big">No euro amount to compare.</p><p class="sub">This decision has no fine in euro, so it isn&rsquo;t placed among the others.</p>`}
+        </section>
+        <section><h2 class="sec-h">Similar decisions</h2>
+          ${sims.length ? `<ul class="sim">${sims.map(s => `<li><a href="#d-${slug(s.pharos_id)}"><b>${esc(s.controller || 'Party not named')}</b><span>${[s.year || 'No date', s.fine_eur ? eur(s.fine_eur) : 'No euro fine', s.arts.slice(0, 3).map(n => 'Art. ' + n).join(', ')].filter(Boolean).join(' · ')}</span></a></li>`).join('')}</ul>
+            <p class="legend">Same country, overlapping articles or topics.</p>` : '<p class="note">No similar decisions from the same country yet.</p>'}
+        </section>
+      </aside>
+    </div>
+  </div>
+  <section class="sources"><div class="wrap">
+    <h2 class="sec-h">Sources</h2>
+    <ul class="links">${sourceLinks(c).map(([l, u, p]) => `<li><a class="btn ${p ? 'primary' : ''}" href="${esc(u)}" target="_blank" rel="noopener">${esc(l)} &nearr;</a></li>`).join('')}</ul>
+    <p class="fine-print">The facts on this page come from the sources above, as they recorded them. Nothing has been estimated or filled in. Not legal advice.</p>
+    <p class="fine-print">Spotted a mistake? Write to <span class="mail">angelillolorenzo@gmail.com</span> and quote ${esc(c.pharos_id)}.</p>
+  </div></section>`;
+  $('copy-cite').addEventListener('click', () => {
+    const text = citation(c);
+    const done = m => { $('copied').textContent = m; };
+    try { navigator.clipboard.writeText(text).then(() => done('Copied.'), () => done(text)); } catch (e) { done(text); }
+  });
+}
+function citation(c) {
+  const d = when(c.decision_date, c.date_precision), f = fineInfo(c);
+  const parts = [authority(c.authority), c.ref ? `decision ${c.ref}` : 'decision', d.main !== 'Date not published' ? `of ${d.main}` : ''].filter(Boolean).join(' ');
+  const who = c.controller ? ` (${c.controller})` : '';
+  const amt = c.fine_eur ? `, fine of ${eur(c.fine_eur)}` : '';
+  return `${parts}${who}${amt}. Fino case ${c.pharos_id}, ${SITE}/fines.html#d-${slug(c.pharos_id)}, accessed ${today()}.`;
+}
+
+/* ---------- View: GDPR ---------- */
+function artStats(n) {
+  const list = BY_ART[n] || [];
+  const fined = list.filter(c => c.fine_eur);
+  return { list, fined, total: fined.reduce((a, c) => a + c.fine_eur, 0) };
+}
+function bindGdpr() {
+  const f = $('goto-form'); if (!f) return;
+  /* the Go button and the Enter key do the same thing */
+  f.addEventListener('submit', e => {
+    e.preventDefault();
+    const n = +$('goto-rec').value;
+    if (!(n >= 1 && n <= 173)) { $('goto-msg').textContent = 'Choose a number from 1 to 173.'; return; }
+    $('goto-msg').textContent = '';
+    history.replaceState(null, '', '#rec-' + n);
+    openRecital(n);
+  });
+}
+function renderGdpr() {
+  $('main').innerHTML = `<div class="wrap">
+    <div class="b-head">
+      <p class="eyebrow" style="margin:28px 0 0">Regulation (EU) 2016/679</p>
+      <h1 style="margin:0">The GDPR, <em style="font-weight:420;color:var(--accent)">with the fines attached.</em></h1>
+      <p class="lede">All 99 articles and the 173 recitals in the official English text, each article linked to the decisions that cite it and to the original on EUR-Lex.</p>
+    </div>
+    <div class="toc">
+    ${preamble()}
+    ${GDPR.chapters.map(ch => `<section><h2><span>${esc(ch.num)}</span>${esc(ch.title)}</h2><ol>${ch.arts.map(n => {
+      const k = (BY_ART[n] || []).length;
+      return `<li><a href="#art-${n}"><span class="n">Art. ${n}</span><span>${esc(GDPR.arts[n].t)}</span><span class="c">${k ? num(k) + ' cases' : ''}</span></a></li>`;
+    }).join('')}</ol></section>`).join('')}</div>
+  </div>`;
+}
+function preamble() {
+  const P = GDPR.preamble;
+  return `<section>
+    <h2><span>Preamble</span>Legal bases and recitals</h2>
+    <details class="preamble" id="preamble">
+      <summary><span class="n">1&ndash;173</span><span>The legal bases and the 173 recitals, which explain why each rule exists and how to read it</span><span class="tw" aria-hidden="true"></span></summary>
+      <div class="inner">
+        <div class="rec-tools">
+          <form class="goto panel" id="goto-form" novalidate>
+            <label for="goto-rec">Go to recital</label>
+            <input id="goto-rec" type="number" min="1" max="173" inputmode="numeric" placeholder="71" aria-describedby="goto-msg">
+            <button type="submit" class="btn small">Go</button>
+          </form>
+          <p class="goto-msg" id="goto-msg" aria-live="polite"></p>
+        </div>
+        <p class="formal">${esc(P.opening)}</p>
+        <ul class="cits">${P.citations.map(c => `<li>${esc(c)}</li>`).join('')}</ul>
+        <p class="formal">Whereas:</p>
+        ${Object.keys(P.recitals).map(Number).sort((a, b) => a - b).map(n => `<div class="rec" id="rec-${n}"><a class="rn" href="#rec-${n}" aria-label="Recital ${n}">(${n})</a><div>${P.recitals[n]}${P.corrected.includes(n) ? '<span class="fix">As corrected by the corrigendum in OJ L 127, 23.5.2018, p. 2.</span>' : ''}</div></div>`).join('')}
+        <p class="formal">${esc(P.closing)}</p>
+        <div class="pre-end">
+          <p class="legend">Footnotes of the Official Journal are left out here; they are on EUR-Lex.</p>
+          ${EURLEX_BADGE('https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:32016R0679', 'Official Journal text on EUR-Lex')}
+        </div>
+      </div>
+    </details>
+  </section>`;
+}
+function openRecital(n) {
+  const d = $('preamble'); if (!d) return;
+  d.open = true;
+  const el = $('rec-' + n); if (el) el.scrollIntoView({ block: 'start' });
+}
+function renderArticle(n) {
+  const a = GDPR.arts[n], ch = CHAPTER[a.ch], st = artStats(n);
+  const top = [...st.fined].sort((x, y) => y.fine_eur - x.fine_eur).slice(0, 5);
+  const prev = GDPR.arts[n - 1] ? n - 1 : null, next = GDPR.arts[n + 1] ? n + 1 : null;
+  $('main').innerHTML = `<div class="wrap">
+    <nav class="crumbs" aria-label="Breadcrumb"><span>Laws</span><span aria-hidden="true">/</span><a href="#gdpr">GDPR</a><span aria-hidden="true">/</span><span>${esc(ch.num)}</span><span aria-hidden="true">/</span><span aria-current="page">Article ${n}</span></nav>
+    <div class="law">
+      <article>
+        <p class="eyebrow">${esc(ch.num)} &middot; ${esc(ch.title)}${a.sec ? ` &middot; ${esc(a.sec)}` : ''}</p>
+        <div class="titlerow"><h1>Article ${n}</h1>${EURLEX_BADGE(EURLEX(n), 'Official text on EUR-Lex')}</div>
+        <p class="atitle">${esc(a.t)}</p>
+        <div class="text">${a.h}</div>
+      </article>
+      <aside>
+        <section class="card">
+          <h2 class="sec-h">In the fines database</h2>
+          ${st.list.length ? `<p class="stat">Cited in <b>${num(st.list.length)}</b> decisions${st.fined.length ? `, with ${bigEur(st.total)} in fines` : ''}.</p>
+            ${top.length ? `<p class="legend" style="margin:0 0 4px">Biggest fines citing Article ${n}</p><ul class="sim">${top.map(s => `<li><a href="#d-${slug(s.pharos_id)}"><b>${esc(s.controller || 'Party not named')}</b><span>${esc(s.country)} · ${s.year} · ${eur(s.fine_eur)}</span></a></li>`).join('')}</ul>` : ''}
+            <p style="margin:16px 0 0"><a class="btn small latte" href="#fines" data-art="${n}">See all ${num(st.list.length)} decisions &rarr;</a></p>`
+          : '<p class="note">No decision in the database cites this article yet.</p>'}
+        </section>
+        <section class="official">
+          <h2 class="sec-h">About this text</h2>
+          <p>Shown here from the consolidated version on EUR-Lex, which includes the published corrections. Only the version in the Official Journal of the EU is legally binding.</p>
+          <p><a href="${ELI}" target="_blank" rel="noopener">Regulation (EU) 2016/679, OJ L 119, 4.5.2016, p. 1</a></p>
+        </section>
+      </aside>
+    </div>
+    <nav class="prevnext" aria-label="Other articles">
+      ${prev ? `<a href="#art-${prev}"><span>&larr; Article ${prev}</span><b>${esc(GDPR.arts[prev].t)}</b></a>` : '<span></span>'}
+      ${next ? `<a href="#art-${next}" style="text-align:right"><span>Article ${next} &rarr;</span><b>${esc(GDPR.arts[next].t)}</b></a>` : ''}
+    </nav>
+  </div>`;
+  const all = document.querySelector('[data-art]');
+  if (all) all.addEventListener('click', () => { Object.assign(state, { q: '', country: '', year: '', sector: '', art: String(n), outcome: '', band: '', shown: 40 }); });
+}
+
+/* ---------- View: export sheet ---------- */
+const include = { summary: true, articles: false, context: true, similar: true };
+function renderExport(c) {
+  $('main').innerHTML = `<div class="wrap">
+    <nav class="crumbs" aria-label="Breadcrumb"><a href="#d-${slug(c.pharos_id)}">&larr; Back to the decision</a></nav>
+    <div class="x-bar panel">
+      <fieldset><legend>Include</legend>
+        <label for="i-summary"><input type="checkbox" id="i-summary" data-inc="summary"${include.summary ? ' checked' : ''}> Summary</label>
+        <label for="i-articles"><input type="checkbox" id="i-articles" data-inc="articles"${include.articles ? ' checked' : ''}> Full text of the articles</label>
+        <label for="i-context"><input type="checkbox" id="i-context" data-inc="context"${include.context ? ' checked' : ''}> How big is it</label>
+        <label for="i-similar"><input type="checkbox" id="i-similar" data-inc="similar"${include.similar ? ' checked' : ''}> Similar decisions</label>
+      </fieldset>
+      <button type="button" class="btn primary" id="save">Save as PDF</button>
+    </div>
+    <p class="x-note" id="x-note">Choose &ldquo;Save as PDF&rdquo; in the window that opens. Your browser makes the PDF; nothing is sent anywhere.</p>
+    <div class="desk"><div class="sheet" id="sheet"></div></div>
+  </div>`;
+  const draw = () => { $('sheet').innerHTML = sheet(c); };
+  draw();
+  document.querySelectorAll('[data-inc]').forEach(el => el.addEventListener('change', () => { include[el.dataset.inc] = el.checked; draw(); }));
+  $('save').addEventListener('click', () => { try { window.print(); } catch (e) {} });
+}
+function sheet(c) {
+  const d = when(c.decision_date, c.date_precision), f = fineInfo(c), k = context(c);
+  const rows = [
+    ['Regulator', authority(c.authority)], ['Decided', d.main + (d.note ? ` (${d.note.toLowerCase()})` : '')],
+    ['Country', c.country || 'Not given'], ['Sector', c.sector_tag || 'Not given'],
+    ['Outcome', c.best_outcome || 'Not given'], ['Regulator’s reference', c.ref || 'Not recorded'],
+    ['What it was about', c.violation_type || c.categories || 'Not given'], ['Fino case number', c.pharos_id]
+  ];
+  const arts = [...new Set(artList(c.articles).map(artNo))].sort((a, b) => a - b);
+  const summary = !include.summary ? '' : `<h3>What happened</h3>${c.summary
+    ? `<p>${esc(c.summary)}</p><p class="s-small">Summary from ${c.cred === 'c' ? 'the CMS Enforcement Tracker' : 'GDPRhub (noyb)'}, CC BY-NC-SA 4.0.</p>`
+    : '<p class="s-small">No summary has been published for this decision. See the regulator&rsquo;s decision listed under Sources.</p>'}`;
+  const rules = `<h3>GDPR articles involved</h3>${arts.length ? (include.articles
+    ? arts.map(n => GDPR.arts[n] ? `<p><b>Article ${n}</b> &middot; ${esc(GDPR.arts[n].t)}</p><div class="s-art">${GDPR.arts[n].h}</div>` : `<p><b>Article ${n}</b></p>`).join('')
+      + '<p class="s-small">Article text from the consolidated version on EUR-Lex, corrections included. Only the Official Journal version is legally binding.</p>'
+    : `<ul>${arts.map(n => `<li><b>Article ${n}</b>${GDPR.arts[n] ? ' &middot; ' + esc(GDPR.arts[n].t) : ''}</li>`).join('')}</ul>`)
+    : '<p class="s-small">The source does not list the articles involved.</p>'}`;
+  const ctx = !include.context ? '' : `<h3>How big is it</h3>${k
+    ? `<p>Bigger than ${Math.round(k.below / k.n * 100)}% of the ${num(k.n)} fines in ${esc(c.country)}, and ${Math.round(k.eu_below / k.eu_n * 100)}% of the ${num(k.eu_n)} fines in the Fino database (data of ${UPDATED}).</p>`
+    : '<p class="s-small">No fine in euro, so it is not compared with the others.</p>'}`;
+  const sims = include.similar ? similar(c) : [];
+  const simH = !include.similar ? '' : `<h3>Similar decisions</h3>${sims.length ? `<table>${sims.map(s => `<tr><td>${esc(s.pharos_id)}</td><td>${esc(s.controller || 'Party not named')} &middot; ${s.year || 'no date'} &middot; ${s.fine_eur ? eur(s.fine_eur) : 'no euro fine'}</td></tr>`).join('')}</table>` : '<p class="s-small">None from the same country yet.</p>'}`;
+  const src = sourceLinks(c);
+  return `
+    <div class="s-top"><div class="s-brand">${SHEET_MARK}Fino</div><div class="s-kind">Decision record<br>${esc(c.pharos_id)}</div></div>
+    <h2 class="s-title">${esc(c.controller || 'Party not named')}</h2>
+    <p class="s-meta">${esc(authority(c.authority))} &middot; ${esc(d.main)} &middot; ${esc(c.country || '')}</p>
+    <div class="s-fine"><b>${esc(f.label)}</b>${c.best_outcome ? `<span>${esc(c.best_outcome)}</span>` : ''}</div>
+    <div class="cite"><small>Cite as</small>${esc(citation(c))}</div>
+    <h3>Key facts</h3>
+    <table>${rows.map(([k, v]) => `<tr><td>${esc(k)}</td><td>${esc(v)}</td></tr>`).join('')}</table>
+    ${summary}${rules}${ctx}${simH}
+    <h3>Sources</h3>
+    <table>${src.map(([l, u]) => `<tr><td>${esc(l)}</td><td class="url">${esc(u)}</td></tr>`).join('')}
+      <tr><td>This page</td><td class="url">https://${SITE}/fines.html#d-${slug(c.pharos_id)}</td></tr></table>
+    <div class="s-foot">
+      <span>Facts as recorded by ${esc(SOURCE_NAMES[c.source])}${c.gdprhub_page && c.source !== 'gdprhub' ? ' and GDPRhub' : ''}; Fino data of ${UPDATED}. Nothing estimated or filled in.</span>
+      <span>Decision data and summaries under CC BY-NC-SA 4.0: share with credit, not for commercial use, same licence. Not legal advice.</span>
+      <span>Exported from ${SITE} on ${today()}.</span>
+    </div>`;
+}
+
+/* ---------- View: design rules ---------- */
+function renderStyle() {
+  $('main').innerHTML = `<div class="wrap">
+    <div class="b-head">
+      <p class="eyebrow" style="margin:28px 0 0">How Fino looks</p>
+      <h1 style="margin:0">Design rules</h1>
+      <p class="lede">Every colour and shape means one thing, everywhere on the site, so people learn it once.</p>
+    </div>
+    <ul class="rules-grid">
+      <li><div class="demo"><span class="swatch" style="background:var(--accent)"></span><h2>Green: do something</h2></div>
+        <p>Anything green can be clicked. A solid green button is the main action on the page, and there is only one per screen. Green underlined words are links inside text.</p>
+        <div class="demo"><span class="btn primary small">Export as PDF</span><span class="text" style="font-size:1rem">see <a class="xref" href="#art-6">Article 6</a></span></div></li>
+      <li><div class="demo"><span class="swatch" style="background:var(--pink)"></span><h2>Pink: look here</h2></div>
+        <p>Emphasis only: the highlighter, the shadow behind a key card, a warning label. Pink is never clickable.</p>
+        <div class="demo"><span class="hl">Insufficient legal basis</span><span class="pill bad">Fine issued</span></div></li>
+      <li><div class="demo"><span class="swatch" style="background:var(--latte)"></span><h2>Latte: tools you set</h2></div>
+        <p>A latte panel holds the controls you change, like filters and export options. In the menu, the latte item is the section you are in. A latte button takes you deeper into Fino, such as every decision that cites an article.</p>
+        <div class="demo"><span class="chip" style="background:var(--latte);color:var(--latte-ink);border-color:var(--latte-line)">Under €10k</span><span class="chip" aria-pressed="true" style="background:var(--go-deep);color:#fff;border-color:var(--go-deep)">€10k–100k</span></div></li>
+      <li><div class="demo"><span class="swatch" style="background:var(--official)"></span><h2>Blue §: the official source</h2></div>
+        <p>The blue badge always opens the official text on EUR-Lex, in a new tab. It appears only on our law pages, next to the article number: people read our version first, and the original is always one click away.</p>
+        <div class="demo">${EURLEX_BADGE(EURLEX(5), 'Official text on EUR-Lex')}</div></li>
+      <li><h2>Round means clickable, square means label</h2>
+        <p>Buttons and filter choices are fully rounded. Labels such as an outcome or a topic have small square corners and do nothing when clicked.</p>
+        <div class="demo"><span class="btn small">Copy citation</span><span class="btn small latte">See all decisions &rarr;</span><span class="pill ok">Rejected</span><span class="pill bad">Violation found</span></div></li>
+      <li><h2>Arrows tell you where you go</h2>
+        <p>&rarr; stays on Fino. &nearr; opens another website in a new tab, such as a regulator, GDPRhub or EUR-Lex.</p>
+        <div class="demo"><span class="btn small">See all decisions &rarr;</span><span class="btn small">The regulator&rsquo;s decision &nearr;</span></div></li>
+    </ul>
+  </div>`;
+}
+
+function titleFor(h) {
+  let m;
+  if ((m = h.match(/^[dx]-(.+)$/)) && BY_SLUG.has(m[1])) { const c = BY_SLUG.get(m[1]); return `${c.controller || 'Decision ' + c.pharos_id} · Fino`; }
+  if ((m = h.match(/^art-(\d+)$/))) return `Article ${m[1]} GDPR · Fino`;
+  if (h === 'gdpr' || h.startsWith('rec-')) return 'The GDPR · Fino';
+  return 'GDPR fines and decisions · Fino';
+}
+
+/* ---------- Router ---------- */
+let lastView = '';
+function route() {
+  const h = location.hash.slice(1) || 'fines';
+  let m;
+  const wasBrowse = lastView === 'fines';
+  if (wasBrowse) state.scroll = window.scrollY;
+  $('nav-fines').classList.toggle('on', /^(fines|d-|x-)/.test(h));
+  $('nav-gdpr').classList.toggle('on', /^(gdpr|art-|rec-)/.test(h));
+  if ((m = h.match(/^d-(.+)$/)) && BY_SLUG.has(m[1])) { fromBrowse = wasBrowse || (fromBrowse && lastView.startsWith('x-')); renderDecision(BY_SLUG.get(m[1])); window.scrollTo(0, 0); }
+  else if ((m = h.match(/^x-(.+)$/)) && BY_SLUG.has(m[1])) { renderExport(BY_SLUG.get(m[1])); window.scrollTo(0, 0); }
+  else if ((m = h.match(/^art-(\d+)$/)) && GDPR.arts[m[1]]) { renderArticle(+m[1]); window.scrollTo(0, 0); }
+  else if (h === 'gdpr') { renderGdpr(); bindGdpr(); window.scrollTo(0, 0); }
+  else if ((m = h.match(/^rec-(\d+)$/)) && GDPR.preamble.recitals[m[1]]) { if (lastView !== 'gdpr' && !lastView.startsWith('rec-')) { renderGdpr(); bindGdpr(); } openRecital(+m[1]); }
+  else if (h === 'style') { renderStyle(); window.scrollTo(0, 0); }
+  else { renderBrowse(); window.scrollTo(0, lastView.startsWith('d-') ? state.scroll : 0); }
+  document.title = titleFor(h);
+  lastView = h;
+}
+window.addEventListener('hashchange', route);
+route();
+
+}
+
+/* Load the data, then start. The summaries come in 250-row files, in the same order as the cases. */
+(async () => {
+  const main = byId('main');
+  main.innerHTML = `<div class="wrap"><div class="empty-list" style="padding-block:80px">
+    <svg class="mini" viewBox="0 0 200 180" aria-hidden="true"><path d="M100 24 C152 24 184 60 186 106 C188 148 152 166 100 166 C48 166 12 148 14 106 C16 60 48 24 100 24 Z" fill="var(--puff)" stroke="var(--ink)" stroke-width="4"/><ellipse cx="78" cy="104" rx="8" ry="11" fill="var(--eye)"/><ellipse cx="122" cy="104" rx="8" ry="11" fill="var(--eye)"/></svg>
+    <p class="bubble">Fetching every decision&hellip;</p></div></div>`;
+  const get = u => fetch(u).then(r => { if (!r.ok) throw new Error(u); return r.json(); });
+  const clean = s => (s && s.replace(/<!--[\s\S]*?-->/g, '').replace(/\s+/g, ' ').trim()) || null;
+  try {
+    const [cases, gdpr] = await Promise.all([get('data/cases.json'), get('data/gdpr.json')]);
+    const n = Math.ceil(cases.rows.length / cases.meta.summary_shard);
+    const sum = (await Promise.all(Array.from({ length: n }, (_, i) => get(`data/summaries/${i}.json`)))).flat().map(clean);
+    const by = cases.meta.fields.indexOf('summary_by');
+    boot({ meta: cases.meta, fields: cases.meta.fields, rows: cases.rows, sum, gdpr,
+           cred: cases.rows.map(r => r[by] === 'cms_tracker' ? 'c' : 'g') });
+  } catch (e) {
+    main.innerHTML = `<div class="wrap"><p class="lede" style="padding-block:80px">The decisions could not be loaded. Please reload the page; if it keeps happening, write to <span class="mail">angelillolorenzo@gmail.com</span>.</p></div>`;
+  }
+})();
+
+/* Laws menu: opens on click, closes on Escape, an outside click, or after choosing */
+const lawsBtn = byId('nav-gdpr'), lawsMenu = byId('laws-menu');
+function setLaws(open) { lawsBtn.setAttribute('aria-expanded', String(open)); lawsMenu.hidden = !open; }
+lawsBtn.addEventListener('click', e => { e.stopPropagation(); setLaws(lawsMenu.hidden); if (!lawsMenu.hidden) lawsMenu.querySelector('a').focus(); });
+lawsMenu.addEventListener('click', e => { if (e.target.closest('a')) setLaws(false); });
+document.addEventListener('click', e => { if (!e.target.closest('#laws')) setLaws(false); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && !lawsMenu.hidden) { setLaws(false); lawsBtn.focus(); } });
+
+/* Light / dark button, as on the homepage */
+const root = document.documentElement, modeBtn = byId('mode');
+function setMode(v, save) {
+  if (v === 'light') root.dataset.mode = 'light'; else delete root.dataset.mode;
+  const label = v === 'light' ? 'Switch to dark mode' : 'Switch to light mode';
+  modeBtn.setAttribute('aria-label', label); modeBtn.title = label;
+  if (save) { try { localStorage.setItem('mode', v); } catch (e) {} }
+}
+modeBtn.addEventListener('click', () => setMode(root.dataset.mode === 'light' ? 'dark' : 'light', true));
+let saved = null;
+try { saved = localStorage.getItem('mode'); } catch (e) {}
+setMode(saved, false);
+</script>
+</body>
+</html>

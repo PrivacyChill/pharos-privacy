@@ -17,3 +17,8 @@ archive/
 
 # design previews, not published
 prototype/
+
+# law sources downloaded to rebuild site/data/gdpr.json
+pipeline/law/*.html
+pipeline/law/gdpr.json
+pipeline/law/__pycache__/

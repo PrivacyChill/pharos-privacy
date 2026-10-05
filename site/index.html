@@ -38,6 +38,12 @@
   --soon: #FFB3C6;
   --soon-bg: #45242D;
   --live-bg: #33381E;
+  --latte: #F1EAE1;
+  --latte-ink: #211915;
+  --latte-muted: #6E6158;
+  --latte-line: #D6C7B6;
+  --field: #FFFDF9;
+  --go-deep: #56662A;
   color-scheme: dark;
 
   --display: "Fraunces", "Iowan Old Style", Georgia, serif;
@@ -48,6 +54,7 @@
   --bg: #F1EAE1; --surface: #FBF7F2; --ink: #211915; --muted: #6E6158; --line: #E0D4C6; --dot: #CBBBA9;
   --accent: #56662A; --accent-ink: #FFFFFF; --pink: #FFC4D3;
   --soon: #A3304F; --soon-bg: #FFE1E8; --live-bg: #E6E9CF;
+  --latte: #FFFDF9; --latte-line: #E0D4C6; --field: #FFFFFF;
   color-scheme: light;
 }
 
@@ -73,6 +80,20 @@ a:focus-visible, button:focus-visible { outline: 3px solid var(--accent); outlin
 .top nav a { text-decoration: none; font-size: 0.95rem; padding: 6px 12px; border-radius: 999px; color: var(--muted); }
 .top nav a:hover { color: var(--ink); background: var(--surface); }
 .top .wrap > nav { margin-left: auto; }
+.laws { position: relative; }
+.laws > button { display: inline-flex; align-items: center; gap: 5px; font: inherit; font-size: 0.95rem; padding: 6px 12px; border-radius: 999px; border: 0; background: none; color: var(--muted); cursor: pointer; }
+.laws > button:hover { color: var(--ink); background: var(--surface); }
+.laws > button svg { width: 12px; height: 12px; transition: transform .15s ease; }
+.laws > button[aria-expanded="true"] svg { transform: rotate(180deg); }
+.laws-menu { position: absolute; right: 0; top: calc(100% + 8px); z-index: 10; list-style: none; margin: 0; padding: 8px; width: 290px; max-width: calc(100vw - 32px);
+  background: var(--latte); color: var(--latte-ink); border: 2px solid var(--latte-ink); border-radius: 20px; box-shadow: 6px 6px 0 var(--pink); display: grid; gap: 2px; color-scheme: light; }
+.top nav .laws-menu a, .laws-menu .soon-law { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0 10px; padding: 10px 12px; border-radius: 14px; text-decoration: none; color: var(--latte-ink); font-size: 1rem; }
+.top nav .laws-menu a:hover { background: var(--field); color: var(--latte-ink); }
+.top nav .laws-menu a:focus-visible { outline: 3px solid var(--go-deep); outline-offset: 0; }
+.laws-menu b { font-size: 1rem; }
+.laws-menu span { grid-column: 1; font-size: 0.85rem; color: var(--latte-muted); }
+.laws-menu .soon-law { opacity: .75; }
+.laws-menu em { grid-column: 2; grid-row: 1 / span 2; align-self: center; font-style: normal; font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.06em; text-transform: uppercase; padding: 3px 7px; border-radius: 6px; background: #FFE1E8; color: #A3304F; }
 .mode { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); cursor: pointer; padding: 0; }
 .mode:hover { border-color: var(--ink); }
 .mode svg { width: 20px; height: 20px; }
@@ -191,6 +212,7 @@ footer .mail { font-family: var(--mono); user-select: all; }
 
 @media (max-width: 860px) {
   .top .wrap > nav { order: 3; width: 100%; margin-left: -12px; }
+  .laws-menu { left: 0; right: auto; }
   .mode { order: 2; }
   .hero .wrap { grid-template-columns: minmax(0, 1fr); padding-block: 32px 56px; gap: 28px; }
   .buddy { grid-row: 1; grid-template-columns: auto minmax(0, 1fr); justify-items: start; align-items: center; }
@@ -228,7 +250,15 @@ footer .mail { font-family: var(--mono); user-select: all; }
     </a>
     <nav aria-label="Main">
       <a href="#here">Explainers</a>
-      <a href="Enforcement.html">Fines</a>
+      <a href="fines.html">Fines</a>
+      <div class="laws" id="laws">
+        <button type="button" id="laws-btn" aria-expanded="false" aria-controls="laws-menu">Laws <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5 6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <ul class="laws-menu" id="laws-menu" hidden>
+          <li><a href="fines.html#gdpr"><b>GDPR</b><span>General Data Protection Regulation</span></a></li>
+          <li><div class="soon-law"><b>AI Act</b><span>Artificial Intelligence Act</span><em>Coming soon</em></div></li>
+          <li><div class="soon-law"><b>ePrivacy</b><span>Cookies and electronic communications</span><em>Coming soon</em></div></li>
+        </ul>
+      </div>
       <a href="Tool.html">Tools</a>
       <a href="About.html">About</a>
     </nav>
@@ -248,7 +278,7 @@ footer .mail { font-family: var(--mono); user-select: all; }
         <h1>The fine print on AI and privacy, <em>read for you.</em></h1>
         <p class="lede">Short explainers on the AI news that matters for your data, a searchable database of <strong>GDPR fines and decisions</strong>, and small tools that answer real questions. Free, no sign-up.</p>
         <div class="actions">
-          <a class="btn primary" href="Enforcement.html">Search the fines</a>
+          <a class="btn primary" href="fines.html">Search the fines</a>
           <a class="btn ghost" href="Tool.html">Try the AI Act triage</a>
         </div>
         <ul class="figures" id="figures">
@@ -296,7 +326,7 @@ footer .mail { font-family: var(--mono); user-select: all; }
           <p>AI news through a privacy and regulation lens. First up: why some Apple features still aren&rsquo;t available in Europe, and whether that&rsquo;s good for you.</p>
           <span class="pill soon">Coming soon</span><span class="arrow" aria-hidden="true">&rarr;</span>
         </div></li>
-        <li><a href="Enforcement.html">
+        <li><a href="fines.html">
           <h3>Fines database</h3>
           <p>4,998 decisions from 34 countries. Filter by country, sector, year and outcome, and open the original decision.</p>
           <span class="pill live">Live</span><span class="arrow" aria-hidden="true">&rarr;</span>
@@ -498,6 +528,14 @@ footer .mail { font-family: var(--mono); user-select: all; }
   let saved = null;
   try { saved = localStorage.getItem('mode'); } catch (e) {}
   setMode(saved, false);
+
+  /* Laws menu: opens on click, closes on Escape, an outside click, or after choosing */
+  const lawsBtn = document.getElementById('laws-btn'), lawsMenu = document.getElementById('laws-menu');
+  function setLaws(open) { lawsBtn.setAttribute('aria-expanded', String(open)); lawsMenu.hidden = !open; }
+  lawsBtn.addEventListener('click', e => { e.stopPropagation(); setLaws(lawsMenu.hidden); if (!lawsMenu.hidden) lawsMenu.querySelector('a').focus(); });
+  lawsMenu.addEventListener('click', e => { if (e.target.closest('a')) setLaws(false); });
+  document.addEventListener('click', e => { if (!e.target.closest('#laws')) setLaws(false); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && !lawsMenu.hidden) { setLaws(false); lawsBtn.focus(); } });
 
   /* Fino: eyes follow the pointer, blinks, hops when tapped */
   const fino = document.getElementById('fino');

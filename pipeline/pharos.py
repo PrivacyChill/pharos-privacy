@@ -582,7 +582,15 @@ def step_export(db):
 
 SITE_FIELDS = ['pharos_id', 'case_id', 'source', 'country', 'country_code', 'authority', 'decision_date',
                'date_precision', 'fine_eur', 'fine_original', 'currency', 'controller', 'sector_tag', 'articles',
-               'categories', 'violation_type', 'best_outcome', 'source_url', 'source_page', 'gdprhub_page']
+               'categories', 'violation_type', 'best_outcome', 'source_url', 'source_page', 'gdprhub_page',
+               'summary_by']
+
+
+def summary_by(r):
+    """Who wrote the summary the site shows: the case's own source, or GDPRhub through a linked page."""
+    if not r['best_summary']:
+        return None
+    return r['source'] if r['summary'] else 'gdprhub'
 
 
 def export_site(rows, meta):
@@ -593,7 +601,7 @@ def export_site(rows, meta):
     for old in os.listdir(shard_dir):  # shard count can shrink
         os.remove(os.path.join(shard_dir, old))
     site = {'meta': meta | {'fields': SITE_FIELDS, 'summary_shard': SUMMARY_SHARD},
-            'rows': [[r[k] for k in SITE_FIELDS] for r in rows]}
+            'rows': [[summary_by(r) if k == 'summary_by' else r[k] for k in SITE_FIELDS] for r in rows]}
     with open(os.path.join(SITE_DATA_DIR, 'cases.json'), 'w', encoding='utf-8') as f:
         json.dump(site, f, ensure_ascii=False, separators=(',', ':'))
     with open(os.path.join(SITE_DATA_DIR, 'stats.json'), 'w', encoding='utf-8') as f:
