@@ -2,63 +2,535 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'none'; img-src 'self' data:; connect-src 'self'; base-uri 'self'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; connect-src 'self'; base-uri 'self'; form-action 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Pharos — GDPR fines and decisions, searchable and free</title>
-<meta name="description" content="A free, searchable collection of GDPR enforcement decisions from across Europe, made by Lorenzo A.">
+<title>Fino: EU privacy and AI rules, in plain English</title>
+<meta name="description" content="Short explainers on AI and privacy, a searchable database of GDPR fines and decisions, and small free tools. Made by Lorenzo A., CIPP/E.">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="canonical" href="https://pharosprivacy.com/">
-<link rel="stylesheet" href="style.css">
+<link rel="preload" href="fonts/fraunces-300-800-latin.woff2" as="font" type="font/woff2" crossorigin>
+<script>try { if (localStorage.getItem('mode') === 'light') document.documentElement.dataset.mode = 'light'; } catch (e) {}</script>
+<style>
+/* Fonts are served from this site, so no visitor data goes to a font provider. All under the SIL Open Font License. */
+@font-face { font-family: "Fraunces"; font-style: normal; font-weight: 300 800; font-display: swap; src: url("fonts/fraunces-300-800-latin.woff2") format("woff2"); }
+@font-face { font-family: "Atkinson Hyperlegible"; font-style: normal; font-weight: 400; font-display: swap; src: url("fonts/atkinson-hyperlegible-400-latin.woff2") format("woff2"); }
+@font-face { font-family: "Atkinson Hyperlegible"; font-style: normal; font-weight: 700; font-display: swap; src: url("fonts/atkinson-hyperlegible-700-latin.woff2") format("woff2"); }
+@font-face { font-family: "IBM Plex Mono"; font-style: normal; font-weight: 400; font-display: swap; src: url("fonts/ibm-plex-mono-400-latin.woff2") format("woff2"); }
+@font-face { font-family: "IBM Plex Mono"; font-style: normal; font-weight: 500; font-display: swap; src: url("fonts/ibm-plex-mono-500-latin.woff2") format("woff2"); }
+
+/* Layout: a dot field hero with the mascot beside the headline, then a ruled list of what's here, then how Fino works.
+   Dark (espresso) is the default look for everyone; light (latte) is one click away with the sun/moon button. */
+:root {
+  --bg: #241B17;
+  --surface: #2F2520;
+  --ink: #F4EBE2;
+  --muted: #C2B1A2;
+  --line: #44362F;
+  --dot: #4E4038;
+  --accent: #BFD183;
+  --accent-ink: #151A05;
+  --pink: #F59BB4;
+  --puff: #FFCDB8;
+  --puff-shade: #F2A98E;
+  --blush: #FF8BA4;
+  --eye: #211915;
+  --soon: #FFB3C6;
+  --soon-bg: #45242D;
+  --live-bg: #33381E;
+  color-scheme: dark;
+
+  --display: "Fraunces", "Iowan Old Style", Georgia, serif;
+  --body: "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+}
+:root[data-mode="light"] {
+  --bg: #F1EAE1; --surface: #FBF7F2; --ink: #211915; --muted: #6E6158; --line: #E0D4C6; --dot: #CBBBA9;
+  --accent: #56662A; --accent-ink: #FFFFFF; --pink: #FFC4D3;
+  --soon: #A3304F; --soon-bg: #FFE1E8; --live-bg: #E6E9CF;
+  color-scheme: light;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 1.0625rem;
+  line-height: 1.55;
+  overflow-x: hidden;
+}
+a { color: inherit; }
+a:focus-visible, button:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; border-radius: 6px; }
+.wrap { max-width: 1120px; margin-inline: auto; padding-inline: 20px; }
+
+/* Header */
+.top { position: relative; z-index: 3; }
+.top .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-block: 18px; flex-wrap: wrap; }
+.brand { display: flex; align-items: center; gap: 10px; text-decoration: none; font-family: var(--display); font-weight: 650; font-size: 1.5rem; font-variation-settings: "SOFT" 100, "opsz" 48; letter-spacing: -0.01em; }
+.brand svg { width: 34px; height: 31px; }
+.top nav { display: flex; gap: 4px; flex-wrap: wrap; }
+.top nav a { text-decoration: none; font-size: 0.95rem; padding: 6px 12px; border-radius: 999px; color: var(--muted); }
+.top nav a:hover { color: var(--ink); background: var(--surface); }
+.top .wrap > nav { margin-left: auto; }
+.mode { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); cursor: pointer; padding: 0; }
+.mode:hover { border-color: var(--ink); }
+.mode svg { width: 20px; height: 20px; }
+.mode .moon { display: none; }
+:root[data-mode="light"] .mode .sun { display: none; }
+:root[data-mode="light"] .mode .moon { display: block; }
+
+/* Hero */
+.hero { position: relative; overflow: hidden; }
+#field {
+  position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0;
+  -webkit-mask-image: linear-gradient(to bottom, #000 70%, transparent);
+          mask-image: linear-gradient(to bottom, #000 70%, transparent);
+}
+.hero .wrap { position: relative; z-index: 1; display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 0.65fr); gap: 40px; align-items: center; padding-block: 56px 72px; }
+.eyebrow { font-family: var(--mono); font-size: 0.8rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin: 0 0 18px; }
+.hero h1 {
+  font-family: var(--display);
+  font-variation-settings: "SOFT" 100, "opsz" 144;
+  font-weight: 560;
+  font-size: clamp(2.6rem, 6.2vw, 4.9rem);
+  line-height: 0.98;
+  letter-spacing: -0.025em;
+  margin: 0 0 22px;
+  text-wrap: balance;
+}
+.hero h1 em { font-style: italic; font-weight: 420; color: var(--accent); }
+.lede { font-size: 1.2rem; max-width: 34em; margin: 0 0 28px; color: var(--muted); }
+.lede strong { color: var(--ink); font-weight: 700; background: linear-gradient(transparent 62%, var(--pink) 62%, var(--pink) 92%, transparent 92%); }
+::selection { background: var(--pink); color: #15141F; }
+.actions { display: flex; flex-wrap: wrap; gap: 12px; }
+.btn { display: inline-flex; align-items: center; gap: 8px; text-decoration: none; font-weight: 700; padding: 13px 22px; border-radius: 999px; border: 2px solid var(--ink); transition: transform .15s ease; }
+.btn:hover { transform: translateY(-2px); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.btn.ghost { background: var(--surface); }
+.btn.ghost:hover { background: var(--pink); color: #15141F; }
+.figures { display: flex; flex-wrap: wrap; gap: 6px 22px; margin: 30px 0 0; padding: 0; list-style: none; font-family: var(--mono); font-size: 0.85rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.figures b { color: var(--ink); font-weight: 500; }
+
+/* Mascot */
+.buddy { display: grid; justify-items: center; gap: 14px; }
+.bubble {
+  position: relative; background: var(--surface); border: 2px solid var(--ink); border-radius: 22px;
+  padding: 14px 18px; font-size: 0.98rem; line-height: 1.45; max-width: 260px;
+  box-shadow: 5px 5px 0 var(--pink);
+}
+.bubble::after {
+  content: ""; position: absolute; left: 50%; bottom: -11px; width: 18px; height: 18px; margin-left: -9px;
+  background: var(--surface); border-right: 2px solid var(--ink); border-bottom: 2px solid var(--ink);
+  transform: rotate(45deg); border-bottom-right-radius: 4px;
+}
+.fino { width: min(240px, 60vw); height: auto; cursor: pointer; overflow: visible; }
+.fino .body-g { transform-origin: 100px 168px; animation: breathe 3.6s ease-in-out infinite; }
+.fino.hop .body-g { animation: hop .55s cubic-bezier(.3,1.6,.5,1); }
+.fino .eye { transition: transform .12s ease-out; }
+.fino .lid { transform-box: fill-box; transform-origin: center; transition: transform .08s; }
+.fino.blink .lid { transform: scaleY(0.08); }
+@keyframes breathe { 0%,100% { transform: scale(1,1); } 50% { transform: scale(1.025,0.965); } }
+@keyframes hop { 0% { transform: translateY(0) scale(1.06,.92); } 45% { transform: translateY(-22px) scale(.96,1.05); } 100% { transform: translateY(0) scale(1,1); } }
+
+/* Latest decision band */
+.latest { border-block: 2px solid var(--ink); background: var(--surface); }
+.latest .wrap { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 18px; align-items: center; padding-block: 16px; }
+.tag { font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; background: var(--ink); color: var(--bg); padding: 5px 10px; border-radius: 999px; white-space: nowrap; }
+.latest p { margin: 0; min-width: 0; }
+.latest .amt { font-family: var(--mono); font-weight: 500; font-variant-numeric: tabular-nums; }
+.latest .meta { font-family: var(--mono); font-size: 0.85rem; color: var(--muted); }
+.latest a.src { font-family: var(--mono); font-size: 0.85rem; white-space: nowrap; }
+
+/* What's here */
+section.here { padding-block: 72px 24px; }
+.sec-h { font-family: var(--display); font-variation-settings: "SOFT" 100, "opsz" 96; font-weight: 560; font-size: clamp(1.9rem, 3.6vw, 2.6rem); letter-spacing: -0.02em; line-height: 1.05; margin: 0 0 8px; text-wrap: balance; }
+.sec-sub { color: var(--muted); margin: 0 0 32px; max-width: 38em; }
+.rows { list-style: none; margin: 0; padding: 0; border-top: 2px solid var(--ink); }
+.rows li { border-bottom: 1px solid var(--line); }
+.rows a, .rows .row {
+  display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.4fr) 110px 28px; gap: 20px; align-items: center;
+  padding: 22px 4px; text-decoration: none;
+}
+.rows a { transition: background .15s ease, padding .2s ease; border-radius: 14px; }
+.rows a:hover { background: var(--surface); padding-inline: 16px; }
+.rows h3 { margin: 0; font-family: var(--display); font-variation-settings: "SOFT" 100, "opsz" 72; font-weight: 520; font-size: 1.65rem; letter-spacing: -0.015em; line-height: 1.1; }
+.rows p { margin: 0; color: var(--muted); min-width: 0; }
+.pill { justify-self: start; font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.06em; text-transform: uppercase; padding: 4px 10px; border-radius: 999px; white-space: nowrap; }
+.pill.live { background: var(--live-bg); color: var(--accent); }
+.pill.soon { background: var(--soon-bg); color: var(--soon); }
+.arrow { font-size: 1.3rem; justify-self: end; transition: transform .2s ease; }
+.rows a:hover .arrow { transform: translateX(4px); }
+.rows .row .arrow { color: var(--line); }
+
+/* How it works */
+section.how { padding-block: 64px; }
+.how .wrap { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 48px; align-items: start; }
+.steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 18px; counter-reset: s; }
+.steps li { display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 14px; align-items: start; }
+.steps li::before {
+  counter-increment: s; content: counter(s);
+  display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%;
+  border: 2px solid var(--ink); background: var(--pink); color: #15141F; font-family: var(--mono); font-weight: 500;
+}
+.steps b { display: block; font-size: 1.1rem; }
+.steps span { color: var(--muted); }
+
+/* About */
+section.me { padding-block: 8px 72px; }
+.me .card { background: var(--surface); border: 2px solid var(--ink); box-shadow: 8px 8px 0 var(--pink); border-radius: 28px; padding: 32px; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 24px; align-items: center; }
+.me p { margin: 0; max-width: 46em; }
+.me p + p { margin-top: 10px; color: var(--muted); }
+
+/* Footer */
+footer { background: var(--ink); color: var(--bg); }
+footer .wrap { padding-block: 40px; display: grid; gap: 10px; font-size: 0.92rem; }
+footer p { margin: 0; max-width: 60em; opacity: .85; }
+footer .mail { font-family: var(--mono); user-select: all; }
+
+
+@media (max-width: 860px) {
+  .top .wrap > nav { order: 3; width: 100%; margin-left: -12px; }
+  .mode { order: 2; }
+  .hero .wrap { grid-template-columns: minmax(0, 1fr); padding-block: 32px 56px; gap: 28px; }
+  .buddy { grid-row: 1; grid-template-columns: auto minmax(0, 1fr); justify-items: start; align-items: center; }
+  .buddy .fino { width: 112px; grid-column: 1; grid-row: 1; }
+  .buddy .bubble { grid-column: 2; grid-row: 1; font-size: 0.92rem; }
+  .bubble::after { left: -10px; top: 50%; bottom: auto; margin: -9px 0 0; transform: rotate(135deg); }
+  .latest .wrap { grid-template-columns: minmax(0, 1fr); gap: 8px; }
+  .tag { justify-self: start; }
+  .rows a, .rows .row { grid-template-columns: minmax(0, 1fr) auto; gap: 8px 12px; }
+  .rows h3 { grid-column: 1; }
+  .rows .pill { grid-column: 2; grid-row: 1; justify-self: end; }
+  .rows p { grid-column: 1 / -1; }
+  .rows .arrow { display: none; }
+  .how .wrap { grid-template-columns: minmax(0, 1fr); gap: 28px; }
+  .me .card { grid-template-columns: minmax(0, 1fr); padding: 24px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fino .body-g { animation: none; }
+  .btn, .rows a, .arrow { transition: none; }
+}
+</style>
+
 </head>
 <body>
-<header class="site">
-  <a class="name" href="index.html">Pharos</a>
-  <nav><a href="index.html" aria-current="page">Home</a> <a href="Enforcement.html">Database</a> <a href="Tool.html">AI Act triage</a> <a href="Method.html">How it’s built</a> <a href="About.html">About</a></nav>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="index.html" aria-label="Fino, home">
+      <svg viewBox="0 0 200 180" aria-hidden="true">
+        <path d="M100 24 C152 24 184 60 186 106 C188 148 152 166 100 166 C48 166 12 148 14 106 C16 60 48 24 100 24 Z" fill="var(--puff)" stroke="var(--ink)" stroke-width="9"/>
+        <ellipse cx="78" cy="100" rx="9" ry="13" fill="var(--eye)"/>
+        <ellipse cx="122" cy="100" rx="9" ry="13" fill="var(--eye)"/>
+      </svg>
+      Fino
+    </a>
+    <nav aria-label="Main">
+      <a href="#here">Explainers</a>
+      <a href="Enforcement.html">Fines</a>
+      <a href="Tool.html">Tools</a>
+      <a href="About.html">About</a>
+    </nav>
+    <button class="mode" id="mode" type="button" aria-label="Switch to light mode" title="Switch to light mode">
+      <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5a8.5 8.5 0 1 0 11 11z"/></svg>
+    </button>
+  </div>
 </header>
-<main>
 
-<section class="hero">
-  <h1>GDPR fines and decisions from across Europe. <span>Searchable, free, made by Lorenzo.</span></h1>
-  <p class="stats grey" id="stats"></p>
-  <a class="btn" href="Enforcement.html">Search the database</a>
-</section>
+<main id="top">
+  <section class="hero">
+    <canvas id="field" aria-hidden="true"></canvas>
+    <div class="wrap">
+      <div>
+        <p class="eyebrow">EU privacy and AI rules, in plain English</p>
+        <h1>The fine print on AI and privacy, <em>read for you.</em></h1>
+        <p class="lede">Short explainers on the AI news that matters for your data, a searchable database of <strong>GDPR fines and decisions</strong>, and small tools that answer real questions. Free, no sign-up.</p>
+        <div class="actions">
+          <a class="btn primary" href="Enforcement.html">Search the fines</a>
+          <a class="btn ghost" href="Tool.html">Try the AI Act triage</a>
+        </div>
+        <ul class="figures" id="figures">
+          <li><b>4,998</b> decisions</li>
+          <li><b>34</b> countries</li>
+          <li><b>€8.68 billion</b> in fines</li>
+          <li>updated <b>18 Sep 2026</b></li>
+        </ul>
+      </div>
+      <div class="buddy">
+        <p class="bubble">Hi, I&rsquo;m Fino. Soon I&rsquo;ll be reading the new decisions and drafting summaries. Lorenzo checks everything before it goes up.</p>
+        <svg class="fino" id="fino" viewBox="0 0 200 180" role="img" aria-label="Fino, a small round peach-coloured mascot with two dark eyes and pink cheeks">
+          <ellipse cx="100" cy="172" rx="62" ry="6" fill="var(--ink)" opacity=".12"/>
+          <g class="body-g">
+            <path d="M100 24 C152 24 184 60 186 106 C188 148 152 166 100 166 C48 166 12 148 14 106 C16 60 48 24 100 24 Z" fill="var(--puff)" stroke="var(--ink)" stroke-width="3.5"/>
+            <path d="M100 24 C126 24 146 32 160 46 C140 40 120 38 100 40 C78 42 60 50 46 62 C58 38 78 24 100 24 Z" fill="#FFFFFF" opacity=".35"/>
+            <path d="M98 24 C96 14 102 8 110 9" fill="none" stroke="var(--ink)" stroke-width="3.5" stroke-linecap="round"/>
+            <circle cx="111" cy="9" r="5" fill="var(--accent)" stroke="var(--ink)" stroke-width="2.5"/>
+            <ellipse cx="54" cy="120" rx="14" ry="8" fill="var(--blush)" opacity=".55"/>
+            <ellipse cx="146" cy="120" rx="14" ry="8" fill="var(--blush)" opacity=".55"/>
+            <g class="eye" id="eyeL"><g class="lid"><ellipse cx="78" cy="100" rx="8" ry="12" fill="var(--eye)"/><circle cx="81" cy="95" r="3" fill="#FFFFFF"/></g></g>
+            <g class="eye" id="eyeR"><g class="lid"><ellipse cx="122" cy="100" rx="8" ry="12" fill="var(--eye)"/><circle cx="125" cy="95" r="3" fill="#FFFFFF"/></g></g>
+            <path d="M93 121 Q100 128 107 121" fill="none" stroke="var(--eye)" stroke-width="3" stroke-linecap="round"/>
+          </g>
+        </svg>
+      </div>
+    </div>
+  </section>
 
-<div class="tiles">
-  <a class="tile yellow" href="Enforcement.html">
-    <div class="t">Database <span>filter by country, sector, year and outcome</span></div>
-    <div class="go">Open &rarr;</div>
-  </a>
-  <a class="tile blue" href="Tool.html">
-    <div class="t">AI Act triage <span>three questions, a rough answer</span></div>
-    <div class="go">Try it &rarr;</div>
-  </a>
-  <a class="tile grey" href="Method.html">
-    <div class="t">How it&rsquo;s built <span>and what it gets wrong</span></div>
-    <div class="go">Read &rarr;</div>
-  </a>
-  <a class="tile black" href="About.html">
-    <div class="t">About <span>who made this, and why</span></div>
-    <div class="go">Read &rarr;</div>
-  </a>
-</div>
+  <div class="latest">
+    <div class="wrap">
+      <span class="tag">Biggest recent fine</span>
+      <p><span class="amt">€824,990,000</span> &middot; <strong>Uber</strong>, for automatically blocking drivers&rsquo; accounts without proper human review. <span class="meta">Netherlands (AP) &middot; 21 Aug 2026 &middot; GDPR Art. 13, 14 and 22 (decisions made by machines)</span></p>
+      <a class="src" href="https://www.autoriteitpersoonsgegevens.nl/actueel/uber-krijgt-boete-van-bijna-825-miljoen-euro-voor-geautomatiseerd-blokkeren-van-chauffeurs">Source &nearr;</a>
+    </div>
+  </div>
+
+  <section class="here" id="here">
+    <div class="wrap">
+      <h2 class="sec-h">What&rsquo;s here</h2>
+      <p class="sec-sub">Everything is free and works without an account. Searching happens in your browser, so nothing you type is sent anywhere.</p>
+      <ul class="rows">
+        <li><div class="row">
+          <h3>Explainers</h3>
+          <p>AI news through a privacy and regulation lens. First up: why some Apple features still aren&rsquo;t available in Europe, and whether that&rsquo;s good for you.</p>
+          <span class="pill soon">Coming soon</span><span class="arrow" aria-hidden="true">&rarr;</span>
+        </div></li>
+        <li><a href="Enforcement.html">
+          <h3>Fines database</h3>
+          <p>4,998 decisions from 34 countries. Filter by country, sector, year and outcome, and open the original decision.</p>
+          <span class="pill live">Live</span><span class="arrow" aria-hidden="true">&rarr;</span>
+        </a></li>
+        <li><a href="Tool.html">
+          <h3>AI Act triage</h3>
+          <p>Three questions about an AI system, and a rough idea of which EU AI Act rules apply to it.</p>
+          <span class="pill live">Live</span><span class="arrow" aria-hidden="true">&rarr;</span>
+        </a></li>
+        <li><div class="row">
+          <h3>Weekly digest</h3>
+          <p>This week in GDPR enforcement: the new decisions in plain English, drafted by Fino and checked by Lorenzo.</p>
+          <span class="pill soon">Coming soon</span><span class="arrow" aria-hidden="true">&rarr;</span>
+        </div></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="how">
+    <div class="wrap">
+      <div>
+        <h2 class="sec-h">Fino drafts. Lorenzo checks. You get the source.</h2>
+        <p class="sec-sub">Fino is the AI helper behind the explainers and the weekly digest, both starting soon. It does the slow reading so the site can stay up to date, and it never has the last word.</p>
+      </div>
+      <ol class="steps">
+        <li><div><b>Fino reads the new decisions</b><span>Every week, from the regulators&rsquo; own publications as collected by CMS and GDPRhub.</span></div></li>
+        <li><div><b>Lorenzo checks the draft</b><span>Nothing goes up until a person has compared it with the original.</span></div></li>
+        <li><div><b>You can always check it too</b><span>Every summary is labelled as AI-drafted and links to the decision it comes from.</span></div></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="me" id="me">
+    <div class="wrap">
+      <div class="card">
+        <div>
+          <p>I&rsquo;m Lorenzo, a Certified Information Privacy Professional/Europe (CIPP/E), preparing for the Solicitors Qualifying Examination in England. I built this to make EU privacy and AI rules easier to follow.</p>
+          <p>It&rsquo;s a personal project: free, no ads, no sign-up, and not a law firm. Nothing here is legal advice.</p>
+        </div>
+        <a class="btn ghost" href="About.html">More about me</a>
+      </div>
+    </div>
+  </section>
 </main>
-<footer class="site"><div class="wrap">
-  <p>Pharos is a free, personal project by Lorenzo A. It is not legal advice.
-  Data from <a href="https://www.enforcementtracker.com/">enforcementtracker.com, provided by CMS</a> and
-  <a href="https://gdprhub.eu/">GDPRhub</a> (noyb), under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a>.</p>
-  <p><a href="mailto:angelillolorenzo@gmail.com">angelillolorenzo@gmail.com</a> · <a href="Privacy.html">Privacy</a></p>
-</div></footer>
+
+<footer>
+  <div class="wrap">
+    <p>Data from enforcementtracker.com, provided by CMS, and GDPRhub (noyb), under CC BY-NC-SA 4.0.</p>
+    <p>Spotted a mistake? <span class="mail">angelillolorenzo@gmail.com</span></p>
+  </div>
+</footer>
+
 <script>
-fetch('data/stats.json').then(r => r.ok ? r.json() : null).then(m => {
-  if (!m || !m.stats) return;
-  const d = new Date(m.generated_at.replace(' ', 'T') + 'Z').toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
-  const el = document.getElementById('stats');
-  el.textContent = '';
-  const b = document.createElement('strong');
-  b.textContent = `${Number(m.stats.cases).toLocaleString('en-GB')} decisions`;
-  el.append(b, ` from ${m.stats.countries} countries, last updated ${d}.`);
-}).catch(() => {});
+(() => {
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* Live figures from the database export; the numbers written above are the fallback. */
+  fetch('data/stats.json').then(r => r.ok ? r.json() : null).then(m => {
+    if (!m || !m.stats) return;
+    const s = m.stats, f = n => Number(n).toLocaleString('en-GB');
+    const d = new Date(m.generated_at.replace(' ', 'T') + 'Z').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+    const li = document.querySelectorAll('#figures b');
+    li[0].textContent = f(s.cases); li[1].textContent = s.countries;
+    li[2].textContent = '€' + (s.total_fines_eur / 1e9).toFixed(2) + ' billion'; li[3].textContent = d;
+  }).catch(() => {});
+
+  /* Dot field: loose particles on springs. Near the pointer they are pushed out,
+     swirl around it and get dragged along when it moves; they keep a fading trail
+     of colour and wobble back home. Without reduced motion they also drift a little
+     on their own, and a slow wanderer stirs them while the pointer rests. */
+  const hero = document.querySelector('.hero');
+  const cv = document.getElementById('field');
+  const ctx = cv.getContext('2d');
+  const GAP = 24, R = 210;
+  let w = 0, h = 0, dpr = 1, dots = [], colors = {};
+  const ptr = { x: -9999, y: -9999, vx: 0, vy: 0, last: -1e9, power: 0 };
+  const wand = { x: -9999, y: -9999, vx: 0, vy: 0 };
+
+  function readColors() {
+    const cs = getComputedStyle(document.documentElement);
+    colors = {
+      dot: cs.getPropertyValue('--dot').trim(),
+      set: ['--accent', '--puff-shade', '--blush', '--ink'].map(v => cs.getPropertyValue(v).trim())
+    };
+  }
+  function build() {
+    const r = hero.getBoundingClientRect();
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    w = r.width; h = r.height;
+    cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    dots = [];
+    let i = 0;
+    for (let y = GAP / 2; y < h; y += GAP) {
+      for (let x = GAP / 2; x < w; x += GAP) {
+        const hx = x + (Math.random() - 0.5) * GAP * 0.8;
+        const hy = y + (Math.random() - 0.5) * GAP * 0.8;
+        dots.push({ hx, hy, x: hx, y: hy, vx: 0, vy: 0, heat: 0, ux: 1, uy: 0,
+                    c: i % 4, ph: Math.random() * 6.283, sp: 0.6 + Math.random() * 0.8 });
+        i++;
+      }
+    }
+    readColors();
+  }
+
+  /* Returns true while anything is still moving or glowing. */
+  function draw(t) {
+    ctx.clearRect(0, 0, w, h);
+    const idle = t - ptr.last > 1800;
+    ptr.power += ((idle ? 0 : 1) - ptr.power) * 0.06;
+    ptr.vx *= 0.85; ptr.vy *= 0.85;
+
+    const src = [];
+    if (ptr.power > 0.01) src.push({ x: ptr.x, y: ptr.y, vx: ptr.vx, vy: ptr.vy, s: ptr.power, spin: 1 });
+    if (!reduce) {
+      const wx = w * (0.5 + 0.34 * Math.sin(t * 0.00031) + 0.1 * Math.sin(t * 0.0011));
+      const wy = h * (0.5 + 0.28 * Math.sin(t * 0.00047 + 1) + 0.08 * Math.cos(t * 0.0013));
+      if (wand.x > -9000) { wand.vx = wx - wand.x; wand.vy = wy - wand.y; }
+      wand.x = wx; wand.y = wy;
+      if (ptr.power < 0.99) src.push({ x: wx, y: wy, vx: wand.vx * 4, vy: wand.vy * 4, s: (1 - ptr.power) * 0.8, spin: -1 });
+    }
+
+    let busy = false;
+    ctx.lineCap = 'round';
+    ctx.lineWidth = 2.4;
+    const calm = [];
+    for (const d of dots) {
+      let hx = d.hx, hy = d.hy;
+      if (!reduce) {
+        hx += Math.sin(t * 0.0009 * d.sp + d.ph) * 4;
+        hy += Math.cos(t * 0.0007 * d.sp + d.ph * 1.3) * 4;
+      }
+      let ax = (hx - d.x) * 0.02, ay = (hy - d.y) * 0.02, f = 0;
+      for (const s of src) {
+        const dx = d.x - s.x, dy = d.y - s.y, dist = Math.hypot(dx, dy) || 1;
+        if (dist < R) {
+          const k = (1 - dist / R) ** 2 * s.s;
+          const ux = dx / dist, uy = dy / dist;
+          ax += ux * k * 1.3 - uy * k * 0.55 * s.spin + s.vx * k * 0.045;
+          ay += uy * k * 1.3 + ux * k * 0.55 * s.spin + s.vy * k * 0.045;
+          if (k > f) { f = k; d.ux = ux; d.uy = uy; }
+        }
+      }
+      d.vx = (d.vx + ax) * 0.9;
+      d.vy = (d.vy + ay) * 0.9;
+      d.x += d.vx; d.y += d.vy;
+      d.heat = Math.max(d.heat * 0.965, f * 1.4);
+
+      const sp = Math.hypot(d.vx, d.vy);
+      if (sp > 0.02 || d.heat > 0.01) busy = true;
+      if (d.heat > 0.03 || sp > 0.5) {
+        let ux = d.ux, uy = d.uy;
+        if (sp > 0.5) { ux = d.vx / sp; uy = d.vy / sp; d.ux = ux; d.uy = uy; }
+        const len = Math.min(18, 3 + d.heat * 9 + sp * 2.2);
+        ctx.globalAlpha = Math.min(1, 0.2 + d.heat * 1.4 + sp * 0.12);
+        ctx.strokeStyle = colors.set[d.c];
+        ctx.beginPath();
+        ctx.moveTo(d.x - ux * len / 2, d.y - uy * len / 2);
+        ctx.lineTo(d.x + ux * len / 2, d.y + uy * len / 2);
+        ctx.stroke();
+      } else {
+        calm.push(d);
+      }
+    }
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = colors.dot;
+    ctx.beginPath();
+    for (const d of calm) { ctx.moveTo(d.x + 1.3, d.y); ctx.arc(d.x, d.y, 1.3, 0, Math.PI * 2); }
+    ctx.fill();
+    return busy || ptr.power > 0.01;
+  }
+
+  let running = false, visible = true;
+  function loop(t) {
+    if (!visible || document.hidden) { running = false; return; }
+    const busy = draw(t);
+    if (reduce && !busy) { running = false; return; }
+    requestAnimationFrame(loop);
+  }
+  function start() { if (!running) { running = true; requestAnimationFrame(loop); } }
+
+  build();
+  start();
+  new ResizeObserver(() => { build(); start(); }).observe(hero);
+  new IntersectionObserver(e => { visible = e[0].isIntersecting; start(); }).observe(hero);
+  document.addEventListener('visibilitychange', start);
+  new MutationObserver(() => { readColors(); start(); }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-mode'] });
+
+  /* Light / dark button. Dark is the default; a choice is kept on this device only, if storage is allowed. */
+  const root = document.documentElement;
+  const modeBtn = document.getElementById('mode');
+  function setMode(m, save) {
+    if (m === 'light') root.dataset.mode = 'light'; else delete root.dataset.mode;
+    const label = m === 'light' ? 'Switch to dark mode' : 'Switch to light mode';
+    modeBtn.setAttribute('aria-label', label); modeBtn.title = label;
+    if (save) { try { localStorage.setItem('mode', m); } catch (e) {} }
+  }
+  modeBtn.addEventListener('click', () => setMode(root.dataset.mode === 'light' ? 'dark' : 'light', true));
+  let saved = null;
+  try { saved = localStorage.getItem('mode'); } catch (e) {}
+  setMode(saved, false);
+
+  /* Fino: eyes follow the pointer, blinks, hops when tapped */
+  const fino = document.getElementById('fino');
+  const eyes = [document.getElementById('eyeL'), document.getElementById('eyeR')];
+
+  window.addEventListener('pointermove', e => {
+    const r = hero.getBoundingClientRect();
+    const nx = e.clientX - r.left, ny = e.clientY - r.top;
+    if (ptr.x > -9000) {
+      ptr.vx = Math.max(-40, Math.min(40, nx - ptr.x));
+      ptr.vy = Math.max(-40, Math.min(40, ny - ptr.y));
+    }
+    ptr.x = nx; ptr.y = ny; ptr.last = performance.now();
+    start();
+    const fr = fino.getBoundingClientRect();
+    const cx = fr.left + fr.width / 2, cy = fr.top + fr.height * 0.55;
+    const ax = e.clientX - cx, ay = e.clientY - cy, a = Math.hypot(ax, ay) || 1;
+    const k = Math.min(1, a / 300);
+    eyes.forEach(g => g.style.transform = `translate(${(ax / a) * 6 * k}px, ${(ay / a) * 5 * k}px)`);
+  }, { passive: true });
+
+  /* A blink is too small to bother anyone, and the hop only happens when tapped. */
+  (function blink() {
+    setTimeout(() => {
+      fino.classList.add('blink');
+      setTimeout(() => { fino.classList.remove('blink'); blink(); }, 130);
+    }, 2200 + Math.random() * 3200);
+  })();
+  fino.addEventListener('click', () => {
+    fino.classList.remove('hop'); void fino.getBoundingClientRect(); fino.classList.add('hop');
+  });
+  fino.addEventListener('animationend', () => fino.classList.remove('hop'));
+})();
 </script>
 </body>
 </html>

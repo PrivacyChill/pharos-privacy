@@ -14,3 +14,6 @@ fonts/
 
 # Old pre-Sept-2026 scrapers and data, kept locally for reference only
 archive/
+
+# design previews, not published
+prototype/

@@ -1,20 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
-  <rect width="64" height="64" rx="12" fill="#0E1F2C"/>
-  <!-- lighthouse glyph on dark background -->
-  <rect x="30" y="6" width="4" height="6" fill="#F6F2EA"/>
-  <path d="M22 16 L42 16 L40 12 L24 12 Z" fill="#F6F2EA"/>
-  <rect x="24" y="16" width="16" height="10" rx="0.5" fill="#F6F2EA"/>
-  <!-- lantern window: stripe color = feature = bg -->
-  <rect x="27" y="18" width="10" height="6" fill="#0E1F2C"/>
-  <rect x="20" y="26" width="24" height="3" fill="#F6F2EA"/>
-  <path d="M24 29 L40 29 L46 56 L18 56 Z" fill="#F6F2EA"/>
-  <!-- diagonal stripes clipped to tower body -->
-  <clipPath id="c"><path d="M24 29 L40 29 L46 56 L18 56 Z"/></clipPath>
-  <g clip-path="url(#c)" transform="rotate(-58 32 42)">
-    <rect x="0" y="12" width="80" height="5" fill="#0E1F2C"/>
-    <rect x="0" y="24" width="80" height="5" fill="#0E1F2C"/>
-    <rect x="0" y="36" width="80" height="5" fill="#0E1F2C"/>
-    <rect x="0" y="48" width="80" height="5" fill="#0E1F2C"/>
-  </g>
-  <rect x="22" y="58" width="20" height="3" fill="#F6F2EA"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 180" width="64" height="58">
+  <path d="M100 24 C152 24 184 60 186 106 C188 148 152 166 100 166 C48 166 12 148 14 106 C16 60 48 24 100 24 Z" fill="#FFCDB8" stroke="#211915" stroke-width="10"/>
+  <ellipse cx="54" cy="122" rx="15" ry="9" fill="#FF8BA4" opacity=".6"/>
+  <ellipse cx="146" cy="122" rx="15" ry="9" fill="#FF8BA4" opacity=".6"/>
+  <ellipse cx="78" cy="100" rx="11" ry="15" fill="#211915"/>
+  <ellipse cx="122" cy="100" rx="11" ry="15" fill="#211915"/>
 </svg>
