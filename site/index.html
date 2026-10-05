@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'none'; img-src 'self' data:; connect-src 'self'; base-uri 'self'; form-action 'none'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pharos — GDPR fines and decisions, searchable and free</title>
+<meta name="description" content="A free, searchable collection of GDPR enforcement decisions from across Europe, made by Lorenzo A.">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="canonical" href="https://pharosprivacy.com/">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="site">
+  <a class="name" href="index.html">Pharos</a>
+  <nav><a href="index.html" aria-current="page">Home</a> <a href="Enforcement.html">Database</a> <a href="Tool.html">AI Act triage</a> <a href="Method.html">How it’s built</a> <a href="About.html">About</a></nav>
+</header>
+<main>
+
+<section class="hero">
+  <h1>GDPR fines and decisions from across Europe. <span>Searchable, free, made by Lorenzo.</span></h1>
+  <p class="stats grey" id="stats"></p>
+  <a class="btn" href="Enforcement.html">Search the database</a>
+</section>
+
+<div class="tiles">
+  <a class="tile yellow" href="Enforcement.html">
+    <div class="t">Database <span>filter by country, sector, year and outcome</span></div>
+    <div class="go">Open &rarr;</div>
+  </a>
+  <a class="tile blue" href="Tool.html">
+    <div class="t">AI Act triage <span>three questions, a rough answer</span></div>
+    <div class="go">Try it &rarr;</div>
+  </a>
+  <a class="tile grey" href="Method.html">
+    <div class="t">How it&rsquo;s built <span>and what it gets wrong</span></div>
+    <div class="go">Read &rarr;</div>
+  </a>
+  <a class="tile black" href="About.html">
+    <div class="t">About <span>who made this, and why</span></div>
+    <div class="go">Read &rarr;</div>
+  </a>
+</div>
+</main>
+<footer class="site"><div class="wrap">
+  <p>Pharos is a free, personal project by Lorenzo A. It is not legal advice.
+  Data from <a href="https://www.enforcementtracker.com/">enforcementtracker.com, provided by CMS</a> and
+  <a href="https://gdprhub.eu/">GDPRhub</a> (noyb), under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a>.</p>
+  <p><a href="mailto:hello@pharosprivacy.com">hello@pharosprivacy.com</a> · <a href="Privacy.html">Privacy</a></p>
+</div></footer>
+<script>
+fetch('data/stats.json').then(r => r.ok ? r.json() : null).then(m => {
+  if (!m || !m.stats) return;
+  const d = new Date(m.generated_at.replace(' ', 'T') + 'Z').toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+  const el = document.getElementById('stats');
+  el.textContent = '';
+  const b = document.createElement('strong');
+  b.textContent = `${Number(m.stats.cases).toLocaleString('en-GB')} decisions`;
+  el.append(b, ` from ${m.stats.countries} countries, last updated ${d}.`);
+}).catch(() => {});
+</script>
+</body>
+</html>

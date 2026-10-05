@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'none'; img-src 'self' data:; connect-src 'self'; base-uri 'self'; form-action 'none'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How it’s built — Pharos</title>
+<meta name="description" content="Where the Pharos data comes from, how it is put together, and its known limitations.">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="canonical" href="https://pharosprivacy.com/Method.html">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="site">
+  <a class="name" href="index.html">Pharos</a>
+  <nav><a href="index.html">Home</a> <a href="Enforcement.html">Database</a> <a href="Tool.html">AI Act triage</a> <a href="Method.html" aria-current="page">How it’s built</a> <a href="About.html">About</a></nav>
+</header>
+<main class="prose">
+
+<h1>How it&rsquo;s built. <span>Where the data comes from, and what it gets wrong.</span></h1>
+
+<h2>Where the data comes from</h2>
+<ul>
+  <li><a href="https://www.enforcementtracker.com/">enforcementtracker.com, provided by CMS</a>: fines published by European data protection authorities.</li>
+  <li><a href="https://gdprhub.eu/">GDPRhub</a>, run by noyb: decisions with and without fines, with short English summaries.</li>
+</ul>
+<p>Both are licensed <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a>, so Pharos uses the same licence: you can reuse the data for non-commercial purposes if you credit the sources. The summaries are the sources&rsquo; own text.</p>
+
+<h2>How it&rsquo;s put together</h2>
+<p>A script I run collects both sources into a SQL database (SQLite) and exports it to this site. Along the way it:</p>
+<ul>
+  <li>keeps dates only as precise as the source gives them (a day, a month or a year);</li>
+  <li>stores a fine as a number only when the source gives one clear amount in euro;</li>
+  <li>spots the same decision appearing in both sources and shows it once, without deleting either record;</li>
+  <li>groups decisions by the GDPR articles they cite, so you can find, for example, all Article 32 cases;</li>
+  <li>logs every run, so I can see what changed and when.</li>
+</ul>
+<p>Each decision gets an ID like <code>2026/IT/108</code> (year, country, number) that won&rsquo;t change.</p>
+
+<h2>What it gets wrong</h2>
+<ul>
+  <li>Some duplicates slip through. Decisions without a fine are hard to match between sources.</li>
+  <li>Two different decisions from the same country, in the same month, with exactly the same fine could be mistaken for one. It&rsquo;s rare.</li>
+  <li>Fines in other currencies, or described in words (&ldquo;reduced from 24,000 to 22,000&rdquo;), are shown as written but left out of the totals.</li>
+  <li>The categories (&ldquo;Data security&rdquo;, &ldquo;Consent&rdquo;&hellip;) come from simple rules, not from reading each decision. Use them as filters, not conclusions.</li>
+  <li>Pharos only knows what its two sources know, and not every case has a summary yet.</li>
+  <li>Amounts are as reported, and may not reflect later appeals.</li>
+</ul>
+<p>If you find an error, please tell me: <a href="mailto:hello@pharosprivacy.com">hello@pharosprivacy.com</a>.</p>
+
+</main>
+<footer class="site"><div class="wrap">
+  <p>Pharos is a free, personal project by Lorenzo A. It is not legal advice.
+  Data from <a href="https://www.enforcementtracker.com/">enforcementtracker.com, provided by CMS</a> and
+  <a href="https://gdprhub.eu/">GDPRhub</a> (noyb), under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a>.</p>
+  <p><a href="mailto:hello@pharosprivacy.com">hello@pharosprivacy.com</a> · <a href="Privacy.html">Privacy</a></p>
+</div></footer>
+
+</body>
+</html>

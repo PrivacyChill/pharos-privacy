@@ -1,0 +1,15 @@
+{
+  "generated_at": "2026-09-18 18:31:27",
+  "licence": "CC BY-NC-SA 4.0 — https://creativecommons.org/licenses/by-nc-sa/4.0/",
+  "sources": [
+    "enforcementtracker.com, provided by CMS (CC BY-NC-SA 4.0)",
+    "GDPRhub, noyb (CC BY-NC-SA 4.0)"
+  ],
+  "stats": {
+    "cases": 4998,
+    "countries": 34,
+    "total_fines_eur": 8679303799,
+    "latest_decision": "2026-09-10",
+    "last_run": "2026-09-18 08:30:51"
+  }
+}

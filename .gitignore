@@ -1,0 +1,16 @@
+.DS_Store
+Thumbs.db
+*.log
+node_modules/
+
+# Private planning notes
+website-improvements.md
+
+# Pipeline by-products (the database itself IS tracked)
+pipeline/exports/
+pipeline/__pycache__/
+pipeline/*.backup-*.db
+fonts/
+
+# Old pre-Sept-2026 scrapers and data, kept locally for reference only
+archive/

@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'none'; img-src 'self' data:; connect-src 'self'; base-uri 'self'; form-action 'none'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI Act triage — Pharos</title>
+<meta name="description" content="Three questions that point to the likely category of an AI system under the EU AI Act. Not legal advice.">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="canonical" href="https://pharosprivacy.com/Tool.html">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="site">
+  <a class="name" href="index.html">Pharos</a>
+  <nav><a href="index.html">Home</a> <a href="Enforcement.html">Database</a> <a href="Tool.html" aria-current="page">AI Act triage</a> <a href="Method.html">How it’s built</a> <a href="About.html">About</a></nav>
+</header>
+<main class="prose">
+
+<h1>AI Act triage. <span>Three questions, a rough answer.</span></h1>
+<p>Answer three questions to see the likely category of an AI system under the EU AI Act, and which articles to read. It&rsquo;s a starting point, not legal advice.</p>
+
+<form id="triage">
+<fieldset><legend>1. What does the system mainly do?</legend>
+<label class="choice"><input type="radio" name="q1" value="decisions" required><span>Makes or shapes decisions about people (hiring, credit, eligibility, public services)<small>Annex III · likely high-risk</small></span></label>
+<label class="choice"><input type="radio" name="q1" value="biometric" required><span>Processes biometric or emotion data<small>Article 5 or Annex III · check both</small></span></label>
+<label class="choice"><input type="radio" name="q1" value="generates" required><span>Generates content (text, images, code) that people see<small>Article 50 · transparency</small></span></label>
+<label class="choice"><input type="radio" name="q1" value="behind" required><span>Works behind the scenes (search, recommendations, analytics)<small>Usually minimal risk</small></span></label>
+<label class="choice"><input type="radio" name="q1" value="manipulate" required><span>Uses manipulative techniques or exploits vulnerabilities in a way that can cause significant harm<small>Article 5(1)(a)–(b) · prohibited</small></span></label>
+</fieldset>
+<fieldset><legend>2. Who uses it, and where?</legend>
+<label class="choice"><input type="radio" name="q2" value="eu-public" required><span>The public in the EU<small>In scope</small></span></label>
+<label class="choice"><input type="radio" name="q2" value="eu-business" required><span>Businesses in the EU<small>In scope</small></span></label>
+<label class="choice"><input type="radio" name="q2" value="internal" required><span>Only employees, inside an organisation<small>In scope · deployer duties (Article 26)</small></span></label>
+<label class="choice"><input type="radio" name="q2" value="non-eu" required><span>Only outside the EU<small>Check Article 2 · is the output used in the EU?</small></span></label>
+</fieldset>
+<fieldset><legend>3. How much does a person check what it does?</legend>
+<label class="choice"><input type="radio" name="q3" value="autonomous" required><span>It acts on its own, no one checks first<small></small></span></label>
+<label class="choice"><input type="radio" name="q3" value="reviewed" required><span>A person reviews the output before anything happens<small></small></span></label>
+<label class="choice"><input type="radio" name="q3" value="advisory" required><span>It only advises; a person always decides<small>Doesn&rsquo;t exempt a system on its own · Article 6(3)</small></span></label>
+</fieldset>
+<button class="btn" type="submit">Show result</button>
+</form>
+
+<section id="result" hidden aria-live="polite">
+  <p class="tier" id="result-tier-label"></p>
+  <h2 id="result-headline"></h2>
+  <p id="result-summary"></p>
+  <p id="result-note" hidden></p>
+  <h3>What to do next</h3>
+  <ol id="result-actions"></ol>
+  <p class="note">Not legal advice. A simplified triage by me, Lorenzo (CIPP/E). A real assessment depends on the intended purpose, how and where the system is used, whether you build it or use it, and the exact wording of Articles 2, 5, 6 and 50 and Annex III of the <a href="https://eur-lex.europa.eu/eli/reg/2024/1689/oj">AI Act</a>. Last checked September 2026.</p>
+</section>
+
+</main>
+<footer class="site"><div class="wrap">
+  <p>Pharos is a free, personal project by Lorenzo A. It is not legal advice.
+  Data from <a href="https://www.enforcementtracker.com/">enforcementtracker.com, provided by CMS</a> and
+  <a href="https://gdprhub.eu/">GDPRhub</a> (noyb), under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a>.</p>
+  <p><a href="mailto:hello@pharosprivacy.com">hello@pharosprivacy.com</a> · <a href="Privacy.html">Privacy</a></p>
+</div></footer>
+<script>
+(function () {
+  const form = document.getElementById('triage');
+
+  function classify(q1, q2, q3) {
+    let tier;
+    if (q2 === 'non-eu') tier = 'out';
+    else if (q1 === 'manipulate') tier = 'prohibited';
+    else if (q1 === 'biometric') tier = 'biometric';
+    else if (q1 === 'decisions') tier = 'high';
+    else if (q1 === 'generates') tier = 'limited';
+    else tier = 'minimal';
+
+    // Extra context that depends on the other answers
+    let note = '';
+    if (tier === 'biometric' && q2 === 'internal') {
+      note = 'Because it is used on employees: emotion recognition in the workplace is prohibited outright by Article 5(1)(f), except for medical or safety reasons.';
+    } else if (tier === 'high' && q3 === 'advisory') {
+      note = 'Being advisory doesn\u2019t take a system out of Annex III on its own. Article 6(3) exempts some systems that only perform narrow procedural or preparatory tasks, but never one that profiles people \u2014 and the provider must document that assessment.';
+    } else if (tier === 'high' && q3 === 'autonomous') {
+      note = 'With no human in the loop, Article 14 human oversight is the first design problem: people overseeing the system must be able to understand its output, override it and stop it.';
+    } else if (tier === 'minimal' && q3 === 'autonomous') {
+      note = 'If it makes solely automated decisions with legal or similarly significant effects on people, GDPR Article 22 applies whatever the AI Act tier.';
+    }
+
+    const COPY = {
+      prohibited: {
+        label: 'Prohibited practice',
+        headline: 'This looks like an <em>Article 5</em> practice.',
+        summary: 'Article 5 bans AI systems that use subliminal, manipulative or deceptive techniques, or exploit vulnerabilities linked to age, disability or social or economic situation, where they materially distort behaviour in a way that causes, or is reasonably likely to cause, significant harm. A banned practice can\u2019t be made compliant; it has to be designed out.',
+        actions: [
+          { title: 'Test the harm threshold honestly.', body: 'The ban turns on material distortion of behaviour and significant harm. Write down why the system does or doesn\u2019t meet that test. Persuasive design isn\u2019t automatically prohibited, but the burden of explaining it is yours.' },
+          { title: 'Isolate the feature that triggers it.', body: 'Often one mode or feature is the problem. Removing it may leave the rest of the system in a lower tier.' },
+          { title: 'Get qualified advice before going further.', body: 'The prohibitions have applied since 2 February 2025 and carry the highest fines in the Act: up to \u20ac35 million or 7% of worldwide annual turnover.' },
+        ],
+      },
+      biometric: {
+        label: 'Biometric system \u2014 check Article 5 first',
+        headline: 'Some biometric uses are <em>banned</em>; most others are high-risk.',
+        summary: 'Article 5 prohibits untargeted scraping of facial images to build recognition databases, emotion recognition in workplaces and schools, biometric categorisation that infers sensitive traits such as race, political opinions or sexual orientation, and \u2014 with narrow exceptions \u2014 real-time remote biometric identification in public spaces for law enforcement. Outside those bans, remote biometric identification, biometric categorisation and emotion recognition are high-risk under Annex III, point 1. Biometric verification \u2014 confirming someone is who they claim to be \u2014 is excluded from that list.',
+        actions: [
+          { title: 'Rule out each Article 5 ban explicitly.', body: 'Go through Article 5(1)(e) to (h) one by one and record why each doesn\u2019t apply. That record is the first thing anyone reviewing the system will ask for.' },
+          { title: 'Then check Annex III, point 1.', body: 'If it applies, the high-risk requirements follow: risk management (Art. 9), data governance (Art. 10), technical documentation (Art. 11), record-keeping (Art. 12) and human oversight (Art. 14).' },
+          { title: 'Don\u2019t forget GDPR Article 9.', body: 'Biometric data used to uniquely identify a person is special category data. You need an Article 9(2) condition as well as an Article 6 lawful basis, and very likely a DPIA under Article 35.' },
+        ],
+      },
+      high: {
+        label: 'Likely high-risk',
+        headline: 'Probably high-risk under <em>Annex III.</em>',
+        summary: 'Systems that make or shape decisions about people are high-risk when they fall in an Annex III area: education, employment, access to essential private and public services (including credit scoring and life and health insurance pricing), law enforcement, migration and border control, and the administration of justice. Providers of high-risk systems need a risk-management system, data governance, technical documentation, logging, transparency towards deployers, human oversight and a conformity assessment before the system is placed on the market.',
+        actions: [
+          { title: 'Confirm the Annex III area \u2014 and your role.', body: 'Check which point of Annex III the use falls under, and whether you are the provider (you build it or put your name on it) or the deployer (you use it). Providers carry most of Articles 8 to 17; deployers carry Article 26.' },
+          { title: 'Start the technical documentation early.', body: 'Article 11 and Annex IV documentation is the longest job: intended purpose, design choices, training data, testing and risk controls. It is far easier to write while building than to reconstruct later.' },
+          { title: 'Design human oversight into the product.', body: 'Article 14 is not a policy document. People overseeing the system must be able to understand its output, decide not to use it, and override or stop it.' },
+        ],
+      },
+      limited: {
+        label: 'Transparency obligations',
+        headline: 'Article 50 <em>transparency</em> duties apply.',
+        summary: 'AI that interacts with people or generates content carries transparency duties under Article 50: people must be told when they are dealing with an AI system unless it is obvious, synthetic audio, image, video and text must be marked as AI-generated in a machine-readable way, and deepfakes must be disclosed. If you built the underlying general-purpose model yourself, the model-provider rules in Chapter V apply as well.',
+        actions: [
+          { title: 'Add a clear AI disclosure.', body: 'Where people interact with the system, tell them \u2014 in the interface, at the point of interaction, not buried in the terms.' },
+          { title: 'Mark generated content.', body: 'Providers must make outputs detectable as AI-generated in a machine-readable format, such as metadata or a provenance standard like C2PA, as far as technically feasible.' },
+          { title: 'Check the use hasn\u2019t drifted.', body: 'A chatbot that starts screening job applicants or assessing creditworthiness has moved into Annex III. Re-run this triage whenever the purpose changes.' },
+        ],
+      },
+      minimal: {
+        label: 'Minimal risk',
+        headline: 'Few AI Act duties \u2014 but <em>not none.</em>',
+        summary: 'Most behind-the-scenes systems \u2014 search, recommendations, analytics \u2014 carry no specific AI Act obligations beyond AI literacy for the staff who use them (Article 4). GDPR still applies to any personal data, and voluntary codes of conduct are encouraged under Article 95.',
+        actions: [
+          { title: 'Get the GDPR basics right.', body: 'A lawful basis under Article 6, transparency under Articles 13 and 14, and a DPIA under Article 35 if the processing is likely to result in a high risk \u2014 large-scale profiling, for example.' },
+          { title: 'Watch for use-case drift.', body: 'A recommendation engine that starts shaping access to jobs, credit or public services can cross into Annex III. Review the classification at each major change.' },
+          { title: 'Cover AI literacy.', body: 'Article 4 requires providers and deployers to ensure a sufficient level of AI literacy among the staff who deal with AI systems. A short, documented training is a sensible minimum.' },
+        ],
+      },
+      out: {
+        label: 'Possibly out of scope',
+        headline: 'The AI Act <em>may not apply</em> \u2014 check Article 2.',
+        summary: 'The Act reaches providers placing AI systems on the EU market, deployers in the EU, and providers and deployers outside the EU where the system\u2019s output is used in the EU. If none of those apply, the Act probably doesn\u2019t \u2014 but that last limb catches more systems than people expect.',
+        actions: [
+          { title: 'Map where the output ends up.', body: 'If results reach EU users, customers or partners \u2014 directly or through resellers \u2014 Article 2(1)(c) can bring the system back into scope.' },
+          { title: 'Check your local rules.', body: 'The UK, US states and others have their own AI and data protection requirements. Outside the AI Act is not outside regulation.' },
+          { title: 'Keep a short scope memo.', body: 'A dated one-page note of why the Act doesn\u2019t apply, revisited when you expand, is cheap insurance.' },
+        ],
+      },
+    };
+
+    return { tier, note, copy: COPY[tier] };
+  }
+
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    const data = new FormData(form);
+    const { note, copy } = classify(data.get('q1'), data.get('q2'), data.get('q3'));
+    document.getElementById('result-tier-label').textContent = copy.label;
+    document.getElementById('result-headline').innerHTML = copy.headline;
+    document.getElementById('result-summary').textContent = copy.summary;
+    const noteEl = document.getElementById('result-note');
+    noteEl.textContent = note;
+    noteEl.hidden = !note;
+    document.getElementById('result-actions').innerHTML =
+      copy.actions.map(a => `<li><strong>${a.title}</strong> ${a.body}</li>`).join('');
+    const result = document.getElementById('result');
+    result.hidden = false;
+    result.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+})();
+</script>
+</body>
+</html>

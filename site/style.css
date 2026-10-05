@@ -1,0 +1,174 @@
+/* Pharos — one stylesheet. Plain type, pills, flat colour. */
+:root {
+  --fg: #111;
+  --grey: #9b9b9b;
+  --muted: #6b6b6b;
+  --pill: #efefef;
+  --line: #e6e6e6;
+  --orange: #ff5a1f;
+  --yellow: #f1e25a;
+  --blue: #3ba7df;
+  --radius: 16px;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: #fff;
+  color: var(--fg);
+  font: 17px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+a { color: var(--fg); text-underline-offset: 3px; }
+h1, h2, h3 { font-weight: 500; letter-spacing: -0.02em; }
+h1 { font-size: clamp(2.1rem, 5vw, 3.6rem); line-height: 1.05; margin: 0 0 1.4rem; }
+h2 { font-size: 1.5rem; line-height: 1.2; margin: 2.6rem 0 0.7rem; }
+h3 { font-size: 1.1rem; margin: 1.6rem 0 0.4rem; }
+.grey, h1 span, h2 span { color: var(--grey); }
+p, ul, ol { margin: 0 0 1rem; }
+li { margin-bottom: 0.4rem; }
+code { font-size: 0.9em; background: var(--pill); padding: 0.1em 0.4em; border-radius: 6px; }
+.muted, small { color: var(--muted); }
+
+/* ---- Layout ---- */
+.wrap, header.site, main { max-width: 1120px; margin: 0 auto; padding-left: 16px; padding-right: 16px; }
+main { padding-top: 40px; padding-bottom: 80px; }
+main.prose > * { max-width: 700px; }
+main.prose > h1 { max-width: 900px; }
+
+/* ---- Header: name + pill nav ---- */
+header.site {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+  gap: 12px 24px; padding-top: 16px; padding-bottom: 16px;
+}
+header.site .name {
+  display: inline-flex; align-items: center; gap: 10px;
+  font-weight: 600; font-size: 1.1rem; text-decoration: none;
+}
+header.site .name::before {
+  content: "P"; display: inline-grid; place-items: center;
+  width: 34px; height: 34px; border-radius: 50%;
+  background: var(--fg); color: #fff; font-size: 0.95rem;
+}
+header.site nav { display: flex; flex-wrap: wrap; gap: 6px; }
+header.site nav a {
+  background: var(--pill); border-radius: 999px; padding: 8px 16px;
+  text-decoration: none; font-size: 0.95rem;
+}
+header.site nav a:hover { background: #e2e2e2; }
+header.site nav a[aria-current] { background: var(--fg); color: #fff; }
+
+/* ---- Buttons ---- */
+.btn {
+  display: inline-block; background: var(--orange); color: #fff; text-decoration: none;
+  border-radius: 999px; padding: 15px 30px; font-size: 1.05rem; border: 0; cursor: pointer; font-family: inherit;
+}
+.btn:hover { background: #ec4b12; }
+
+/* ---- Home ---- */
+.hero { padding: 40px 0 36px; }
+.hero h1 { font-size: clamp(2.4rem, 6.5vw, 4.6rem); max-width: 16ch; margin-bottom: 1.6rem; }
+.hero .stats { font-size: 1.1rem; margin-bottom: 1.8rem; }
+.hero .stats strong { font-weight: 500; color: var(--fg); }
+.tiles { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+.tile {
+  display: flex; flex-direction: column; justify-content: space-between; gap: 40px;
+  min-height: 230px; padding: 28px; border-radius: var(--radius);
+  text-decoration: none; color: var(--fg); transition: transform 0.15s;
+}
+.tile:hover { transform: translateY(-3px); }
+.tile .t { font-size: clamp(1.5rem, 2.6vw, 2rem); font-weight: 500; letter-spacing: -0.02em; line-height: 1.15; }
+.tile .t span { opacity: 0.55; }
+.tile .go { font-size: 0.95rem; }
+.tile.yellow { background: var(--yellow); }
+.tile.blue { background: var(--blue); }
+.tile.grey { background: var(--pill); }
+.tile.black { background: var(--fg); color: #fff; }
+
+/* ---- Footer: black band ---- */
+footer.site { background: var(--fg); color: #a9a9a9; font-size: 0.92rem; }
+footer.site .wrap { padding-top: 36px; padding-bottom: 44px; }
+footer.site p { margin-bottom: 0.5rem; max-width: 720px; }
+footer.site a { color: #fff; }
+
+/* ---- Notes ---- */
+.note { background: var(--pill); border-radius: 12px; padding: 16px 20px; font-size: 0.95rem; }
+
+/* ---- Tables (How it's built) ---- */
+table { border-collapse: collapse; width: 100%; font-size: 0.95rem; margin-bottom: 1rem; }
+th, td { text-align: left; vertical-align: top; padding: 9px 12px 9px 0; border-bottom: 1px solid var(--line); }
+th { font-weight: 500; color: var(--muted); }
+
+/* ---- Form controls: pills ---- */
+input[type="text"], select, button:not(.btn) {
+  font: inherit; font-size: 0.95rem; color: var(--fg);
+  background: var(--pill); border: 0; border-radius: 999px; padding: 10px 18px;
+}
+select { padding-right: 34px; appearance: none; cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23111'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 14px center; }
+input[type="text"]:focus, select:focus, button:focus-visible { outline: 2px solid var(--fg); outline-offset: 1px; }
+button:not(.btn) { cursor: pointer; }
+button:not(.btn):hover { background: #e2e2e2; }
+button:disabled { opacity: 0.4; cursor: default; }
+
+/* ---- Database ---- */
+.stats { color: var(--grey); }
+.stats span[id] { color: var(--fg); }
+.filter-bar { display: flex; flex-wrap: wrap; gap: 8px; margin: 1.6rem 0 1rem; }
+.filter-bar .filter-search { flex: 1 1 280px; }
+.filter-bar .filter-search input { width: 100%; }
+.filter-bar .filter-search svg { display: none; }
+.results-bar { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 16px; color: var(--muted); margin-bottom: 8px; font-size: 0.95rem; }
+.results-count strong { color: var(--fg); font-weight: 500; }
+#results-fines:empty { display: none; }
+.table-wrap { overflow-x: auto; }
+.enforce-table { font-size: 0.93rem; margin: 0; }
+.enforce-table th { font-size: 0.82rem; white-space: nowrap; }
+.enforce-table td { padding: 11px 12px 11px 0; }
+.data-row { cursor: pointer; }
+.data-row:hover td { background: #f7f7f7; }
+.td-fine { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.td-date { white-space: nowrap; color: var(--muted); font-variant-numeric: tabular-nums; }
+.td-authority, .td-violation { color: var(--muted); }
+.td-expand { width: 1.6em; text-align: center; color: var(--muted); }
+.expand-row { display: none; }
+.expand-row.is-open { display: table-row; }
+.expand-row td { padding: 0 0 12px; border-bottom: 0; }
+.expand-inner { background: var(--pill); border-radius: 14px; padding: 18px 22px; }
+.expand-summary { margin: 0 0 0.7rem; max-width: 75ch; }
+.expand-meta { display: flex; flex-wrap: wrap; gap: 4px 18px; font-size: 0.87rem; color: var(--muted); margin-bottom: 0.4rem; }
+.expand-tag strong { color: var(--fg); font-weight: 500; }
+.expand-provenance { font-size: 0.85rem; color: var(--muted); margin: 0.4rem 0 0.6rem; }
+.expand-provenance a { color: var(--muted); }
+.expand-source { display: inline-block; background: var(--orange); color: #fff; text-decoration: none; border-radius: 999px; padding: 7px 16px; font-size: 0.9rem; }
+.table-empty { padding: 28px 0; color: var(--muted); }
+.pagination { display: flex; justify-content: space-between; align-items: center; margin-top: 16px; color: var(--muted); font-size: 0.95rem; }
+.pagination-btns { display: flex; gap: 8px; }
+
+/* ---- AI Act triage ---- */
+fieldset { border: 0; padding: 0; margin: 0 0 2rem; }
+legend { font-size: 1.25rem; font-weight: 500; letter-spacing: -0.01em; margin-bottom: 0.7rem; padding: 0; }
+.choice {
+  display: flex; gap: 12px; align-items: flex-start; cursor: pointer;
+  background: var(--pill); border-radius: 14px; padding: 13px 18px; margin-bottom: 8px;
+}
+.choice:hover { background: #e6e6e6; }
+.choice:has(input:checked) { background: var(--fg); color: #fff; }
+.choice:has(input:checked) small { color: #bdbdbd; }
+.choice input { margin-top: 0.35em; accent-color: var(--orange); }
+.choice small { display: block; }
+#result { margin-top: 2.4rem; background: var(--yellow); border-radius: var(--radius); padding: 28px; }
+#result .tier { font-weight: 600; margin-bottom: 0.3rem; }
+#result h2 { margin-top: 0; font-size: clamp(1.6rem, 3.4vw, 2.3rem); line-height: 1.1; }
+#result h2 em { font-style: normal; }
+#result-note { font-style: italic; }
+#result .note { background: rgba(255, 255, 255, 0.55); }
+
+@media (max-width: 700px) {
+  body { font-size: 16px; }
+  main { padding-top: 24px; }
+  .tiles { grid-template-columns: 1fr; }
+  .tile { min-height: 170px; }
+  .td-authority, .td-violation, .enforce-table th:nth-child(2), .enforce-table th:nth-child(6) { display: none; }
+}
