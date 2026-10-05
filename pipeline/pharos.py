@@ -44,7 +44,7 @@ EXPORT_DIR = os.path.join(HERE, 'exports')
 SITE_DATA_DIR = os.path.normpath(os.path.join(HERE, '..', 'site', 'data'))
 SUMMARY_SHARD = 250  # summaries are split into files of this many cases, loaded only when a case is opened
 
-USER_AGENT = 'PharosPrivacy/1.0 (+https://pharosprivacy.com; hello@pharosprivacy.com)'
+USER_AGENT = 'PharosPrivacy/1.0 (+https://pharosprivacy.com; angelillolorenzo@gmail.com)'
 CMS_URL = 'https://www.enforcementtracker.com/'
 GDPRHUB_API = 'https://gdprhub.eu/api.php'
 
