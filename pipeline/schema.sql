@@ -167,3 +167,25 @@ JOIN case_articles a ON a.case_id = v.case_id
 WHERE a.article_n NOT BETWEEN 51 AND 84
 GROUP BY a.article_n
 ORDER BY cases DESC;
+
+-- ----- FINES IN OTHER CURRENCIES -----
+-- An estimate in euro, from the European Central Bank's reference rate on the decision date
+-- (or the month/year average when the source gives only that). The source amount stays the real figure.
+CREATE TABLE IF NOT EXISTS fines_converted (
+    case_id       TEXT PRIMARY KEY REFERENCES cases(case_id) ON DELETE CASCADE,
+    amount        REAL NOT NULL,             -- the fine in its own currency, as read from fine_original
+    currency      TEXT NOT NULL,             -- 'SEK'
+    rate          REAL NOT NULL,             -- units of that currency per 1 euro
+    rate_basis    TEXT NOT NULL,             -- 'day 2026-09-22', 'month 2024-03' or 'year 2021'
+    fine_eur_est  INTEGER NOT NULL,          -- amount / rate, rounded to the euro
+    converted_at  TEXT NOT NULL
+);
+
+-- Lorenzo's answers from review/currency.xlsx: they win over what the program reads
+CREATE TABLE IF NOT EXISTS amount_checks (
+    case_id       TEXT PRIMARY KEY REFERENCES cases(case_id) ON DELETE CASCADE,
+    amount        REAL,                      -- the right amount; 0 = no single amount; NULL = the source amount is right
+    decision_date TEXT,                      -- 'YYYY', 'YYYY-MM' or 'YYYY-MM-DD' when the source has none
+    note          TEXT,
+    checked_at    TEXT NOT NULL
+);

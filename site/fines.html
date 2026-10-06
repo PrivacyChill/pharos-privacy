@@ -171,6 +171,7 @@ h1.unnamed { font-style: italic; font-weight: 400; color: var(--muted); }
 .results .who small { display: block; font-family: var(--mono); font-size: 0.75rem; color: var(--muted); margin-top: 4px; }
 .results .cty { color: var(--muted); font-size: 0.95rem; padding-top: 2px; }
 .results .amt { text-align: right; font-family: var(--mono); font-weight: 500; font-variant-numeric: tabular-nums; padding-top: 2px; }
+.results .amt small { display: block; font-weight: 400; font-size: 0.8rem; color: var(--muted); }
 .results .amt.none { color: var(--muted); font-weight: 400; font-size: 0.85rem; }
 .more { display: flex; justify-content: center; padding-block: 26px 64px; }
 .empty-list { padding: 40px 0; display: grid; grid-template-columns: 92px minmax(0, 1fr); gap: 18px; align-items: center; max-width: 560px; }
@@ -181,6 +182,8 @@ h1.unnamed { font-style: italic; font-weight: 400; color: var(--muted); }
 .fine .lbl { font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
 .fine .amt { font-family: var(--display); font-variation-settings: "SOFT" 100, "opsz" 96; font-weight: 600; font-size: clamp(2rem, 4.4vw, 2.9rem); line-height: 1.05; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
 .fine .amt.none { font-size: 1.6rem; font-weight: 500; }
+.fine .conv { font-family: var(--display); font-variation-settings: "SOFT" 100; font-weight: 500; font-size: 1.35rem; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.fine .conv-note { font-family: var(--mono); font-size: 0.7rem; line-height: 1.45; color: var(--muted); max-width: 34ch; }
 .fine .pill { margin-top: 6px; }
 .facts { margin: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-top: 2px solid var(--ink); }
 .facts div { padding: 16px 16px 16px 0; border-bottom: 1px solid var(--line); min-width: 0; }
@@ -457,6 +460,16 @@ const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const eur = n => '€' + Math.round(n).toLocaleString('en-GB');
 const num = n => n.toLocaleString('en-GB');
+/* an estimate is shown to three significant figures: €160,053 becomes ≈ €160,000 */
+const approx = n => { const d = 10 ** Math.max(0, Math.floor(Math.log10(n)) - 2); return Math.round(n / d) * d; };
+const money = c => c.est ? '≈ ' + eur(approx(c.fine_eur)) : eur(c.fine_eur);
+const native = c => `${c.currency} ${c.fine_amount.toLocaleString('en-GB', { maximumFractionDigits: 2 })}`;
+function fxNote(c) {
+  const [basis, rate, cur] = c.fx.split('|'), [kind, when_] = basis.split(' ');
+  const [y, m, d] = when_.split('-');
+  const at = kind === 'day' ? `the ECB rate of ${+d} ${MONTHS[m - 1]} ${y}` : kind === 'month' ? `the average ECB rate for ${MONTHS[m - 1]} ${y}` : `the average ECB rate for ${y}`;
+  return `Converted at ${at} (€1 = ${(+rate).toLocaleString('en-GB', { maximumFractionDigits: 2 })} ${cur}). An estimate for comparison; the fine was set in ${cur}.`;
+}
 const bigEur = n => n >= 1e9 ? `€${(n / 1e9).toFixed(2)} billion` : n >= 1e6 ? `€${(n / 1e6).toFixed(1)} million` : eur(n);
 const short = n => n >= 1e9 ? '€' + n / 1e9 + 'bn' : n >= 1e6 ? '€' + n / 1e6 + 'm' : n >= 1e3 ? '€' + n / 1e3 + 'k' : '€' + n;
 const slug = id => id.replace(/\//g, '-');
@@ -486,6 +499,10 @@ const CASES = DATA.rows.map((r, i) => {
   c.cats = (c.categories || '').split(',').map(s => s.trim()).filter(Boolean);
   /* GDPRhub page titles end with the regulator's own reference, e.g. "CNIL (France) - SAN-2024-021" */
   c.ref = c.source === 'gdprhub' && c.case_id.includes(' - ') ? c.case_id.split(' - ').slice(1).join(' - ') : null;
+  /* A fine in another currency keeps its own amount as the real figure. The euro value is an estimate from the
+     European Central Bank rate of the decision date; it counts in comparisons and totals, always marked with ≈. */
+  c.est = !c.fine_eur && !!c.fine_eur_est;
+  if (c.est) c.fine_eur = c.fine_eur_est;
   c.hay = [c.controller, c.parties_named, c.controller_note, c.authority, c.pharos_id, c.ref, c.violation_type, c.categories, c.summary].filter(Boolean).join(' ').toLowerCase();
   return c;
 });
@@ -536,6 +553,7 @@ const MINI = `<svg class="mini" viewBox="0 0 200 180" role="img" aria-label="Fin
 const SHEET_MARK = `<svg viewBox="0 0 200 180" aria-hidden="true"><path d="M100 24 C152 24 184 60 186 106 C188 148 152 166 100 166 C48 166 12 148 14 106 C16 60 48 24 100 24 Z" fill="#FFCDB8" stroke="#211915" stroke-width="9"/><ellipse cx="78" cy="100" rx="9" ry="13" fill="#211915"/><ellipse cx="122" cy="100" rx="9" ry="13" fill="#211915"/></svg>`;
 
 function fineInfo(c) {
+  if (c.est) return { label: native(c), conv: money(c), note: fxNote(c), none: false };
   if (c.fine_eur) return { label: eur(c.fine_eur), none: false };
   if (c.fine_original && c.fine_original !== 'None' && c.currency && c.currency !== 'EUR') return { label: `${c.fine_original} ${c.currency}`, none: false };
   if (/fine/i.test(c.best_outcome || '')) return { label: 'Amount not published', none: true };
@@ -647,13 +665,14 @@ function renderResults() {
   const list = sorted(CASES.filter(matches));
   const fines = list.filter(c => c.fine_eur).map(c => c.fine_eur);
   const total = fines.reduce((a, b) => a + b, 0);
+  const converted = list.filter(c => c.est).length;
   const filtered = state.q || state.country || state.year || state.sector || state.art || state.outcome || state.band || state.org || state.group;
   const active = state.org ? ['Company', ORG_NAME[state.org] || state.org, 'org'] : state.group ? ['Group', state.group, 'group'] : null;
   $('tally').innerHTML = `
     <div>
       ${active ? `<p class="active"><button type="button" class="chip" id="drop-org" aria-label="Remove the ${active[0].toLowerCase()} filter"><span>${active[0]}</span>${esc(active[1])} &times;</button></p>` : ''}
       <p class="big"><b>${num(list.length)}</b> ${list.length === 1 ? 'decision' : 'decisions'}${filtered ? ' match' : ''}</p>
-      <p class="sub">${fines.length ? `${bigEur(total)} in ${num(fines.length)} ${fines.length === 1 ? 'fine' : 'fines'} &middot; typical fine ${eur(median(fines))} &middot; biggest ${eur(Math.max(...fines))}` : 'No euro fines in this selection'}</p>
+      <p class="sub">${fines.length ? `${converted ? '≈ ' : ''}${bigEur(total)} in ${num(fines.length)} ${fines.length === 1 ? 'fine' : 'fines'} &middot; typical fine ${eur(median(fines))} &middot; biggest ${eur(Math.max(...fines))}${converted ? ` &middot; includes ${num(converted)} estimated from other currencies (≈)` : ''}` : 'No fines in this selection'}</p>
     </div>
     <div class="right">
       ${filtered ? '<button type="button" class="linkbtn" id="clear">Clear filters</button>' : ''}
@@ -676,7 +695,7 @@ function renderResults() {
       <span class="dt">${esc(d.short)}</span>
       <span class="who"><b class="${party(c).cls}">${esc(party(c).name)}</b>${party(c).sub ? `<small>${esc(party(c).sub)}</small>` : ''}${about ? `<span>${esc(about)}</span>` : ''}${c.arts.length ? `<small>${c.arts.slice(0, 5).map(n => 'Art. ' + n).join(', ')}${c.arts.length > 5 ? ' …' : ''}</small>` : ''}</span>
       <span class="cty">${esc(c.country || '')}</span>
-      <span class="amt ${f.none ? 'none' : ''}">${esc(f.label)}</span>
+      <span class="amt ${f.none ? 'none' : ''}">${esc(f.label)}${f.conv ? `<small>${esc(f.conv)}</small>` : ''}</span>
     </a></li>`;
   }).join('');
   $('more').innerHTML = list.length > state.shown
@@ -752,7 +771,7 @@ function companyBlock(c) {
   return `<section><h2 class="sec-h">Same company</h2>
     <p class="stat" style="font-size:1.15rem">${num(list.length)} decisions against ${esc(ORG_NAME[c.org])}${total ? `, ${bigEur(total)} in fines` : ''}.</p>
     <p class="legend" style="margin:0 0 8px">Decisions in ${esc(countriesOf(list).join(', '))}.</p>
-    <ul class="sim">${others.slice(0, 3).map(s => `<li><a href="#d-${slug(s.pharos_id)}"><b>${esc(s.country)} &middot; ${esc(when(s.decision_date, s.date_precision).short)}</b><span>${s.fine_eur ? eur(s.fine_eur) : 'No euro fine'}${s.arts.length ? ' · ' + s.arts.slice(0, 3).map(n => 'Art. ' + n).join(', ') : ''}</span></a></li>`).join('')}</ul>
+    <ul class="sim">${others.slice(0, 3).map(s => `<li><a href="#d-${slug(s.pharos_id)}"><b>${esc(s.country)} &middot; ${esc(when(s.decision_date, s.date_precision).short)}</b><span>${s.fine_eur ? money(s) : 'No fine amount'}${s.arts.length ? ' · ' + s.arts.slice(0, 3).map(n => 'Art. ' + n).join(', ') : ''}</span></a></li>`).join('')}</ul>
     <p style="margin:14px 0 0"><a class="btn small latte" href="#fines" data-org="${esc(c.org)}">All ${num(list.length)} decisions &rarr;</a></p>
   </section>`;
 }
@@ -791,7 +810,7 @@ function renderDecision(c) {
           : party(c).sub ? `<p class="legend" style="margin:0 0 12px">${esc(party(c).sub)}.</p>` : ''}
         <p class="lede">${about}</p>
       </div>
-      <div class="fine"><span class="lbl">Fine</span><span class="amt ${f.none ? 'none' : ''}">${esc(f.label)}</span>${pill}</div>
+      <div class="fine"><span class="lbl">Fine</span><span class="amt ${f.none ? 'none' : ''}">${esc(f.label)}</span>${f.conv ? `<span class="conv">${esc(f.conv)}</span><span class="conv-note">${esc(f.note)}</span>` : ''}${pill}</div>
     </div>
     <dl class="facts">
       <div><dt>Regulator</dt><dd>${esc(authority(c.authority))}</dd></div>
@@ -817,12 +836,12 @@ function renderDecision(c) {
           ${k ? `<p class="big">Bigger than <b>${pc}%</b> of the ${num(k.n)} fines in ${esc(c.country)}.</p>
             <p class="sub">Across the whole database, bigger than ${eu}% of ${num(k.eu_n)} fines.</p>${strip(c)}
             <p class="legend">Each dot is one fine in ${esc(c.country)}. The scale grows tenfold at each line.</p>`
-          : `<p class="big">No euro amount to compare.</p><p class="sub">This decision has no fine in euro, so it isn&rsquo;t placed among the others.</p>`}
+          : `<p class="big">No amount to compare.</p><p class="sub">This decision has no fine amount we can read, so it isn&rsquo;t placed among the others.</p>`}
         </section>
         ${companyBlock(c)}
         ${groupBlock(c)}
         <section><h2 class="sec-h">Similar decisions</h2>
-          ${sims.length ? `<ul class="sim">${sims.map(s => `<li><a href="#d-${slug(s.pharos_id)}"><b>${esc(party(s).name)}</b><span>${[s.year || 'No date', s.fine_eur ? eur(s.fine_eur) : 'No euro fine', s.arts.slice(0, 3).map(n => 'Art. ' + n).join(', ')].filter(Boolean).join(' · ')}</span></a></li>`).join('')}</ul>
+          ${sims.length ? `<ul class="sim">${sims.map(s => `<li><a href="#d-${slug(s.pharos_id)}"><b>${esc(party(s).name)}</b><span>${[s.year || 'No date', s.fine_eur ? money(s) : 'No fine amount', s.arts.slice(0, 3).map(n => 'Art. ' + n).join(', ')].filter(Boolean).join(' · ')}</span></a></li>`).join('')}</ul>
             <p class="legend">Same country, overlapping articles or topics.</p>` : '<p class="note">No similar decisions from the same country yet.</p>'}
         </section>
       </aside>
@@ -848,7 +867,7 @@ function citation(c) {
   const d = when(c.decision_date, c.date_precision), f = fineInfo(c);
   const parts = [authority(c.authority), c.ref ? `decision ${c.ref}` : 'decision', d.main !== 'Date not published' ? `of ${d.main}` : ''].filter(Boolean).join(' ');
   const who = c.controller ? ` (${c.controller})` : '';
-  const amt = c.fine_eur ? `, fine of ${eur(c.fine_eur)}` : '';
+  const amt = c.est ? `, fine of ${native(c)} (about ${eur(approx(c.fine_eur))})` : c.fine_eur ? `, fine of ${eur(c.fine_eur)}` : '';
   return `${parts}${who}${amt}. Fino case ${c.pharos_id}, ${SITE}/fines.html#d-${slug(c.pharos_id)}, accessed ${today()}.`;
 }
 
@@ -935,7 +954,7 @@ function renderArticle(n) {
         <section class="card">
           <h2 class="sec-h">In the fines database</h2>
           ${st.list.length ? `<p class="stat">Cited in <b>${num(st.list.length)}</b> decisions${st.fined.length ? `, with ${bigEur(st.total)} in fines` : ''}.</p>
-            ${top.length ? `<p class="legend" style="margin:0 0 4px">Biggest fines citing Article ${n}</p><ul class="sim">${top.map(s => `<li><a href="#d-${slug(s.pharos_id)}"><b>${esc(party(s).name || 'Party not named')}</b><span>${esc(s.country)} · ${s.year} · ${eur(s.fine_eur)}</span></a></li>`).join('')}</ul>` : ''}
+            ${top.length ? `<p class="legend" style="margin:0 0 4px">Biggest fines citing Article ${n}</p><ul class="sim">${top.map(s => `<li><a href="#d-${slug(s.pharos_id)}"><b>${esc(party(s).name || 'Party not named')}</b><span>${esc(s.country)} · ${s.year} · ${money(s)}</span></a></li>`).join('')}</ul>` : ''}
             <p style="margin:16px 0 0"><a class="btn small latte" href="#fines" data-art="${n}">See all ${num(st.list.length)} decisions &rarr;</a></p>`
           : '<p class="note">No decision in the database cites this article yet.</p>'}
         </section>
@@ -996,16 +1015,16 @@ function sheet(c) {
     : '<p class="s-small">The source does not list the articles involved.</p>'}`;
   const ctx = !include.context ? '' : `<h3>How big is it</h3>${k
     ? `<p>Bigger than ${Math.round(k.below / k.n * 100)}% of the ${num(k.n)} fines in ${esc(c.country)}, and ${Math.round(k.eu_below / k.eu_n * 100)}% of the ${num(k.eu_n)} fines in the Fino database (data of ${UPDATED}).</p>`
-    : '<p class="s-small">No fine in euro, so it is not compared with the others.</p>'}`;
+    : '<p class="s-small">No fine amount, so it is not compared with the others.</p>'}`;
   const sims = include.similar ? similar(c) : [];
-  const simH = !include.similar ? '' : `<h3>Similar decisions</h3>${sims.length ? `<table>${sims.map(s => `<tr><td>${esc(s.pharos_id)}</td><td>${esc(party(s).name)} &middot; ${s.year || 'no date'} &middot; ${s.fine_eur ? eur(s.fine_eur) : 'no euro fine'}</td></tr>`).join('')}</table>` : '<p class="s-small">None from the same country yet.</p>'}`;
+  const simH = !include.similar ? '' : `<h3>Similar decisions</h3>${sims.length ? `<table>${sims.map(s => `<tr><td>${esc(s.pharos_id)}</td><td>${esc(party(s).name)} &middot; ${s.year || 'no date'} &middot; ${s.fine_eur ? money(s) : 'no fine amount'}</td></tr>`).join('')}</table>` : '<p class="s-small">None from the same country yet.</p>'}`;
   const src = sourceLinks(c);
   return `
     <div class="s-top"><div class="s-brand">${SHEET_MARK}Fino</div><div class="s-kind">Decision record<br>${esc(c.pharos_id)}</div></div>
     <h2 class="s-title">${esc(party(c).name)}</h2>
     ${party(c).unchecked ? '<p class="s-small">Named in the source; which of them the decision is about has not been checked yet.</p>' : ''}
     <p class="s-meta">${esc(authority(c.authority))} &middot; ${esc(d.main)} &middot; ${esc(c.country || '')}</p>
-    <div class="s-fine"><b>${esc(f.label)}</b>${c.best_outcome ? `<span>${esc(c.best_outcome)}</span>` : ''}</div>
+    <div class="s-fine"><b>${esc(f.label)}</b>${f.conv ? `<span>${esc(f.conv)}. ${esc(f.note)}</span>` : ''}${c.best_outcome ? `<span>${esc(c.best_outcome)}</span>` : ''}</div>
     <div class="cite"><small>Cite as</small>${esc(citation(c))}</div>
     <h3>Key facts</h3>
     <table>${rows.map(([k, v]) => `<tr><td>${esc(k)}</td><td>${esc(v)}</td></tr>`).join('')}</table>

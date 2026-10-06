@@ -401,6 +401,7 @@ def step_gdprhub(db, delay=0.7):
                     continue  # court judgments etc. use a different template
                 run.fetched += 1
                 currency = (f.get('Currency') or 'EUR').upper()
+                currency = CURRENCY_SYMBOLS.get(currency, currency)
                 date, precision = parse_date(f.get('Date_Decided'))
                 arts = [f[k] for k in (f'GDPR_Article_{n}' for n in range(1, 31)) if f.get(k)]
                 body = re.sub(r'\{\{DPAdecisionBOX.*?\n\}\}', '', text, flags=re.S | re.I)
@@ -1051,6 +1052,159 @@ def parse_articles(raw):
     return out
 
 
+# ----- STEP: FINES IN OTHER CURRENCIES -----
+# The European Central Bank publishes one official reference rate per working day since 1999, for every
+# currency in the data (also the old Croatian kuna and the Bulgarian lev). A fine in SEK keeps SEK as the
+# real figure; the euro value is an estimate for comparison, and the page says so.
+ECB_RATES = 'https://www.ecb.europa.eu/stats/eurofxref/eurofxref-hist.zip'
+CURRENCY_SYMBOLS = {'€': 'EUR', '£': 'GBP', 'N/A': None}
+
+
+def ecb_rates():
+    """{currency: {date: units per euro}} from the ECB's full history file."""
+    import io
+    import zipfile
+    req = urllib.request.Request(ECB_RATES, headers={'User-Agent': USER_AGENT})
+    with urllib.request.urlopen(req, timeout=60) as r:
+        z = zipfile.ZipFile(io.BytesIO(r.read()))
+    rows = list(csv.reader(io.TextIOWrapper(z.open(z.namelist()[0]), encoding='utf-8')))
+    out = {}
+    for row in rows[1:]:
+        for cur, v in zip(rows[0][1:], row[1:]):
+            if cur.strip() and v.strip() not in ('', 'N/A'):
+                out.setdefault(cur.strip(), {})[row[0]] = float(v)
+    return out
+
+
+def read_amount(raw):
+    """The number in a fine written in any common format, or None when the format is ambiguous.
+    A money amount never has three decimals, so '200.000' and '1.527.855' are thousands, not decimals.
+    Ambiguous on purpose: '1,500,00', '10.0000', '20,000 and 30,000' -> None (goes to the currency review)."""
+    s = re.sub(r"(?i)[\s'  €£]|\b(eur|gbp|nok|sek|dkk|pln|huf|czk|ron|bgn|isk|hrk|chf)\b", '', str(raw or ''))
+    if re.fullmatch(r'\d+(\.\d{1,2})?', s):                     # 1800000.0 / 9686.60
+        return float(s)
+    if re.fullmatch(r'\d{1,3}(,\d{3})+(\.\d{1,2})?', s):         # 1,800,000 / 9,686.60
+        return float(s.replace(',', ''))
+    if re.fullmatch(r'\d{1,3}(\.\d{3})+(,\d{1,2})?', s):         # 1.527.855 / 200.000 / 1.200,00
+        return float(s.replace('.', '').replace(',', '.'))
+    if re.fullmatch(r'\d+,\d{1,2}', s):                          # 9686,60
+        return float(s.replace(',', '.'))
+    return None
+
+
+def ecb_rate(rates, currency, date, precision):
+    """(units per euro, basis) for a decision date, or (None, the reason there is none)."""
+    days = rates.get(currency)
+    if not days:
+        return None, f'no ECB rate for {currency}'
+    if not date or precision == 'unknown':
+        return None, 'no date in the source'
+    if precision == 'day':
+        known = [d for d in days if d <= date]
+        best = max(known) if known else None
+        if best and (datetime.fromisoformat(date) - datetime.fromisoformat(best)).days <= 7:
+            return days[best], f'day {best}'
+        return None, f'no ECB rate near {date}'
+    period = date[:7] if precision == 'month' else date[:4]
+    vals = [v for d, v in days.items() if d.startswith(period)]
+    return (sum(vals) / len(vals), f'{precision} {period}') if vals else (None, f'no ECB rate in {period}')
+
+
+def step_convert(db):
+    """Fines in other currencies: an estimate in euro. What cannot be converted safely is left for the review."""
+    rates = ecb_rates()
+    checks = {r['case_id']: r for r in db.execute('SELECT * FROM amount_checks')}
+    with Run(db, 'convert') as run:
+        db.execute('DELETE FROM fines_converted')
+        for c in db.execute("""SELECT case_id, fine_original, currency, decision_date, date_precision FROM cases
+                               WHERE fine_eur IS NULL AND fine_original IS NOT NULL
+                               AND COALESCE(currency, '') NOT IN ('', 'EUR')""").fetchall():
+            run.fetched += 1
+            cur = CURRENCY_SYMBOLS.get(c['currency'], c['currency'])
+            chk = checks.get(c['case_id'])
+            # a check's amount wins; 0 means 'no single amount'; NULL means 'the source amount is right'
+            amount = chk['amount'] if chk and chk['amount'] is not None else read_amount(c['fine_original'])
+            date, prec = c['decision_date'], c['date_precision']
+            if chk and chk['decision_date']:
+                date, prec = parse_date(chk['decision_date'])
+            if not amount or not cur:
+                continue
+            if cur == 'EUR':  # the source wrote '€': a real euro amount, not an estimate
+                db.execute('UPDATE cases SET fine_eur = ?, currency = ? WHERE case_id = ?', (round(amount), 'EUR', c['case_id']))
+                run.updated += 1
+                continue
+            rate, basis = ecb_rate(rates, cur, date, prec)
+            if rate:
+                db.execute('INSERT INTO fines_converted VALUES (?,?,?,?,?,?,?)',
+                           (c['case_id'], amount, cur, rate, basis, round(amount / rate), now()))
+                run.inserted += 1
+        db.commit()
+
+
+CURRENCY_HOW_TO = (
+    'FINES IN OTHER CURRENCIES THAT COULD NOT BE CONVERTED',
+    '',
+    'Open the source link and read the fine in the decision. Then fill the yellow columns:',
+    '   amount   the fine as a plain number in its own currency, e.g. 150000 (NONE if there is no single amount)',
+    '   date     only when the source has no date: the decision date, e.g. 2021-05-14, or just the year, e.g. 2021',
+    '   note     anything worth remembering, e.g. "two fines: 20,000 and 30,000"',
+    '',
+    'The euro value is then calculated from the European Central Bank rate of that date.',
+    'When you are done: save (keep the .xlsx format), close Excel and tell Claude.',
+)
+
+
+def step_currency_review(db):
+    """review/currency.xlsx: non-euro fines the program could not convert safely, with the reason."""
+    if review_has_answers('currency', ['amount', 'date', 'note']):
+        print('  review/currency has answers not applied yet: run currency-apply first.')
+        return
+    rates = ecb_rates()
+    checked = {r[0] for r in db.execute('SELECT case_id FROM amount_checks')}
+    out = []
+    for c in db.execute("""SELECT c.* FROM v_cases c LEFT JOIN fines_converted f USING (case_id)
+                           WHERE c.fine_eur IS NULL AND c.fine_original IS NOT NULL AND f.case_id IS NULL
+                           AND COALESCE(c.currency, '') NOT IN ('', 'EUR') ORDER BY c.pharos_id""").fetchall():
+        if c['case_id'] in checked or (c['fine_original'] or '').strip().lower() in ('n/a', 'none', '-', ''):
+            continue  # 'n/a': the source records no fine at all, nothing to convert
+        cur = CURRENCY_SYMBOLS.get(c['currency'], c['currency'])
+        if read_amount(c['fine_original']) is None:
+            problem = 'The amount is written in a way the program cannot read safely.'
+        elif not cur:
+            problem = 'The source gives no currency.'
+        else:
+            problem = 'No exchange rate: ' + ecb_rate(rates, cur, c['decision_date'], c['date_precision'])[1] + '.'
+        out.append({'status': 'to do (your judgement)', 'fino_id': c['pharos_id'], 'regulator': c['authority'],
+                    'source_date': c['decision_date'] or '', 'currency': c['currency'], 'as_written': c['fine_original'],
+                    'problem': problem, 'amount': '', 'date': '', 'note': '', 'source': c['source_page'] or '',
+                    'case_id': c['case_id']})
+    path = review_write('currency', ['status', 'fino_id', 'regulator', 'source_date', 'currency', 'as_written', 'problem',
+                                     'amount', 'date', 'note', 'source', 'case_id'], out, answer=('amount', 'date', 'note'),
+                        widths={'status': 22, 'fino_id': 13, 'regulator': 24, 'as_written': 18, 'problem': 60,
+                                'amount': 16, 'date': 13, 'note': 30, 'source': 30}, how_to=CURRENCY_HOW_TO)
+    print(f'  {len(out)} fines to check, written to {path}')
+
+
+def step_currency_apply(db):
+    """Save the answers from review/currency.xlsx; they win over what the program reads."""
+    with Run(db, 'currency-apply') as run:
+        for r in review_rows('currency'):
+            amount, date, note = ((r.get(k) or '').strip() for k in ('amount', 'date', 'note'))
+            if not (amount or date):
+                continue
+            run.fetched += 1
+            value = None if not amount else 0 if amount.upper() == 'NONE' else read_amount(amount)
+            if amount and amount.upper() != 'NONE' and value is None:
+                print(f"  {r['fino_id']}: amount '{amount}' is not a plain number, skipped")
+                continue
+            db.execute('INSERT INTO amount_checks (case_id, amount, decision_date, note, checked_at) VALUES (?,?,?,?,?) '
+                       'ON CONFLICT(case_id) DO UPDATE SET amount = excluded.amount, decision_date = excluded.decision_date, '
+                       'note = excluded.note, checked_at = excluded.checked_at', (r['case_id'], value, date or None, note or None, now()))
+            run.updated += 1
+        db.commit()
+    print('  Run "python pharos.py convert" and then "python pharos.py export" to put the answers on the website.')
+
+
 def step_normalise(db):
     with Run(db, 'normalise') as run:
         db.execute('DELETE FROM case_articles')
@@ -1094,6 +1248,8 @@ def step_export(db):
             w.writeheader()
             w.writerows(rows)
         stats = dict(db.execute('SELECT * FROM v_stats').fetchone())
+        stats['total_fines_eur_converted'] = db.execute(  # estimates for fines in other currencies (ECB rate)
+            'SELECT COALESCE(SUM(f.fine_eur_est), 0) FROM v_cases v JOIN fines_converted f USING (case_id) WHERE v.fine_eur IS NULL').fetchone()[0]
         meta = {
             'generated_at': now(),
             'licence': 'CC BY-NC-SA 4.0 — https://creativecommons.org/licenses/by-nc-sa/4.0/',
@@ -1115,7 +1271,12 @@ def step_export(db):
                                       "WHERE c.source = 'cms_tracker' AND p.position = 1"))
             groups = load_groups()
             alias, _ = load_same()
+            conv = {r['case_id']: r for r in db.execute('SELECT * FROM fines_converted')}
             for r in rows:
+                fx = conv.get(r['case_id'])
+                r['fine_amount'] = fx['amount'] if fx else None
+                r['fine_eur_est'] = fx['fine_eur_est'] if fx else None
+                r['fx'] = f"{fx['rate_basis']}|{fx['rate']:.4f}|{fx['currency']}" if fx else None
                 r['org'] = org_key(r['controller'], r['country_code']) if r['controller'] else None
                 r['org'] = alias.get(r['org'], r['org'])
                 g, status = org_group(r['controller'], groups) if r['org'] else (None, None)
@@ -1130,7 +1291,8 @@ def step_export(db):
 SITE_FIELDS = ['pharos_id', 'case_id', 'source', 'country', 'country_code', 'authority', 'decision_date',
                'date_precision', 'fine_eur', 'fine_original', 'currency', 'controller', 'sector_tag', 'articles',
                'categories', 'violation_type', 'best_outcome', 'source_url', 'source_page', 'gdprhub_page',
-               'summary_by', 'parties_named', 'controller_note', 'org', 'org_group']
+               'summary_by', 'parties_named', 'controller_note', 'org', 'org_group',
+               'fine_amount', 'fine_eur_est', 'fx']  # fx = 'day 2026-09-22|10.9012|SEK': basis, units per euro, currency
 
 
 def summary_by(r):
@@ -1193,7 +1355,8 @@ def step_stats(db):
 def main():
     p = argparse.ArgumentParser(description='GDPR enforcement database pipeline')
     p.add_argument('step', choices=['migrate', 'fix-ids', 'cms', 'cms-summaries', 'gdprhub', 'parties',
-                                    'parties-review', 'parties-apply', 'cms-names', 'organisations-review', 'organisations-apply', 'link', 'normalise', 'export', 'stats', 'update'])
+                                    'parties-review', 'parties-apply', 'cms-names', 'organisations-review', 'organisations-apply', 'link', 'normalise', 'convert',
+                                    'currency-review', 'currency-apply', 'export', 'stats', 'update'])
     p.add_argument('--limit', type=int, default=50, help='cms-summaries: how many case pages to fetch')
     a = p.parse_args()
     if hasattr(sys.stdout, 'reconfigure'):
@@ -1226,12 +1389,18 @@ def main():
             step_link(db)
         elif a.step == 'normalise':
             step_normalise(db)
+        elif a.step == 'convert':
+            step_convert(db)
+        elif a.step == 'currency-review':
+            step_currency_review(db)
+        elif a.step == 'currency-apply':
+            step_currency_apply(db)
         elif a.step == 'export':
             step_export(db)
         elif a.step == 'stats':
             step_stats(db)
         elif a.step == 'update':
-            for step in (step_cms, step_gdprhub, step_link, step_normalise, step_export):
+            for step in (step_cms, step_gdprhub, step_link, step_normalise, step_convert, step_export):
                 step(db)
             step_stats(db)
     finally:
