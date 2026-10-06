@@ -256,6 +256,20 @@ html { scroll-padding-top: calc(var(--head-h, 80px) + 12px); }
 @media (prefers-reduced-motion: reduce) { .top { transition: none; } }
 </style>
 
+<!-- seo -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Fino">
+<meta property="og:title" content="Fino: EU privacy and AI rules, in plain English">
+<meta property="og:description" content="Short explainers on AI and privacy, a searchable database of GDPR fines and decisions, and small free tools. Made by Lorenzo A., CIPP/E.">
+<meta property="og:url" content="https://pharosprivacy.com/">
+<meta property="og:image" content="https://pharosprivacy.com/og/fino.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Fino, the mascot of the site, next to the words: GDPR fines and decisions, in plain English">
+<meta property="og:locale" content="en_GB">
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://pharosprivacy.com/#website","name":"Fino","url":"https://pharosprivacy.com/","inLanguage":"en","description":"Short explainers on AI and privacy, a searchable database of GDPR fines and decisions, and small free tools. Made by Lorenzo A., CIPP/E.","publisher":{"@id":"https://pharosprivacy.com/#org"}},{"@type":"Organization","@id":"https://pharosprivacy.com/#org","name":"Fino","url":"https://pharosprivacy.com/","logo":"https://pharosprivacy.com/og/fino-logo.png","founder":{"@type":"Person","name":"Lorenzo A."},"description":"Free database of GDPR fines and decisions, the GDPR text linked to the fines, and plain-English privacy explainers."}]}</script>
+<!-- /seo -->
 </head>
 <body>
 
@@ -303,10 +317,10 @@ html { scroll-padding-top: calc(var(--head-h, 80px) + 12px); }
           <a class="btn ghost" href="Tool.html">Try the AI Act triage</a>
         </div>
         <ul class="figures" id="figures">
-          <li><b>4,998</b> decisions</li>
-          <li><b>34</b> countries</li>
-          <li><b>€8.68 billion</b> in fines</li>
-          <li>updated <b>18 Sep 2026</b></li>
+          <li><b data-n="cases">5,034</b> decisions</li>
+          <li><b data-n="countries">34</b> countries</li>
+          <li><b data-n="total">€9.18 billion</b> in fines</li>
+          <li>updated <b data-n="updated">6 Oct 2026</b></li>
         </ul>
       </div>
       <div class="buddy">
@@ -349,7 +363,7 @@ html { scroll-padding-top: calc(var(--head-h, 80px) + 12px); }
         </div></li>
         <li><a href="fines.html">
           <h3>Fines database</h3>
-          <p>4,998 decisions from 34 countries. Filter by country, sector, year and outcome, and open the original decision.</p>
+          <p><span data-n="cases">5,034</span> decisions from <span data-n="countries">34</span> countries. Filter by country, sector, year and outcome, and open the original decision.</p>
           <span class="pill live">Live</span><span class="arrow" aria-hidden="true">&rarr;</span>
         </a></li>
         <li><a href="Tool.html">

@@ -1,0 +1,47 @@
+# Fino
+
+> Fino is a free, independent website about EU privacy law. It has a searchable database of 5,034 GDPR fines and decisions from data protection authorities in 34 countries (€9.18 billion in fines), the full GDPR text with every article linked to the decisions that cite it, and plain-English explainers that answer common compliance questions with the rules and real decisions. Made by Lorenzo A., CIPP/E. Not legal advice.
+
+Facts about the data:
+
+- Sources: the CMS Enforcement Tracker and GDPRhub (noyb), both CC BY-NC-SA 4.0, with duplicates merged. Every decision links to the regulator's original.
+- Each decision has a permanent page at https://pharosprivacy.com/decisions/<case number>.html, for example https://pharosprivacy.com/decisions/2026-SE-005.html. The case number (e.g. 2026/SE/005) is Fino's own: year / country code / number.
+- Fines in other currencies are converted to euro at the European Central Bank rate of the decision date and marked as estimates (≈).
+- Private individuals are never named; they are described (for example "Doctor").
+- The data was last read from the sources on 6 Oct 2026.
+
+## Explainers
+
+- [Our cookie banner has no “reject” button. How big are the fines?](https://pharosprivacy.com/cookies.html): the rules (GDPR Articles 4, 7) and 8 real decisions
+- [We want to monitor staff laptops. Has a regulator ruled on this?](https://pharosprivacy.com/staff-monitoring.html): the rules (GDPR Articles 5, 6, 13, 35, 88) and 9 real decisions
+- [The board wants to know our worst-case fine for this data breach.](https://pharosprivacy.com/data-breach-fines.html): the rules (GDPR Articles 83, 5, 32, 33, 34, 82) and 11 real decisions
+- [We’re training AI on customer data. Has anyone been fined?](https://pharosprivacy.com/ai-training.html): the rules (GDPR Articles 5, 6, 13, 21, 9, 35) and 11 real decisions
+- [All explainers](https://pharosprivacy.com/explainers.html)
+
+## GDPR fines and decisions
+
+- [Search all decisions](https://pharosprivacy.com/fines.html): filter by country, year, sector, article, outcome and fine size
+- [Sitemap with every decision page](https://pharosprivacy.com/sitemap.xml)
+
+## The GDPR
+
+- [The full text, 99 articles and 173 recitals](https://pharosprivacy.com/gdpr/)
+- [Article 4: Definitions](https://pharosprivacy.com/gdpr/article-4.html): 196 decisions cite it
+- [Article 5: Principles relating to processing of personal data](https://pharosprivacy.com/gdpr/article-5.html): 2,064 decisions cite it
+- [Article 6: Lawfulness of processing](https://pharosprivacy.com/gdpr/article-6.html): 1,629 decisions cite it
+- [Article 9: Processing of special categories of personal data](https://pharosprivacy.com/gdpr/article-9.html): 378 decisions cite it
+- [Article 12: Transparent information, communication and modalities for the exercise of the rights of the data subject](https://pharosprivacy.com/gdpr/article-12.html): 689 decisions cite it
+- [Article 13: Information to be provided where personal data are collected from the data subject](https://pharosprivacy.com/gdpr/article-13.html): 801 decisions cite it
+- [Article 14: Information to be provided where personal data have not been obtained from the data subject](https://pharosprivacy.com/gdpr/article-14.html): 216 decisions cite it
+- [Article 15: Right of access by the data subject](https://pharosprivacy.com/gdpr/article-15.html): 490 decisions cite it
+- [Article 17: Right to erasure (‘right to be forgotten’)](https://pharosprivacy.com/gdpr/article-17.html): 315 decisions cite it
+- [Article 21: Right to object](https://pharosprivacy.com/gdpr/article-21.html): 169 decisions cite it
+- [Article 24: Responsibility of the controller](https://pharosprivacy.com/gdpr/article-24.html): 253 decisions cite it
+- [Article 25: Data protection by design and by default](https://pharosprivacy.com/gdpr/article-25.html): 314 decisions cite it
+- [Article 28: Processor](https://pharosprivacy.com/gdpr/article-28.html): 201 decisions cite it
+- [Article 32: Security of processing](https://pharosprivacy.com/gdpr/article-32.html): 844 decisions cite it
+- [Article 58: Powers](https://pharosprivacy.com/gdpr/article-58.html): 378 decisions cite it
+
+## Optional
+
+- [All decisions as JSON](https://pharosprivacy.com/data/cases.json): one row per decision (field names in meta.fields); summaries are in https://pharosprivacy.com/data/summaries/0.json and onwards, 250 per file, in the same order. CC BY-NC-SA 4.0.

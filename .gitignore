@@ -25,3 +25,6 @@ pipeline/law/__pycache__/
 
 # your review lists (answers are saved in gdpr.db by parties-apply)
 pipeline/review/
+
+# IndexNow: pages waiting to be sent after the next push
+pipeline/seo_pending.json

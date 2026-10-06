@@ -1323,6 +1323,23 @@ def step_export(db):
                 r['has_own_summary'] = r['case_id'] in own
             export_site(rows, meta)
             run.notes.append(f'website data written to {SITE_DATA_DIR}')
+            build_seo(run)
+
+
+def build_seo(run):
+    """The pages search engines can read: one per decision and per GDPR article, the sitemap and the rest
+    (build_seo.mjs runs the fines page's own drawing code, so it needs Node)."""
+    import subprocess
+    script = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'build_seo.mjs')
+    try:
+        out = subprocess.run(['node', script], capture_output=True, text=True, encoding='utf-8', timeout=600)
+    except FileNotFoundError:
+        run.notes.append('SEO pages NOT rebuilt: Node is not installed')
+        return
+    if out.returncode:
+        run.notes.append('SEO pages NOT rebuilt: ' + (out.stderr.strip().splitlines() or ['unknown error'])[-1])
+    else:
+        run.notes.append(out.stdout.strip())
 
 
 SITE_FIELDS = ['pharos_id', 'case_id', 'source', 'country', 'country_code', 'authority', 'decision_date',
