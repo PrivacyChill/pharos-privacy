@@ -182,8 +182,8 @@ h1.unnamed { font-style: italic; font-weight: 400; color: var(--muted); }
 .fine .lbl { font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
 .fine .amt { font-family: var(--display); font-variation-settings: "SOFT" 100, "opsz" 96; font-weight: 600; font-size: clamp(2rem, 4.4vw, 2.9rem); line-height: 1.05; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
 .fine .amt.none { font-size: 1.6rem; font-weight: 500; }
+.fine .amt .cur { font-size: 0.5em; font-weight: 500; letter-spacing: 0.02em; margin-right: 0.25em; vertical-align: 0.12em; }
 .fine .conv { font-family: var(--display); font-variation-settings: "SOFT" 100; font-weight: 500; font-size: 1.35rem; line-height: 1.1; font-variant-numeric: tabular-nums; }
-.fine .conv-note { font-family: var(--mono); font-size: 0.7rem; line-height: 1.45; color: var(--muted); max-width: 34ch; }
 .fine .pill { margin-top: 6px; }
 .facts { margin: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-top: 2px solid var(--ink); }
 .facts div { padding: 16px 16px 16px 0; border-bottom: 1px solid var(--line); min-width: 0; }
@@ -672,7 +672,7 @@ function renderResults() {
     <div>
       ${active ? `<p class="active"><button type="button" class="chip" id="drop-org" aria-label="Remove the ${active[0].toLowerCase()} filter"><span>${active[0]}</span>${esc(active[1])} &times;</button></p>` : ''}
       <p class="big"><b>${num(list.length)}</b> ${list.length === 1 ? 'decision' : 'decisions'}${filtered ? ' match' : ''}</p>
-      <p class="sub">${fines.length ? `${converted ? '≈ ' : ''}${bigEur(total)} in ${num(fines.length)} ${fines.length === 1 ? 'fine' : 'fines'} &middot; typical fine ${eur(median(fines))} &middot; biggest ${eur(Math.max(...fines))}${converted ? ` &middot; includes ${num(converted)} estimated from other currencies (≈)` : ''}` : 'No fines in this selection'}</p>
+      <p class="sub">${fines.length ? `${converted ? '≈ ' : ''}${bigEur(total)} in ${num(fines.length)} ${fines.length === 1 ? 'fine' : 'fines'} &middot; typical fine ${eur(median(fines))} &middot; biggest ${eur(Math.max(...fines))}` : 'No fines in this selection'}</p>
     </div>
     <div class="right">
       ${filtered ? '<button type="button" class="linkbtn" id="clear">Clear filters</button>' : ''}
@@ -810,7 +810,7 @@ function renderDecision(c) {
           : party(c).sub ? `<p class="legend" style="margin:0 0 12px">${esc(party(c).sub)}.</p>` : ''}
         <p class="lede">${about}</p>
       </div>
-      <div class="fine"><span class="lbl">Fine</span><span class="amt ${f.none ? 'none' : ''}">${esc(f.label)}</span>${f.conv ? `<span class="conv">${esc(f.conv)}</span><span class="conv-note">${esc(f.note)}</span>` : ''}${pill}</div>
+      <div class="fine"><span class="lbl">Fine</span><span class="amt ${f.none ? 'none' : ''}">${f.conv ? `<span class="cur">${esc(c.currency)}</span>${esc(f.label.slice(c.currency.length + 1))}` : esc(f.label)}</span>${f.conv ? `<span class="conv" title="${esc(f.note)}">${esc(f.conv)}</span>` : ''}${pill}</div>
     </div>
     <dl class="facts">
       <div><dt>Regulator</dt><dd>${esc(authority(c.authority))}</dd></div>
@@ -1024,7 +1024,7 @@ function sheet(c) {
     <h2 class="s-title">${esc(party(c).name)}</h2>
     ${party(c).unchecked ? '<p class="s-small">Named in the source; which of them the decision is about has not been checked yet.</p>' : ''}
     <p class="s-meta">${esc(authority(c.authority))} &middot; ${esc(d.main)} &middot; ${esc(c.country || '')}</p>
-    <div class="s-fine"><b>${esc(f.label)}</b>${f.conv ? `<span>${esc(f.conv)}. ${esc(f.note)}</span>` : ''}${c.best_outcome ? `<span>${esc(c.best_outcome)}</span>` : ''}</div>
+    <div class="s-fine"><b>${esc(f.label)}</b>${f.conv ? `<span>${esc(f.conv)}</span>` : ''}${c.best_outcome ? `<span>${esc(c.best_outcome)}</span>` : ''}</div>
     <div class="cite"><small>Cite as</small>${esc(citation(c))}</div>
     <h3>Key facts</h3>
     <table>${rows.map(([k, v]) => `<tr><td>${esc(k)}</td><td>${esc(v)}</td></tr>`).join('')}</table>
