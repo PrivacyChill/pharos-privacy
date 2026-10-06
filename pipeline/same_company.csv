@@ -1,7 +1,7 @@
 decision,country,names,keys,checked_at
 same,IE,Meta Platforms Ireland Limited (9) | Facebook Ireland Ltd (4) | Meta Platforms Ireland [PL] (2) | Meta Ireland Limited (1),meta platforms ireland ltd || facebook ireland ltd || PL: meta platforms ireland || meta ireland ltd,2026-10-06 11:30:17
 different,ES,"BANCO BILBAO VIZCAYA ARGENTARIA, S.A (12) | Banco Bilbao Vizcaya Argentaria S.L. (3) | BANCO BILBAO VIZCAYA ARGENTARIA (1)",banco bilbao vizcaya argentaria sa || banco bilbao vizcaya argentaria sl || ES: banco bilbao vizcaya argentaria,2026-10-06 11:30:17
-different,RO,Enel Energie (2) | SC Enel Energie S.A. (Electricity Distributor) (1),RO: enel energie || enel energie sa,2026-10-06 11:30:17
+same,RO,Enel Energie (2) | SC Enel Energie S.A. (Electricity Distributor) (1),RO: enel energie || enel energie sa,2026-10-06 13:00:00
 same,AT,Google (1) | Google LLC (1),AT: google || google llc,2026-10-06 11:30:17
 same,BE,Roularta Media Group (1) | Roularta Media Group N.V. (1),BE: roularta media group || roularta media group nv,2026-10-06 11:30:17
 same,CY,Hellenic Bank (1) | Hellenic Bank PLC (1),CY: hellenic bank || hellenic bank plc,2026-10-06 11:30:17

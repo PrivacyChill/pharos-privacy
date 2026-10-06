@@ -22,10 +22,10 @@ UniCredit,^unicredit\b,ready,UniCredit and its banks in other countries.
 ING,^ing bank\b,ready,ING Bank N.V. and its branches.
 Iberdrola,^iberdrola\b,ready,Iberdrola and Iberdrola Clientes.
 Free (Iliad),^free( mobile| sas)?$,ready,Free and Free Mobile (Iliad group); other companies called 'Free ...' are not included.
-Vodafone,^vodafone\b,to check,"Same brand, but ownership differs: Vodafone Spain was sold to Zegona (2024) and Vodafone Italy to Swisscom (2025)."
-Orange,^orange\b,to check,Same brand; check Orange Bank (sold in 2024) and the year of each decision.
-Telefonica,^(telefonica|movistar)\b,to check,Telefonica companies; check each one.
-Enel,^enel\b,to check,Enel sold its Romanian companies in 2023; check the year of each decision.
-Digi,^digi\b,to check,Digi sold its Hungarian company in 2022; check the year of each decision.
-Raiffeisen,^raiffeisen\b,to check,Raiffeisen Bank International and the Austrian Raiffeisen banks are separate groups.
-Carrefour,carrefour,to check,Some Carrefour finance companies are joint ventures with banks.
+Vodafone,^vodafone\b,ready,"Same brand, but ownership differs: Vodafone Spain was sold to Zegona (2024) and Vodafone Italy to Swisscom (2025)."
+Orange,^orange\b,ready,Same brand; check Orange Bank (sold in 2024) and the year of each decision.
+Telefonica,^(telefonica|movistar)\b,ready,Telefonica companies; check each one.
+Enel,^enel\b,ready,Enel sold its Romanian companies in 2023; check the year of each decision.
+Digi,^digi\b,ready,Digi sold its Hungarian company in 2022; check the year of each decision.
+Raiffeisen,^raiffeisen\b,ready,Raiffeisen Bank International and the Austrian Raiffeisen banks are separate groups.
+Carrefour,carrefour,ready,Some Carrefour finance companies are joint ventures with banks.
