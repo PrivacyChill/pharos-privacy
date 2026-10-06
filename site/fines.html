@@ -415,7 +415,7 @@ footer .mail { color: inherit; }
       Fino
     </a>
     <nav aria-label="Main">
-      <a href="index.html#here">Explainers</a>
+      <a href="explainers.html">Explainers</a>
       <a href="#fines" id="nav-fines">Fines</a>
       <div class="laws" id="laws">
         <button type="button" id="nav-gdpr" aria-expanded="false" aria-controls="laws-menu">Laws <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5 6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
@@ -450,6 +450,15 @@ function boot(DATA) {
 const F = DATA.fields, col = Object.fromEntries(F.map((f, i) => [f, i]));
 /* The law text is a separate file. If it fails to load, the decisions still work and the law pages say so. */
 const GDPR = DATA.gdpr || { arts: {}, chapters: [], preamble: { recitals: {} } };
+/* Explainers (data/explainers.json, written by the explainer builder): which explainer covers which decision
+   and which GDPR article. If the file is missing, the pages simply show no "Explained in" box. */
+const EX_BY_CASE = new Map(), EX_BY_ART = new Map();
+for (const e of (DATA.ex && DATA.ex.explainers) || []) {
+  for (const id of e.decisions) (EX_BY_CASE.get(id) || EX_BY_CASE.set(id, []).get(id)).push(e);
+  for (const n of e.arts) (EX_BY_ART.get(n) || EX_BY_ART.set(n, []).get(n)).push(e);
+}
+const explainedBlock = list => !list || !list.length ? '' : `<section><h2 class="sec-h">Explained in</h2>
+  <ul class="sim">${list.map(e => `<li><a href="${esc(e.slug)}.html"><b>${esc(e.question)}</b><span>Explainer &middot; ${esc(e.shelf)} &rarr;</span></a></li>`).join('')}</ul></section>`;
 const SOURCE_NAMES = { cms_tracker: 'CMS Enforcement Tracker', gdprhub: 'GDPRhub (noyb)' };
 const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 const EURLEX = n => `https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:02016R0679-20160504#art_${n}`;
@@ -845,6 +854,7 @@ function renderDecision(c) {
             <p class="legend">Each dot is one fine in ${esc(c.country)}. The scale grows tenfold at each line.</p>`
           : `<p class="big">No amount to compare.</p><p class="sub">This decision has no fine amount we can read, so it isn&rsquo;t placed among the others.</p>`}
         </section>
+        ${explainedBlock(EX_BY_CASE.get(c.pharos_id))}
         ${companyBlock(c)}
         ${groupBlock(c)}
         <section><h2 class="sec-h">Similar decisions</h2>
@@ -965,6 +975,7 @@ function renderArticle(n) {
             <p style="margin:16px 0 0"><a class="btn small latte" href="#fines" data-art="${n}">See all ${num(st.list.length)} decisions &rarr;</a></p>`
           : '<p class="note">No decision in the database cites this article yet.</p>'}
         </section>
+        ${explainedBlock(EX_BY_ART.get(n))}
         <section class="official">
           <h2 class="sec-h">About this text</h2>
           <p>Shown here from the consolidated version on EUR-Lex, which includes the published corrections. Only the version in the Official Journal of the EU is legally binding.</p>
@@ -1124,12 +1135,13 @@ route();
   try {
     /* cases.json is always checked with the server; the summary files carry its export time, so a cached
        summary file from an older export (rows in a different order) is never paired with newer cases. */
-    const [cases, gdpr] = await Promise.all([get('data/cases.json', { cache: 'no-cache' }), get('data/reg-2016-679.json').catch(() => null)]);
+    const [cases, gdpr, ex] = await Promise.all([get('data/cases.json', { cache: 'no-cache' }), get('data/reg-2016-679.json').catch(() => null),
+                                                 get('data/explainers.json', { cache: 'no-cache' }).catch(() => null)]);
     const n = Math.ceil(cases.rows.length / cases.meta.summary_shard);
     const v = encodeURIComponent(cases.meta.generated_at || '');
     const sum = (await Promise.all(Array.from({ length: n }, (_, i) => get(`data/summaries/${i}.json?v=${v}`)))).flat().map(clean);
     const by = cases.meta.fields.indexOf('summary_by');
-    boot({ meta: cases.meta, fields: cases.meta.fields, rows: cases.rows, sum, gdpr,
+    boot({ meta: cases.meta, fields: cases.meta.fields, rows: cases.rows, sum, gdpr, ex,
            cred: cases.rows.map(r => r[by] === 'cms_tracker' ? 'c' : 'g') });
   } catch (e) {
     main.innerHTML = `<div class="wrap"><p class="lede" style="padding-block:80px">The decisions could not be loaded. Please reload the page; if it keeps happening, write to <span class="mail">angelillolorenzo@gmail.com</span>.</p></div>`;

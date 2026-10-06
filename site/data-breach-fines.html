@@ -1,0 +1,378 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<title>Worst case for a data breach · Fino</title>
+<meta name="description" content="The maximum GDPR fine for a data breach, what decides the real amount, and the fines regulators actually imposed.">
+<script>try { if (localStorage.getItem('mode') === 'light') document.documentElement.dataset.mode = 'light'; } catch (e) {}</script>
+<style>
+/* Fonts are served from this site, so no visitor data goes to a font provider. All under the SIL Open Font License. */
+@font-face { font-family: "Fraunces"; font-style: normal; font-weight: 300 800; font-display: swap; src: url("fonts/fraunces-300-800-latin.woff2") format("woff2"); }
+@font-face { font-family: "Atkinson Hyperlegible"; font-style: normal; font-weight: 400; font-display: swap; src: url("fonts/atkinson-hyperlegible-400-latin.woff2") format("woff2"); }
+@font-face { font-family: "Atkinson Hyperlegible"; font-style: normal; font-weight: 700; font-display: swap; src: url("fonts/atkinson-hyperlegible-700-latin.woff2") format("woff2"); }
+@font-face { font-family: "IBM Plex Mono"; font-style: normal; font-weight: 400; font-display: swap; src: url("fonts/ibm-plex-mono-400-latin.woff2") format("woff2"); }
+@font-face { font-family: "IBM Plex Mono"; font-style: normal; font-weight: 500; font-display: swap; src: url("fonts/ibm-plex-mono-500-latin.woff2") format("woff2"); }
+
+/* Layout: one shell, four views (browse, decision, GDPR article, export sheet), switched by the link anchor.
+   Same tokens as the homepage: espresso by default, latte with the sun/moon button. */
+:root {
+  --bg: #241B17;
+  --surface: #2F2520;
+  --ink: #F4EBE2;
+  --muted: #C2B1A2;
+  --line: #44362F;
+  --dot: #6A574C;
+  --accent: #BFD183;
+  --accent-ink: #151A05;
+  --pink: #F59BB4;
+  --puff: #FFCDB8;
+  --blush: #FF8BA4;
+  --eye: #211915;
+  --soon: #FFB3C6;
+  --soon-bg: #45242D;
+  --live-bg: #33381E;
+  --desk: #1B1411;
+  /* What each colour means (see the Design rules view):
+     green  = you can do something here (solid = the main action, underlined = a link)
+     pink   = look here; emphasis only, never clickable
+     latte  = a panel of tools you set (filters, export options) and where you are in the menu
+     blue   = the official EU source; it always opens EUR-Lex */
+  --latte: #F1EAE1;
+  --latte-ink: #211915;
+  --latte-muted: #6E6158;
+  --latte-line: #D6C7B6;
+  --field: #FFFDF9;
+  --go-deep: #56662A;
+  --official: #9DB8FF;
+  --official-bg: #222C45;
+  --neutral-bg: #3A2F29;
+  color-scheme: dark;
+
+  --display: "Fraunces", "Iowan Old Style", Georgia, serif;
+  --body: "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+}
+:root[data-mode="light"] {
+  --bg: #F1EAE1; --surface: #FBF7F2; --ink: #211915; --muted: #6E6158; --line: #E0D4C6; --dot: #B9A794;
+  --accent: #56662A; --accent-ink: #FFFFFF; --pink: #FFC4D3;
+  --soon: #A3304F; --soon-bg: #FFE1E8; --live-bg: #E6E9CF; --desk: #E4DACD;
+  --latte: #FFFDF9; --latte-line: #E0D4C6; --field: #FFFFFF;
+  --official: #2D4FA8; --official-bg: #E4EAFA; --neutral-bg: #E7DED3;
+  color-scheme: light;
+}
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 1.0625rem; line-height: 1.55; overflow-x: hidden; margin: 0; }
+a { color: inherit; }
+a:focus-visible, button:focus-visible, select:focus-visible, input:focus-visible, label:focus-within { outline: 3px solid var(--accent); outline-offset: 3px; border-radius: 6px; }
+::selection { background: var(--pink); color: #15141F; }
+.wrap { max-width: 1120px; margin-inline: auto; padding-inline: 20px; }
+.mono { font-family: var(--mono); }
+.muted { color: var(--muted); }
+
+/* Header */
+.top .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-block: 18px; flex-wrap: wrap; }
+.brand { display: flex; align-items: center; gap: 10px; text-decoration: none; font-family: var(--display); font-weight: 650; font-size: 1.5rem; font-variation-settings: "SOFT" 100, "opsz" 48; letter-spacing: -0.01em; }
+.brand svg { width: 34px; height: 31px; }
+.top nav { display: flex; gap: 4px; flex-wrap: wrap; margin-left: auto; }
+.top nav a { text-decoration: none; font-size: 0.95rem; padding: 6px 12px; border-radius: 999px; color: var(--muted); }
+.top nav a:hover { color: var(--ink); background: var(--surface); }
+.top nav a.on, .laws > button.on { color: var(--latte-ink); background: var(--latte); box-shadow: inset 0 0 0 1.5px var(--latte-line); }
+.laws { position: relative; }
+.laws-menu[hidden] { display: none; }
+.laws > button { display: inline-flex; align-items: center; gap: 5px; font: inherit; font-size: 0.95rem; padding: 6px 12px; border-radius: 999px; border: 0; background: none; color: var(--muted); cursor: pointer; }
+.laws > button:hover { color: var(--ink); background: var(--surface); }
+.laws > button.on:hover { color: var(--latte-ink); background: var(--latte); }
+.laws > button svg { width: 12px; height: 12px; transition: transform .15s ease; }
+.laws > button[aria-expanded="true"] svg { transform: rotate(180deg); }
+.laws-menu { position: absolute; right: 0; top: calc(100% + 8px); z-index: 10; list-style: none; margin: 0; padding: 8px; width: 290px; max-width: calc(100vw - 32px);
+  background: var(--latte); color: var(--latte-ink); border: 2px solid var(--latte-ink); border-radius: 20px; box-shadow: 6px 6px 0 var(--pink); display: grid; gap: 2px; color-scheme: light; }
+.top nav .laws-menu a, .laws-menu .soon-law { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0 10px; padding: 10px 12px; border-radius: 14px; text-decoration: none; color: var(--latte-ink); font-size: 1rem; }
+.top nav .laws-menu a:hover { background: var(--field); color: var(--latte-ink); }
+.top nav .laws-menu a:focus-visible { outline: 3px solid var(--go-deep); outline-offset: 0; }
+.laws-menu b { font-size: 1rem; }
+.laws-menu span { grid-column: 1; font-size: 0.85rem; color: var(--latte-muted); }
+.laws-menu .soon-law { opacity: .75; }
+.laws-menu em { grid-column: 2; grid-row: 1 / span 2; align-self: center; font-style: normal; font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.06em; text-transform: uppercase; padding: 3px 7px; border-radius: 6px; background: #FFE1E8; color: #A3304F; }
+.mode { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); cursor: pointer; padding: 0; }
+.mode:hover { border-color: var(--ink); }
+.mode svg { width: 20px; height: 20px; }
+.mode .moon { display: none; }
+:root[data-mode="light"] .mode .sun { display: none; }
+:root[data-mode="light"] .mode .moon { display: block; }
+.preview { border-bottom: 1px dashed var(--line); font-family: var(--mono); font-size: 0.78rem; color: var(--muted); }
+.preview p { margin: 0; padding-block: 9px; }
+
+/* Shared type */
+.crumbs { font-family: var(--mono); font-size: 0.82rem; color: var(--muted); margin: 30px 0 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.crumbs a { text-decoration: none; }
+.crumbs a:hover { color: var(--ink); text-decoration: underline; }
+.eyebrow { font-family: var(--mono); font-size: 0.8rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin: 0 0 14px; }
+h1 { font-family: var(--display); font-variation-settings: "SOFT" 100, "opsz" 144; font-weight: 560; font-size: clamp(2.2rem, 5vw, 3.9rem); line-height: 1.0; letter-spacing: -0.025em; margin: 0 0 16px; text-wrap: balance; overflow-wrap: anywhere; }
+h1.unnamed { font-style: italic; font-weight: 400; color: var(--muted); }
+h1 .tag-person { display: inline-block; vertical-align: 0.4em; margin-left: 12px; font-family: var(--mono); font-style: normal; font-size: 0.75rem;
+  font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; background: var(--latte); color: var(--latte-ink);
+  border-radius: 6px; padding: 5px 10px; box-shadow: inset 0 0 0 1.5px var(--latte-line); }
+.sec-h { font-family: var(--display); font-variation-settings: "SOFT" 100, "opsz" 72; font-weight: 560; font-size: 1.7rem; letter-spacing: -0.015em; line-height: 1.1; margin: 0 0 14px; text-wrap: balance; }
+.lede { margin: 0; font-size: 1.2rem; color: var(--muted); max-width: 36em; }
+.lede strong, .hl { color: var(--ink); font-weight: 700; background: linear-gradient(transparent 62%, var(--pink) 62%, var(--pink) 92%, transparent 92%); }
+.note { color: var(--muted); margin: 0; }
+.legend { font-family: var(--mono); font-size: 0.75rem; color: var(--muted); margin: 8px 0 0; }
+.btn { display: inline-flex; align-items: center; gap: 8px; text-decoration: none; font: inherit; font-weight: 700; padding: 11px 20px; border-radius: 999px; border: 2px solid var(--ink); background: transparent; color: var(--ink); cursor: pointer; transition: transform .15s ease, background .15s ease; }
+.btn:hover { transform: translateY(-2px); background: var(--surface); }
+.btn.primary:hover { background: var(--accent); filter: brightness(1.05); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.btn.small { padding: 7px 14px; font-size: 0.92rem; }
+.btn.latte { background: var(--latte); color: var(--latte-ink); border-color: var(--latte); }
+.btn.latte:hover { background: var(--latte); box-shadow: 4px 4px 0 var(--pink); }
+.pill { justify-self: start; font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; padding: 4px 9px; border-radius: 6px; white-space: nowrap; }
+.pill.bad { background: var(--soon-bg); color: var(--soon); }
+.pill.ok { background: var(--neutral-bg); color: var(--muted); }
+.card { background: var(--surface); border: 2px solid var(--ink); border-radius: 24px; padding: 22px; }
+
+.results { list-style: none; margin: 0; padding: 0; border-top: 2px solid var(--ink); }
+.results li { border-bottom: 1px solid var(--line); }
+.results a { display: grid; grid-template-columns: 112px minmax(0, 1fr) 130px 150px; gap: 18px; align-items: start; padding: 16px 6px; text-decoration: none; border-radius: 14px; transition: background .15s ease; }
+.results a:hover { background: var(--surface); }
+.results .dt { font-family: var(--mono); font-size: 0.85rem; color: var(--muted); padding-top: 3px; font-variant-numeric: tabular-nums; }
+.results .who { min-width: 0; }
+.results .who b { display: block; font-size: 1.05rem; overflow-wrap: anywhere; }
+.results .who b.unnamed { font-style: italic; font-weight: 400; color: var(--muted); }
+.results .who span { display: block; color: var(--muted); font-size: 0.92rem; }
+.results .who small { display: block; font-family: var(--mono); font-size: 0.75rem; color: var(--muted); margin-top: 4px; }
+.results .cty { color: var(--muted); font-size: 0.95rem; padding-top: 2px; }
+.results .amt { text-align: right; font-family: var(--mono); font-weight: 500; font-variant-numeric: tabular-nums; padding-top: 2px; }
+.results .amt small { display: block; font-weight: 400; font-size: 0.8rem; color: var(--muted); }
+.results .amt.none { color: var(--muted); font-weight: 400; font-size: 0.85rem; }
+footer { background: var(--ink); color: var(--bg); }
+footer .wrap { padding-block: 40px; display: grid; gap: 10px; font-size: 0.92rem; }
+footer p { margin: 0; max-width: 60em; opacity: .85; }
+footer .mail { color: inherit; }
+
+/* ---------- Pill card: the same component on the site and as a 4:5 post image ---------- */
+.pc-wrap { container-type: inline-size; }
+.pill-card { aspect-ratio: 4 / 5; display: flex; flex-direction: column; gap: 2.6cqw; padding: 6.4cqw 6.6cqw 5.6cqw;
+  background: var(--bg); color: var(--ink); border: 2px solid var(--ink); border-radius: 6cqw; text-decoration: none; overflow: hidden; }
+a.pill-card { box-shadow: 7px 7px 0 var(--pink); transition: transform .15s ease; overflow: visible; }  /* on the site a card may grow rather than clip */
+a.pill-card:hover { transform: translateY(-3px); }
+.pc-top { display: flex; justify-content: space-between; align-items: center; }
+.pc-eye { font-family: var(--mono); font-size: 3.1cqw; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.pc-fino { width: 9cqw; height: auto; }
+.pc-q { font-family: var(--display); font-variation-settings: "SOFT" 100, "opsz" 144; font-weight: 540; font-style: italic;
+  font-size: 6.9cqw; line-height: 1.06; letter-spacing: -0.02em; margin: 1cqw 0 0; text-wrap: balance; }
+.pc-a { font-size: 4.7cqw; font-weight: 700; line-height: 1.3; margin: 0; }
+.pc-a mark { color: var(--ink); background: linear-gradient(transparent 58%, var(--pc-hl) 58%, var(--pc-hl) 92%, transparent 92%); }
+.pc-figs { display: flex; gap: 7cqw; margin-top: auto; }
+.pc-figs div { display: grid; }
+.pc-figs b { font-family: var(--display); font-variation-settings: "SOFT" 100, "opsz" 144; font-weight: 600; font-size: 12cqw;
+  line-height: 0.95; letter-spacing: -0.03em; color: var(--accent); font-variant-numeric: tabular-nums; }
+.pc-figs span { font-family: var(--mono); font-size: 3.2cqw; color: var(--muted); margin-top: 1cqw; }
+.pc-cap { font-size: 3.6cqw; line-height: 1.4; color: var(--muted); margin: 0; }
+.pc-chips { display: flex; flex-wrap: wrap; gap: 1.6cqw; list-style: none; margin: 0; padding: 0; }
+.pc-chips li { font-family: var(--mono); font-size: 2.6cqw; padding: 0.8cqw 1.6cqw; border-radius: 1.2cqw; background: var(--neutral-bg); color: var(--ink); }
+.pc-foot { display: flex; justify-content: space-between; align-items: flex-end; gap: 4cqw; border-top: 2px solid var(--line); padding-top: 3cqw; }
+.pc-brand { font-family: var(--display); font-variation-settings: "SOFT" 100, "opsz" 48; font-weight: 650; font-size: 5cqw; }
+.pc-foot .pc-url { font-family: var(--mono); font-size: 2.9cqw; color: var(--accent); text-align: right; }
+.pc-src { font-family: var(--mono); font-size: 2.4cqw; line-height: 1.4; color: var(--muted); margin: 0; }
+:root { --pc-hl: #6B3A47; }
+:root[data-mode="light"] { --pc-hl: var(--pink); }
+
+/* ---------- Article: a latte reading sheet on the espresso desk, with the contents beside it ---------- */
+.a-grid { display: grid; grid-template-columns: 210px minmax(0, 760px); gap: 40px; justify-content: center; align-items: start; padding-block: 18px 72px; }
+.a-toc { position: sticky; top: 20px; display: grid; gap: 14px; }
+.a-toc .lbl, .paper .lbl { font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin: 0; }
+.a-toc ol { list-style: none; margin: 0; padding: 0; border-top: 2px solid var(--ink); }
+.a-toc li { border-bottom: 1px solid var(--line); }
+.a-toc ol a { display: block; padding: 9px 4px; text-decoration: none; font-size: 0.95rem; color: var(--muted); border-radius: 8px; }
+.a-toc ol a:hover { color: var(--ink); background: var(--surface); }
+.a-toc .pc-wrap { width: 100%; }
+.a-toc .pill-card { box-shadow: 4px 4px 0 var(--pink); }
+.paper { background: var(--latte); color: var(--latte-ink); border: 2px solid var(--latte-ink); border-radius: 28px; box-shadow: 8px 8px 0 var(--pink);
+  padding: 44px 56px 40px; color-scheme: light; font-size: 1.125rem; line-height: 1.7; min-width: 0; }
+.paper :focus-visible { outline-color: var(--go-deep); }
+.paper .meta { font-family: var(--mono); font-size: 0.8rem; color: var(--latte-muted); margin: 0 0 14px; }
+.paper h1 { font-size: clamp(2rem, 4.2vw, 3rem); line-height: 1.04; margin: 0 0 22px; }
+.paper h2 { font-family: var(--display); font-variation-settings: "SOFT" 100, "opsz" 72; font-weight: 580; font-size: 1.6rem; line-height: 1.15; letter-spacing: -0.01em; margin: 44px 0 12px; scroll-margin-top: 20px; text-wrap: balance; }
+.paper h3 { font-family: var(--mono); font-size: 0.8rem; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 500; color: var(--latte-muted); margin: 28px 0 8px; }
+.paper p, .paper ul, .paper ol { margin: 0 0 14px; max-width: 38em; }
+.paper li { margin-bottom: 6px; }
+.paper li::marker { color: var(--latte-muted); font-family: var(--mono); }
+.a-lead { font-size: 1.28rem; line-height: 1.6; scroll-margin-top: 20px; }
+.a-lead strong { background: linear-gradient(transparent 60%, #FFC4D3 60%, #FFC4D3 92%, transparent 92%); }
+.paper blockquote { margin: 6px 0 18px; padding: 4px 0 4px 18px; border-left: 4px solid #F59BB4; font-family: var(--display); font-variation-settings: "SOFT" 100;
+  font-style: italic; font-size: 1.3rem; line-height: 1.45; max-width: 34em; }
+.paper a.xref { color: var(--go-deep); font-weight: 700; text-decoration: none; border-bottom: 1.5px solid currentColor; }
+.paper a.xref:hover { background: #E6E9CF; }
+.paper a.out { color: var(--go-deep); font-family: var(--mono); font-size: 0.85rem; white-space: nowrap; }
+.a-dec { list-style: none; margin: 8px 0 0; padding: 0; border-top: 2px solid var(--latte-ink); max-width: none; }
+.a-dec li { border-bottom: 1px solid var(--latte-line); margin: 0; }
+.a-dec a { display: grid; grid-template-columns: 80px minmax(0, 1fr) 120px; gap: 14px; padding: 12px 4px; text-decoration: none; color: inherit; border-radius: 10px; line-height: 1.45; }
+.a-dec a:hover { background: var(--field); }
+.a-dec .dt { font-family: var(--mono); font-size: 0.8rem; color: var(--latte-muted); padding-top: 3px; font-variant-numeric: tabular-nums; }
+.a-dec b { display: block; font-size: 1rem; overflow-wrap: anywhere; }
+.a-dec b.unnamed { font-style: italic; font-weight: 400; color: var(--latte-muted); }
+.a-dec .what { display: block; font-size: 0.98rem; }
+.a-dec small { display: block; font-family: var(--mono); font-size: 0.72rem; color: var(--latte-muted); margin-top: 2px; }
+.a-dec .amt { text-align: right; font-family: var(--mono); font-weight: 500; font-size: 0.95rem; font-variant-numeric: tabular-nums; }
+.a-dec .amt.none { font-weight: 400; color: var(--latte-muted); font-size: 0.82rem; }
+.a-dec .amt small { font-weight: 400; }
+.a-more { margin-top: 14px; font-size: 1rem; }
+.a-table { width: 100%; border-collapse: collapse; margin: 6px 0 18px; font-size: 1rem; line-height: 1.5; }
+.a-table caption { text-align: left; font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--latte-muted); padding-bottom: 6px; }
+.a-table th, .a-table td { text-align: left; vertical-align: top; padding: 9px 12px 9px 0; border-top: 1px solid var(--latte-line); }
+.a-table th { width: 45%; }
+.a-rel { margin-top: 48px; }
+.a-rel h2 { margin-top: 0; }
+.a-rel ul { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; max-width: none; }
+.a-rel li { margin: 0; }
+.a-rel a { display: grid; gap: 6px; height: 100%; padding: 14px 16px; border: 1.5px solid var(--latte-ink); border-radius: 18px; text-decoration: none; color: inherit; background: var(--field); }
+.a-rel a:hover { box-shadow: 4px 4px 0 #F59BB4; }
+.a-rel span { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--latte-muted); }
+.a-rel b { font-family: var(--display); font-variation-settings: "SOFT" 100, "opsz" 72; font-weight: 560; font-style: italic; font-size: 1.05rem; line-height: 1.2; }
+@media (max-width: 700px) { .a-rel ul { grid-template-columns: minmax(0, 1fr); } }
+.a-src { margin-top: 44px; border-top: 2px solid var(--latte-ink); padding-top: 14px; font-size: 0.9rem; color: var(--latte-muted); display: grid; gap: 6px; }
+.a-src p { margin: 0; max-width: none; }
+.a-src a { color: var(--go-deep); }
+@media (max-width: 900px) {
+  .a-grid { grid-template-columns: minmax(0, 1fr); gap: 20px; }
+  .a-toc { position: static; }
+  .a-toc .pc-wrap { display: none; }
+  .paper { padding: 28px 22px; }
+}
+@media (max-width: 520px) { .a-dec a { grid-template-columns: minmax(0, 1fr) auto; } .a-dec .dt { grid-column: 1 / -1; padding: 0; } }
+@media (prefers-reduced-motion: reduce) { a.pill-card { transition: none; } }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="index.html" aria-label="Fino, home">
+      <svg viewBox="0 0 200 180" aria-hidden="true">
+        <path d="M100 24 C152 24 184 60 186 106 C188 148 152 166 100 166 C48 166 12 148 14 106 C16 60 48 24 100 24 Z" fill="var(--puff)" stroke="var(--ink)" stroke-width="9"/>
+        <ellipse cx="78" cy="100" rx="9" ry="13" fill="var(--eye)"/>
+        <ellipse cx="122" cy="100" rx="9" ry="13" fill="var(--eye)"/>
+      </svg>
+      Fino
+    </a>
+    <nav aria-label="Main">
+      <a href="explainers.html" class="on" aria-current="page">Explainers</a>
+      <a href="fines.html#fines">Fines</a>
+      <div class="laws" id="laws">
+        <button type="button" id="nav-gdpr" aria-expanded="false" aria-controls="laws-menu">Laws <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5 6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <ul class="laws-menu" id="laws-menu" hidden>
+          <li><a href="fines.html#gdpr"><b>GDPR</b><span>General Data Protection Regulation</span></a></li>
+          <li><div class="soon-law"><b>AI Act</b><span>Artificial Intelligence Act</span><em>Coming soon</em></div></li>
+          <li><div class="soon-law"><b>ePrivacy</b><span>Cookies and electronic communications</span><em>Coming soon</em></div></li>
+        </ul>
+      </div>
+      <a href="Tool.html">Tools</a>
+      <a href="About.html">About</a>
+    </nav>
+    <button class="mode" id="mode" type="button" aria-label="Switch to light mode" title="Switch to light mode">
+      <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5a8.5 8.5 0 1 0 11 11z"/></svg>
+    </button>
+  </div>
+</header>
+<main id="main">
+<div class="wrap">
+  <nav class="crumbs" aria-label="Breadcrumb"><a href="explainers.html">Explainers</a><span aria-hidden="true">/</span><span>Security and breaches</span><span aria-hidden="true">/</span><span aria-current="page">Data breach fines</span></nav>
+  <div class="a-grid">
+    <aside class="a-toc" aria-label="On this page">
+      <p class="lbl">On this page</p>
+      <ol><li><a href="#short">Short answer</a></li><li><a href="#cap">The worst case: the cap</a></li><li><a href="#amount">What decides the real amount</a></li><li><a href="#duties">The three duties after a breach</a></li><li><a href="#claims">Compensation claims</a></li><li><a href="#decisions">What regulators decided</a></li><li><a href="#check">What to prepare for the board</a></li></ol>
+      <a class="post-link" href="cards/data-breach-fines.png">This explainer as a post image (1080 × 1350) ↗</a>
+    </aside>
+    <article class="paper">
+      <p class="meta">Explainer No. 3 · Security and breaches · Updated 6 Oct 2026 · 4 min read</p>
+      <h1>The board wants to know our worst-case exposure for this data breach.</h1>
+      <p class="a-lead" id="short">The legal maximum is high, but real fines are usually far below it. For security failures the cap is <strong>€10 million or 2% of worldwide annual turnover</strong>, whichever is higher. Where the regulator also finds a breach of the core security principle, which many breach decisions do, the cap is <strong>€20 million or 4%</strong>. “Turnover” means the whole group, not only the company that was hacked. On top of any fine come compensation claims from the people affected.</p>
+      <h2 id="cap">The worst case: the cap</h2>
+<p><a class="xref" href="fines.html#art-83">Article 83(4)</a> covers the security and breach-reporting duties. Fines go up to €10 million or</p>
+<blockquote>“up to 2 % of the total worldwide annual turnover of the preceding financial year, whichever is higher”</blockquote>
+<p><a class="xref" href="fines.html#art-83">Article 83(5)</a> covers the principles, including security in <a class="xref" href="fines.html#art-5">Article 5(1)(f)</a>: up to €20 million or 4%.
+Many breach decisions cite both, so for the board the realistic ceiling is the higher one.</p>
+<table class="a-table"><caption>Two examples of the cap</caption>
+<tr><th scope="row">A group with €2 billion worldwide turnover</th><td>up to €40 million (2%) or €80 million (4%)</td></tr>
+<tr><th scope="row">A company with €50 million turnover</th><td>up to €10 million or €20 million, because the fixed amount is higher than the percentage</td></tr>
+</table>
+<p>The turnover is the group’s. <a class="xref" href="fines.html#rec-150">Recital 150</a> says a company is an “undertaking” as in EU competition law, and the
+EU Court of Justice confirmed in the Deutsche Wohnen case (C-807/21, 2023) that this is the basis for the fine.
+<a class="out" href="https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:62021CJ0807" target="_blank" rel="noopener">Deutsche Wohnen judgment ↗</a></p>
+<h2 id="amount">What decides the real amount</h2>
+<p><a class="xref" href="fines.html#art-83">Article 83(2)</a> lists what the regulator weighs: how serious the breach was, how many people it affected and for how
+long; whether it was deliberate or careless; what you did to limit the harm; past breaches; how well you cooperated; the type
+of data; and whether you reported it yourself.</p>
+<p>The European Data Protection Board’s fining guidelines start from a share of the cap by seriousness (low: 0 to 10%, medium:
+10 to 20%, high: 20 to 100%), then adjust for the size of the company.
+<a class="out" href="https://www.edpb.europa.eu/system/files/documents/2023-06/edpb_guidelines_042022_calculationofadministrativefines_en.pdf" target="_blank" rel="noopener">EDPB fining guidelines 04/2022 ↗</a></p>
+<p>Announced figures also come down. The UK regulator first said it intended to fine British Airways £183 million and Marriott
+£99 million; the final fines were £20 million and £18.4 million.</p>
+<h2 id="duties">The three duties after a breach</h2>
+<ul>
+<li><b>Security.</b> <a class="xref" href="fines.html#art-32">Article 32</a> asks for “a level of security appropriate to the risk”: encryption, access control,
+regular testing. Most breach fines are for this.</li>
+<li><b>Tell the regulator.</b> <a class="xref" href="fines.html#art-33">Article 33</a>: “not later than 72 hours after having become aware of it”, and keep a
+record of every breach, even small ones.</li>
+<li><b>Tell the people affected</b> when the risk to them is high (<a class="xref" href="fines.html#art-34">Article 34</a>). This is not needed if the data was,
+for example, properly encrypted.</li>
+</ul>
+<h2 id="claims">Compensation claims</h2>
+<p>Under <a class="xref" href="fines.html#art-82">Article 82</a>, people can claim for material or non-material damage. The EU Court of Justice has said there is
+no minimum level of seriousness (Österreichische Post, C-300/21), and that fear of misuse after a hack can count as damage
+(C-340/21). People still have to show that they suffered damage.
+<a class="out" href="https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:62021CJ0340" target="_blank" rel="noopener">C-340/21 judgment ↗</a></p>
+<h2 id="decisions">What regulators decided</h2><p>The closest decisions in Fino, biggest fine first. Each line opens the decision with its source.</p><ul class="a-dec"><li><a href="fines.html#d-2024-IE-003"><span class="dt">Dec 2024</span><span><b>Meta Platforms Ireland Limited</b><span class="what">A 2018 bug let attackers steal access to about 29 million accounts. Most of the fine was for not building protection in from the start (Article 25); the rest for an incomplete breach report.</span><small>Data Protection Authority of Ireland · Ireland</small></span><span class="amt">€251,000,000</span></a></li><li><a href="fines.html#d-2024-IE-005"><span class="dt">Sep 2024</span><span><b>Meta Platforms Ireland Limited</b><span class="what">Stored users’ passwords in plain text, without encryption.</span><small>Data Protection Authority of Ireland · Ireland</small></span><span class="amt">€91,000,000</span></a></li><li><a href="fines.html#d-2026-FR-003"><span class="dt">Jan 2026</span><span><b>FREE MOBILE</b><span class="what">Weak security let attackers into the systems, and customers were not told enough about the breach.</span><small>French Data Protection Authority (CNIL) · France</small></span><span class="amt">€27,000,000</span></a></li><li><a href="fines.html#d-2020-GB-003"><span class="dt">Oct 2020</span><span><b>British Airways</b><span class="what">A 2018 attack on the website and app exposed the details of about 430,000 customers and staff, including card data.</span><small>Information Commissioner (ICO) · United Kingdom</small></span><span class="amt">€22,046,000</span></a></li><li><a href="fines.html#d-2020-GB-002"><span class="dt">Oct 2020</span><span><b>Marriott International, Inc</b><span class="what">An attack on the guest reservation system exposed about 339 million guest records worldwide.</span><small>Information Commissioner (ICO) · United Kingdom</small></span><span class="amt">€20,450,000</span></a></li><li><a href="fines.html#d-2023-SE-019"><span class="dt">Aug 2023</span><span><b class="unnamed">Not named in the source</b><span class="what">Faulty web links exposed 650,000 customers’ data for two years.</span><small>IMY (Sweden) · Sweden</small></span><span class="amt">SEK 35,000,000<small>≈ €2,940,000</small></span></a></li><li><a href="fines.html#d-2024-PL-028"><span class="dt">Aug 2024</span><span><b>mBank</b><span class="what">Sent customer data to another bank by mistake, and did not tell the people affected.</span><small>UODO (Poland) · Poland</small></span><span class="amt">PLN 4,053,173<small>≈ €950,000</small></span></a></li><li><a href="fines.html#d-2022-IE-010"><span class="dt">Mar 2022</span><span><b>Bank of Ireland</b><span class="what">Reported breaches to the regulator late, and security was not good enough.</span><small>DPC (Ireland) · Ireland</small></span><span class="amt">€463,000</span></a></li></ul><p class="a-more"><a class="xref" href="fines.html#fines">See every decision in Fino</a> and search for “breach”.</p><h2 id="check">What to prepare for the board</h2>
+<ol>
+<li>The group’s worldwide turnover for last year: it sets the cap.</li>
+<li>Was the breach reported within 72 hours, with everything Article 33 asks for?</li>
+<li>Were the people affected told, if the risk to them was high?</li>
+<li>Was the data encrypted, and were known weaknesses fixed in time?</li>
+<li>Is this the first incident, or a repeat?</li>
+</ol>
+
+      <section class="a-rel" aria-labelledby="rel-h"><h2 id="rel-h">Related explainers</h2><ul><li><a href="ai-training.html"><span>AI and new tech</span><b>We’re training AI on customer data. Has anyone been fined?</b></a></li><li><a href="staff-monitoring.html"><span>Staff</span><b>We want to monitor staff laptops. Has a regulator ruled on this?</b></a></li><li><a href="cookies.html"><span>Websites and marketing</span><b>Our cookie banner has no “reject” button. How big are the fines?</b></a></li></ul></section>
+      <div class="a-src">
+        <p><b>Sources.</b> GDPR text on Fino. Judgments of the EU Court of Justice on EUR-Lex. EDPB Guidelines 04/2022. Decisions from GDPRhub (noyb) and the CMS Enforcement Tracker, CC BY-NC-SA 4.0;
+        descriptions rewritten in plain words by Fino.</p>
+        <p>Not legal advice. National rules can add to what is described here.</p>
+      </div>
+    </article>
+  </div>
+</div>
+</main>
+<footer>
+  <div class="wrap">
+    <p>Decisions from enforcementtracker.com, provided by CMS, and GDPRhub (noyb), under CC BY-NC-SA 4.0. GDPR and ePrivacy text from EUR-Lex, &copy; European Union. Not legal advice.</p>
+    <p>Spotted a mistake? <span class="mail">angelillolorenzo@gmail.com</span> &middot; <a href="Privacy.html">Privacy</a></p>
+  </div>
+</footer>
+<script>
+const byId = id => document.getElementById(id);
+/* Laws menu: opens on click, closes on Escape, an outside click, or after choosing */
+const lawsBtn = byId('nav-gdpr'), lawsMenu = byId('laws-menu');
+function setLaws(open) { lawsBtn.setAttribute('aria-expanded', String(open)); lawsMenu.hidden = !open; }
+lawsBtn.addEventListener('click', e => { e.stopPropagation(); setLaws(lawsMenu.hidden); if (!lawsMenu.hidden) lawsMenu.querySelector('a').focus(); });
+lawsMenu.addEventListener('click', e => { if (e.target.closest('a')) setLaws(false); });
+document.addEventListener('click', e => { if (!e.target.closest('#laws')) setLaws(false); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && !lawsMenu.hidden) { setLaws(false); lawsBtn.focus(); } });
+
+/* Light / dark button, as on the homepage */
+const root = document.documentElement, modeBtn = byId('mode');
+function setMode(v, save) {
+  if (v === 'light') root.dataset.mode = 'light'; else delete root.dataset.mode;
+  const label = v === 'light' ? 'Switch to dark mode' : 'Switch to light mode';
+  modeBtn.setAttribute('aria-label', label); modeBtn.title = label;
+  if (save) { try { localStorage.setItem('mode', v); } catch (e) {} }
+}
+modeBtn.addEventListener('click', () => setMode(root.dataset.mode === 'light' ? 'dark' : 'light', true));
+let saved = null;
+try { saved = localStorage.getItem('mode'); } catch (e) {}
+setMode(saved, false);
+
+</script>
+</body>
+</html>
