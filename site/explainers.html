@@ -102,6 +102,26 @@ a:focus-visible, button:focus-visible, select:focus-visible, input:focus-visible
 .mode .moon { display: none; }
 :root[data-mode="light"] .mode .sun { display: none; }
 :root[data-mode="light"] .mode .moon { display: block; }
+/* Light switch: light spreads out from the sun button; going dark pulls it back in (view transitions).
+   With reduced motion it is a short fade; browsers without view transitions switch at once. */
+::view-transition-group(root) { animation-duration: .22s; }
+:root[data-switch]::view-transition-old(root), :root[data-switch]::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
+:root[data-switch="dark"]::view-transition-old(root) { z-index: 2; }
+:root[data-switch="dark"]::view-transition-new(root) { z-index: 1; }
+
+/* The header stays at the top while you scroll. Its height is kept in --head-h, so links to a heading stop
+   below it, and it gets a soft edge once the page has scrolled. */
+.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 30; background: var(--bg); transition: box-shadow .2s ease; }
+.top.scrolled { box-shadow: 0 1px 0 var(--line), 0 12px 24px -20px rgba(0, 0, 0, .6); }
+html { scroll-padding-top: calc(var(--head-h, 80px) + 12px); }
+@media (max-width: 860px) {
+  .top .wrap { padding-block: 10px; row-gap: 4px; }
+  .top nav { flex-wrap: nowrap; gap: 0; }
+  .top nav > a, .laws > button { padding: 6px 9px; font-size: 0.9rem; }
+}
+@media (max-width: 360px) { .top nav > a, .laws > button { padding: 6px 6px; font-size: 0.85rem; } }
+@media (prefers-reduced-motion: reduce) { .top { transition: none; } }
+
 .preview { border-bottom: 1px dashed var(--line); font-family: var(--mono); font-size: 0.78rem; color: var(--muted); }
 .preview p { margin: 0; padding-block: 9px; }
 
@@ -150,6 +170,11 @@ footer { background: var(--ink); color: var(--bg); }
 footer .wrap { padding-block: 40px; display: grid; gap: 10px; font-size: 0.92rem; }
 footer p { margin: 0; max-width: 60em; opacity: .85; }
 footer .mail { color: inherit; }
+
+@media (max-width: 860px) {
+  .top nav { order: 3; width: 100%; margin-left: -12px; }
+  .laws-menu { left: 0; right: auto; }
+}
 
 /* ---------- Pill card: the same component on the site and as a 4:5 post image ---------- */
 .pc-wrap { container-type: inline-size; }
@@ -266,6 +291,18 @@ lawsMenu.addEventListener('click', e => { if (e.target.closest('a')) setLaws(fal
 document.addEventListener('click', e => { if (!e.target.closest('#laws')) setLaws(false); });
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && !lawsMenu.hidden) { setLaws(false); lawsBtn.focus(); } });
 
+/* Sticky header: remember its height (for links to headings and the side contents) and show a soft edge once scrolled */
+(() => {
+  const head = document.querySelector('header.top');
+  if (!head) return;
+  const height = () => document.documentElement.style.setProperty('--head-h', head.offsetHeight + 'px');
+  height();
+  if (window.ResizeObserver) new ResizeObserver(height).observe(head);
+  const edge = () => head.classList.toggle('scrolled', window.scrollY > 4);
+  edge();
+  addEventListener('scroll', edge, { passive: true });
+})();
+
 /* Light / dark button, as on the homepage */
 const root = document.documentElement, modeBtn = byId('mode');
 function setMode(v, save) {
@@ -274,7 +311,21 @@ function setMode(v, save) {
   modeBtn.setAttribute('aria-label', label); modeBtn.title = label;
   if (save) { try { localStorage.setItem('mode', v); } catch (e) {} }
 }
-modeBtn.addEventListener('click', () => setMode(root.dataset.mode === 'light' ? 'dark' : 'light', true));
+modeBtn.addEventListener('click', () => {
+    const next = root.dataset.mode === 'light' ? 'dark' : 'light';
+    const calm = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!document.startViewTransition) { setMode(next, true); return; }
+    if (!calm) root.dataset.switch = next;
+    const t = document.startViewTransition(() => setMode(next, true));
+    t.finished.finally(() => { delete root.dataset.switch; });
+    if (calm) return;
+    const b = modeBtn.getBoundingClientRect(), x = b.left + b.width / 2, y = b.top + b.height / 2;
+    const far = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
+    const dot = `circle(0px at ${x}px ${y}px)`, all = `circle(${far}px at ${x}px ${y}px)`;
+    t.ready.then(() => next === 'light'
+      ? root.animate({ clipPath: [dot, all] }, { duration: 700, easing: 'cubic-bezier(.25,.7,.25,1)', pseudoElement: '::view-transition-new(root)' })
+      : root.animate({ clipPath: [all, dot] }, { duration: 560, easing: 'cubic-bezier(.5,0,.75,.4)', pseudoElement: '::view-transition-old(root)' }));
+  });
 let saved = null;
 try { saved = localStorage.getItem('mode'); } catch (e) {}
 setMode(saved, false);
