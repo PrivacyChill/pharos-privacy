@@ -296,9 +296,11 @@ def step_cms(db):
             raise RuntimeError('Case data not found on enforcementtracker.com — the page layout may have changed')
         rows = json.loads(m.group(1))
         run.fetched = len(rows)
+        checks = {k: v for k, v in db.execute('SELECT case_id, controller FROM party_checks')}  # Lorenzo's answers win
         for r in rows:
             date, precision = parse_date(r.get('d'))
             name = r.get('C') or r.get('c')
+            case_id = f"ETid-{r['e']}"
             upsert(db, run, {
                 'case_id': f"ETid-{r['e']}",
                 'source': 'cms_tracker',
@@ -309,7 +311,8 @@ def step_cms(db):
                 'date_precision': precision,
                 'fine_eur': parse_amount(r.get('f')),
                 'currency': 'EUR',
-                'controller': cms_name(r.get('p'))[0],  # see CMS NAMES; source text kept in case_parties
+                'controller': shown_name(checks[case_id]) if case_id in checks
+                              else cms_name(r.get('p'))[0],  # see CMS NAMES; source text kept in case_parties
                 'sector': clean(r.get('s')),
                 'articles_raw': clean(r.get('r')),
                 'violation_type': clean(r.get('t')),
@@ -407,7 +410,7 @@ def step_gdprhub(db, delay=0.7):
                 names, links = _party_fields(f)
                 authority = clean(f.get('DPA_With_Country') or f.get('DPA_Abbrevation'))
                 checked = db.execute('SELECT controller FROM party_checks WHERE case_id = ?', (page['title'],)).fetchone()
-                controller = checked['controller'] if checked else resolve_controller(party_roles(page['title'], authority, names))[0]
+                controller = shown_name(checked['controller']) if checked else resolve_controller(party_roles(page['title'], authority, names))[0]
                 upsert(db, run, {
                     'case_id': page['title'],
                     'source': 'gdprhub',
@@ -529,8 +532,74 @@ def org_group(name, groups):
     return None, None
 
 
+# ----- REVIEW FILES -----
+# The files Lorenzo checks by hand are Excel files, so the status colours survive saving.
+# Green = easy, orange = needs judgement, grey = nothing to do. Answer columns have a yellow header.
+STATUS_FILL = (('to do (easy)', 'D9EAD3', '1E3A12'), ('to do', 'FCE5CD', '5A2E00'), ('', 'EEEEEE', '777777'))
+
+
+def review_write(name, fields, rows, answer=(), widths=None, how_to=()):
+    """Write review/<name>.xlsx: one row per item, coloured by its 'status', with a 'How to' sheet."""
+    from openpyxl import Workbook
+    from openpyxl.styles import Alignment, Font, PatternFill
+    os.makedirs(REVIEW_DIR, exist_ok=True)
+    wb = Workbook()
+    ws = wb.active
+    ws.title = name
+    ws.append(fields)
+    for k, f in enumerate(fields, 1):
+        cell = ws.cell(row=1, column=k)
+        cell.font = Font(bold=True)
+        cell.fill = PatternFill('solid', fgColor='FFE599' if f in answer else 'D9D2C5')
+    for r in rows:
+        ws.append([r.get(f, '') if r.get(f) is not None else '' for f in fields])
+        st = str(r.get('status') or '')
+        fill, ink = next((fl, ik) for prefix, fl, ik in STATUS_FILL if st.startswith(prefix))
+        for k, f in enumerate(fields, 1):
+            cell = ws.cell(row=ws.max_row, column=k)
+            cell.alignment = Alignment(vertical='top', wrap_text=f in ('why', 'parties', 'names', 'note', 'gdprhub_summary'))
+            if f in answer:
+                cell.fill = PatternFill('solid', fgColor='FFFFFF')
+                cell.font = Font(bold=True)
+            else:
+                cell.fill = PatternFill('solid', fgColor=fill)
+                cell.font = Font(color=ink)
+    for k, f in enumerate(fields, 1):
+        ws.column_dimensions[ws.cell(row=1, column=k).column_letter].width = (widths or {}).get(f, 16)
+    ws.freeze_panes = 'C2'
+    ws.auto_filter.ref = ws.dimensions
+    if how_to:
+        h = wb.create_sheet('How to')
+        for line in how_to:
+            h.append([line])
+        h.column_dimensions['A'].width = 120
+    path = os.path.join(REVIEW_DIR, name + '.xlsx')
+    wb.save(path)
+    return path
+
+
+def review_rows(name):
+    """The rows of review/<name>.xlsx (or the older .csv), as dicts with text values."""
+    xlsx, csv_path = (os.path.join(REVIEW_DIR, name + ext) for ext in ('.xlsx', '.csv'))
+    if os.path.exists(xlsx):
+        from openpyxl import load_workbook
+        ws = load_workbook(xlsx, read_only=True, data_only=True).worksheets[0]
+        it = ws.iter_rows(values_only=True)
+        head = [str(h or '') for h in next(it)]
+        return [{h: ('' if v is None else str(v)) for h, v in zip(head, row)} for row in it if any(v is not None for v in row)]
+    with open(csv_path, encoding='utf-8-sig') as f:
+        return list(csv.DictReader(f))
+
+
+def review_has_answers(name, cols):
+    """True if the review file already holds answers, so a new review run must not overwrite it."""
+    if not any(os.path.exists(os.path.join(REVIEW_DIR, name + ext)) for ext in ('.xlsx', '.csv')):
+        return False
+    return any((r.get(c) or '').strip() for r in review_rows(name) for c in cols)
+
+
 def step_organisations_review(db):
-    """review/organisations.csv: companies that may be the same but are kept apart (same country, same name,
+    """review/organisations.xlsx: companies that may be the same but are kept apart (same country, same name,
     different company form or a missing form), and the groups still marked 'to check'.
     Answer column: 'same' or 'different' for companies, 'ready' or 'no' for groups.
     Then run: python pharos.py organisations-apply"""
@@ -560,19 +629,21 @@ def step_organisations_review(db):
                 unicodedata.normalize('NFKD', r['controller']).encode('ascii', 'ignore').decode())})
             out.append({'kind': 'group to check', 'country': '', 'names': ' | '.join(f'{n} [{c}]' for n, c in members),
                         'answer': '', 'group': g, 'note': note, 'keys': ''})
-    path = os.path.join(REVIEW_DIR, 'organisations.csv')
-    with open(path, 'w', newline='', encoding='utf-8-sig') as f:
-        w = csv.DictWriter(f, fieldnames=['kind', 'country', 'names', 'answer', 'group', 'note', 'keys'])
-        w.writeheader()
-        w.writerows(out)
+    if review_has_answers('organisations', ['answer']):
+        print('  review/organisations has answers not applied yet: run organisations-apply first.')
+        return
+    for r in out:
+        r['status'] = 'to do (easy)' if r['kind'] == 'maybe the same company' else 'to do (your judgement)'
+    path = review_write('organisations', ['status', 'kind', 'country', 'names', 'answer', 'group', 'note', 'keys'], out,
+                        answer=('answer',), widths={'status': 22, 'kind': 22, 'names': 70, 'answer': 14, 'note': 50},
+                        how_to=ORG_HOW_TO)
     print(f'  {len(out)} items to check, written to {path}')
 
 
 def step_organisations_apply(db):
-    """Save the answers from review/organisations.csv: companies into same_company.csv, groups into organisations.csv."""
-    path = os.path.join(REVIEW_DIR, 'organisations.csv')
-    with Run(db, 'organisations-apply') as run, open(path, encoding='utf-8-sig') as f:
-        answers = [r for r in csv.DictReader(f) if (r.get('answer') or '').strip()]
+    """Save the answers from review/organisations.xlsx: companies into same_company.csv, groups into organisations.csv."""
+    with Run(db, 'organisations-apply') as run:
+        answers = [r for r in review_rows('organisations') if (r.get('answer') or '').strip()]
         run.fetched = len(answers)
         new_same = [r for r in answers if r['kind'] == 'maybe the same company'
                     and r['answer'].strip().lower() in ('same', 'different')]
@@ -639,7 +710,8 @@ def step_cms_names(db):
             raw = kept['name'] if kept else c['controller']   # first run: what is stored is still the source text
             if raw:
                 save_cms_party(db, c['case_id'], raw)
-            name = cms_name(raw)[0]
+            checked = db.execute('SELECT controller FROM party_checks WHERE case_id = ?', (c['case_id'],)).fetchone()
+            name = shown_name(checked['controller']) if checked else cms_name(raw)[0]
             if name != c['controller']:
                 db.execute('UPDATE cases SET controller = ?, updated_at = ? WHERE case_id = ?', (name, now(), c['case_id']))
                 run.updated += 1
@@ -757,7 +829,12 @@ def save_parties(db, case_id, title, authority, names, links):
                    [(case_id, pos, name, (links[pos - 1] or None) if pos <= len(links) else None, role, why)
                     for pos, name, role, why in roles])
     checked = db.execute('SELECT controller FROM party_checks WHERE case_id = ?', (case_id,)).fetchone()
-    return checked['controller'] if checked else resolve_controller(roles)[0]
+    return shown_name(checked['controller']) if checked else resolve_controller(roles)[0]
+
+
+def shown_name(checked):
+    """A checked answer as the name to show: 'PERSON: ...' marks a private person, whose name is never shown."""
+    return None if (checked or '').upper().startswith('PERSON:') else checked
 
 
 def _party_fields(f):
@@ -791,11 +868,45 @@ def step_parties(db, delay=1.0):
             time.sleep(delay)
 
 
+PARTIES_FIELDS = ['status', 'fino_id', 'regulator', 'date', 'fine_eur', 'parties', 'suggestion', 'why', 'also_involved',
+                  'controller', 'note', 'gdprhub_summary', 'gdprhub', 'case_id']
+PARTIES_WIDTHS = {'status': 24, 'fino_id': 13, 'regulator': 22, 'date': 11, 'fine_eur': 12, 'parties': 50, 'suggestion': 32,
+                  'why': 60, 'also_involved': 32, 'controller': 30, 'note': 30, 'gdprhub_summary': 60, 'gdprhub': 20, 'case_id': 20}
+PARTIES_HOW_TO = (
+    'WHO IS THE DECISION AGAINST?',
+    '',
+    'Colours: green = easy, orange = needs your judgement, grey = nothing to do (shown so you can see why).',
+    'You only type in the two columns with a yellow header: controller and note.',
+    '',
+    'In the controller column write:',
+    '   ok (or yes)             to accept the suggestion (also_involved is then saved as the note)',
+    '   a name                  if the suggestion is wrong (copy it from the parties column)',
+    '   PERSON: Doctor          for a private person: a short description, never the name',
+    '   NONE                    for an unnamed organisation (a school, an anonymised company)',
+    '   (nothing)               to skip the row for now',
+    '',
+    'The controller is the organisation the decision is against: normally the one that pays the fine.',
+    'When several organisations were fined: accept the main one with ok; the others stay in the note.',
+    '',
+    'When you are done: save (keep the .xlsx format), close Excel and tell Claude.',
+)
+ORG_HOW_TO = (
+    'SAME COMPANY? SAME GROUP?',
+    '',
+    'Colours: green = easy, orange = needs your judgement, grey = done.',
+    'You only type in the answer column (yellow header).',
+    '',
+    '"maybe the same company" rows: write same or different.',
+    '"group to check" rows: write ready (show the group on the site) or no (keep it hidden).',
+    '',
+    'When you are done: save (keep the .xlsx format), close Excel and tell Claude.',
+)
+
+
 def step_parties_review(db):
-    """Write review/parties.csv: the cases where the rules could not tell who the decision is about.
+    """Write review/parties.xlsx: the cases where the rules could not tell who the decision is about.
     Fill in the 'controller' column (or write NONE), then run: python pharos.py parties-apply"""
     os.makedirs(REVIEW_DIR, exist_ok=True)
-    path = os.path.join(REVIEW_DIR, 'parties.csv')
     checked = {r[0] for r in db.execute('SELECT case_id FROM party_checks')}
     out = []
     for c in db.execute("SELECT case_id, pharos_id, authority, decision_date, fine_eur, source_page FROM cases "
@@ -810,27 +921,33 @@ def step_parties_review(db):
                     'date': c['decision_date'], 'fine_eur': c['fine_eur'],
                     'parties': ' | '.join(f'{name} [{role}]' for _, name, role, _ in roles),
                     'controller': '', 'note': '', 'gdprhub': c['source_page']})
-    with open(path, 'w', newline='', encoding='utf-8-sig') as f:
-        w = csv.DictWriter(f, fieldnames=['case_id', 'fino_id', 'regulator', 'date', 'fine_eur', 'parties',
-                                          'controller', 'note', 'gdprhub'])
-        w.writeheader()
-        w.writerows(out)
+    if review_has_answers('parties', ['controller', 'note']):
+        print('  review/parties has answers not applied yet: run parties-apply first.')
+        return
+    for r in out:
+        r['status'] = 'to do (your judgement)'
+    path = review_write('parties', PARTIES_FIELDS, out, answer=('controller', 'note'), widths=PARTIES_WIDTHS,
+                        how_to=PARTIES_HOW_TO)
     print(f'  {len(out)} cases to check, written to {path}')
 
 
 def step_parties_apply(db):
-    """Read review/parties.csv and save every filled-in answer as a check that wins over the rules."""
-    path = os.path.join(REVIEW_DIR, 'parties.csv')
-    with Run(db, 'parties-apply') as run, open(path, encoding='utf-8-sig') as f:
-        for r in csv.DictReader(f):
+    """Read review/parties.xlsx and save every filled-in answer as a check that wins over the rules."""
+    with Run(db, 'parties-apply') as run:
+        for r in review_rows('parties'):
             answer = (r.get('controller') or '').strip()
+            note = (r.get('note') or '').strip()
+            if answer.lower() in ('ok', 'yes'):  # accepts the suggestion column, if the file has one
+                answer = (r.get('suggestion') or '').strip()
+                note = note or (r.get('also_involved') or '').strip()
             if not answer:
                 continue
             run.fetched += 1
-            controller = None if answer.upper() == 'NONE' else answer
+            # 'PERSON: Doctor' = a private person: the check keeps the description, the case never shows a name
+            controller = None if answer.upper() == 'NONE' or answer.upper().startswith('PERSON:') else answer
             db.execute('INSERT INTO party_checks (case_id, controller, note, checked_at) VALUES (?,?,?,?) '
                        'ON CONFLICT(case_id) DO UPDATE SET controller = excluded.controller, note = excluded.note, '
-                       'checked_at = excluded.checked_at', (r['case_id'], controller, (r.get('note') or '').strip() or None, now()))
+                       'checked_at = excluded.checked_at', (r['case_id'], answer if answer.upper().startswith('PERSON:') else controller, note or None, now()))
             db.execute('UPDATE cases SET controller = ?, updated_at = ? WHERE case_id = ?', (controller, now(), r['case_id']))
             run.updated += 1
         db.commit()
