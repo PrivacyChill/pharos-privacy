@@ -510,6 +510,8 @@ const CASES = DATA.rows.map((r, i) => {
   return c;
 });
 const BY_SLUG = new Map(CASES.map(c => [slug(c.pharos_id), c]));
+/* A decision whose ID changed (an undated ND/ case that later got its year) keeps its old link working. */
+for (const [old, cur] of Object.entries(DATA.meta.moved || {})) if (!BY_SLUG.has(slug(old)) && BY_SLUG.has(slug(cur))) BY_SLUG.set(slug(old), BY_SLUG.get(slug(cur)));
 const FINES_BY_CC = {};
 for (const c of CASES) if (c.fine_eur) (FINES_BY_CC[c.country_code] ||= []).push(c.fine_eur);
 for (const k in FINES_BY_CC) FINES_BY_CC[k].sort((a, b) => a - b);
@@ -1117,12 +1119,15 @@ route();
   main.innerHTML = `<div class="wrap"><div class="empty-list" style="padding-block:80px">
     <svg class="mini" viewBox="0 0 200 180" aria-hidden="true"><path d="M100 24 C152 24 184 60 186 106 C188 148 152 166 100 166 C48 166 12 148 14 106 C16 60 48 24 100 24 Z" fill="var(--puff)" stroke="var(--ink)" stroke-width="4"/><ellipse cx="78" cy="104" rx="8" ry="11" fill="var(--eye)"/><ellipse cx="122" cy="104" rx="8" ry="11" fill="var(--eye)"/></svg>
     <p class="bubble">Fetching every decision&hellip;</p></div></div>`;
-  const get = u => fetch(u).then(r => { if (!r.ok) throw new Error(u); return r.json(); });
+  const get = (u, o) => fetch(u, o).then(r => { if (!r.ok) throw new Error(u); return r.json(); });
   const clean = s => (s && s.replace(/<!--[\s\S]*?-->/g, '').replace(/\s+/g, ' ').trim()) || null;
   try {
-    const [cases, gdpr] = await Promise.all([get('data/cases.json'), get('data/reg-2016-679.json').catch(() => null)]);
+    /* cases.json is always checked with the server; the summary files carry its export time, so a cached
+       summary file from an older export (rows in a different order) is never paired with newer cases. */
+    const [cases, gdpr] = await Promise.all([get('data/cases.json', { cache: 'no-cache' }), get('data/reg-2016-679.json').catch(() => null)]);
     const n = Math.ceil(cases.rows.length / cases.meta.summary_shard);
-    const sum = (await Promise.all(Array.from({ length: n }, (_, i) => get(`data/summaries/${i}.json`)))).flat().map(clean);
+    const v = encodeURIComponent(cases.meta.generated_at || '');
+    const sum = (await Promise.all(Array.from({ length: n }, (_, i) => get(`data/summaries/${i}.json?v=${v}`)))).flat().map(clean);
     const by = cases.meta.fields.indexOf('summary_by');
     boot({ meta: cases.meta, fields: cases.meta.fields, rows: cases.rows, sum, gdpr,
            cred: cases.rows.map(r => r[by] === 'cms_tracker' ? 'c' : 'g') });

@@ -204,15 +204,46 @@ def next_pharos_id(db, decision_date, code):
     """Your ID scheme: YEAR/CC/NNN. 'ND' when the source gives no year (never guess the current year)."""
     year = decision_date[:4] if decision_date else 'ND'
     prefix = f'{year}/{code or "XX"}/'
-    row = db.execute("SELECT MAX(CAST(substr(pharos_id, ?) AS INTEGER)) FROM cases WHERE pharos_id LIKE ?",
-                     (len(prefix) + 1, prefix + '%')).fetchone()
+    # retired IDs (id_history) count too: an old link must never point to a different decision
+    row = db.execute("""SELECT MAX(n) FROM (
+                            SELECT CAST(substr(pharos_id, ?) AS INTEGER) n FROM cases WHERE pharos_id LIKE ?
+                            UNION ALL SELECT CAST(substr(old_id, ?) AS INTEGER) FROM id_history WHERE old_id LIKE ?)""",
+                     (len(prefix) + 1, prefix + '%', len(prefix) + 1, prefix + '%')).fetchone()
     return f'{prefix}{(row[0] or 0) + 1:03d}'
+
+
+def checked_date(db, case_id):
+    """(date, precision) Lorenzo found for a decision whose source gives no date (review/currency.xlsx), or None."""
+    row = db.execute('SELECT decision_date FROM amount_checks WHERE case_id = ? AND decision_date IS NOT NULL',
+                     (case_id,)).fetchone()
+    date, precision = parse_date(row[0]) if row else (None, 'unknown')
+    return (date, precision) if date else None
+
+
+def apply_checked_dates(db):
+    """A checked date fills in a missing source date; a real source date always wins. An undated decision
+    that gets a year also gets a new ID with that year; the old ND/ ID stays in id_history (old links still work)."""
+    for r in db.execute("""SELECT c.case_id, c.pharos_id, c.country_code FROM cases c JOIN amount_checks a USING (case_id)
+                           WHERE a.decision_date IS NOT NULL AND c.decision_date IS NULL""").fetchall():
+        found = checked_date(db, r['case_id'])
+        if not found:
+            continue
+        db.execute('UPDATE cases SET decision_date = ?, date_precision = ?, updated_at = ? WHERE case_id = ?',
+                   (*found, now(), r['case_id']))
+        if (r['pharos_id'] or '').startswith('ND/'):
+            new_id = next_pharos_id(db, found[0], r['country_code'])
+            db.execute('INSERT INTO id_history VALUES (?,?,?,?,?)',
+                       (r['case_id'], r['pharos_id'], new_id, 'date found in the review (source gives none)', now()))
+            db.execute('UPDATE cases SET pharos_id = ? WHERE case_id = ?', (new_id, r['case_id']))
+            print(f"    {r['pharos_id']:>12}  ->  {new_id}")
 
 
 def upsert(db, run, rec):
     """Insert a new case or update a changed one. Never overwrites a value with an empty one."""
     ts = now()
     old = db.execute('SELECT * FROM cases WHERE case_id = ?', (rec['case_id'],)).fetchone()
+    if old is not None and not rec.get('decision_date') and checked_date(db, rec['case_id']):
+        rec = rec | dict(zip(('decision_date', 'date_precision'), checked_date(db, rec['case_id'])))
     if old is None:
         rec = {k: rec.get(k) for k in UPSERT_FIELDS} | {'case_id': rec['case_id']}
         rec['pharos_id'] = next_pharos_id(db, rec['decision_date'], rec['country_code'])
@@ -1202,6 +1233,7 @@ def step_currency_apply(db):
                        'ON CONFLICT(case_id) DO UPDATE SET amount = excluded.amount, decision_date = excluded.decision_date, '
                        'note = excluded.note, checked_at = excluded.checked_at', (r['case_id'], value, date or None, note or None, now()))
             run.updated += 1
+        apply_checked_dates(db)
         db.commit()
     print('  Run "python pharos.py convert" and then "python pharos.py export" to put the answers on the website.')
 
@@ -1274,6 +1306,10 @@ def step_export(db):
             alias, _ = load_same()
             conv = {r['case_id']: r for r in db.execute('SELECT * FROM fines_converted')}
             describe_parties(db, rows, cms_raw)
+            # retired IDs -> current ID, so an old link (#d-ND-GB-001) still opens the decision
+            meta = meta | {'moved': dict(db.execute(
+                """SELECT h.old_id, c.pharos_id FROM id_history h JOIN cases c USING (case_id)
+                   WHERE h.old_id NOT IN (SELECT pharos_id FROM cases WHERE pharos_id IS NOT NULL)"""))}
             for r in rows:
                 fx = conv.get(r['case_id'])
                 r['fine_amount'] = fx['amount'] if fx else None
