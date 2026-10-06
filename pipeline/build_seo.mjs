@@ -123,7 +123,8 @@ function links(html, { inPageRecitals = false } = {}) {
 }
 const header = on => links(HEADER)
   .replace('id="nav-fines"', on === 'fines' ? 'id="nav-fines" class="on"' : 'id="nav-fines"')
-  .replace('id="nav-gdpr"', on === 'gdpr' ? 'id="nav-gdpr" class="on"' : 'id="nav-gdpr"');
+  .replace('id="nav-gdpr"', on === 'gdpr' ? 'id="nav-gdpr" class="on"' : 'id="nav-gdpr"')
+  .replace(`href="/${on}">`, `href="/${on}" class="on" aria-current="page">`);
 const OG_IMAGE = `${BASE}/og/fino.png`;
 const LOGO = `${BASE}/og/fino-logo.png`;
 const ORG = { '@type': 'Organization', '@id': `${BASE}/#org`, name: 'Fino', url: `${BASE}/`, logo: LOGO };
@@ -146,7 +147,7 @@ function headTags({ title, desc, url, type = 'website', image = OG_IMAGE }) {
 <meta property="og:locale" content="en_GB">
 <meta name="twitter:card" content="summary_large_image">`;
 }
-function page({ title, desc, url, on, main, json }) {
+function page({ title, desc, url, on, main, json, css = '', js = '', type }) {
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -154,12 +155,13 @@ function page({ title, desc, url, on, main, json }) {
 ${CSP}
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-${headTags({ title, desc, url })}
+${headTags({ title, desc, url, type })}
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="preload" href="/fonts/fraunces-300-800-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/assets/fino.css?v=${CSS_V}">
 ${MODE}
-${ld(json)}
+${ld(json)}${css ? `
+<style>${css}</style>` : ''}
 </head>
 <body>
 
@@ -169,7 +171,8 @@ ${header(on)}
 
 ${links(FOOTER)}
 
-<script src="/assets/fino.js?v=${JS_V}" defer></script>
+<script src="/assets/fino.js?v=${JS_V}" defer></script>${js ? `
+<script>${js}</script>` : ''}
 </body>
 </html>
 `;
@@ -310,6 +313,27 @@ for (const [file, url, json, type] of tops) {
   sitemap.unshift([url, mod]);
 }
 
+/* ---------- 6b. Hand-written pages (About, Privacy, Tools) from pipeline/pages, in the same shell ----------
+   Each file starts with <!--page {"file": ..., "title": ..., "desc": ..., "schema": {...}} -->; <style> goes in the head,
+   <script> at the end; {{cases}}, {{countries}}, {{total}} and {{updated}} become today's figures. */
+const PAGES = path.join(ROOT, 'pipeline', 'pages');
+const fig = { cases: fmt(S.cases), countries: String(S.countries), total, updated };
+for (const f of fs.existsSync(PAGES) ? fs.readdirSync(PAGES).filter(f => f.endsWith('.html')) : []) {
+  let src = fs.readFileSync(path.join(PAGES, f), 'utf8');
+  const meta = JSON.parse(src.match(/^<!--page (\{[\s\S]*?\}) -->/)[1]);
+  src = src.replace(/^<!--page[\s\S]*?-->\s*/, '').replace(/\{\{(\w+)\}\}/g, (m, k) => fig[k] ?? m);
+  const css = [], js = [];
+  src = src.replace(/<style>([\s\S]*?)<\/style>\s*/g, (_, c) => { css.push(c); return ''; })
+           .replace(/<script>([\s\S]*?)<\/script>\s*/g, (_, c) => { js.push(c); return ''; });
+  const url = `${BASE}/${meta.file}`, main = links(src);
+  const mod = stamp(url, src);
+  const json = { '@graph': [{ '@id': url, url, name: meta.title.replace(/ · Fino$/, ''), description: meta.desc, inLanguage: 'en',
+    dateModified: mod, publisher: { '@id': `${BASE}/#org` }, ...meta.schema },
+    crumbs([['Fino', `${BASE}/`], [meta.crumb || meta.title.replace(/ · Fino$/, '')]]), ORG] };
+  write(meta.file, page({ title: meta.title, desc: meta.desc, url, on: meta.file, main, json, css: css.join('\n'), js: js.join('\n') }));
+  sitemap.unshift([url, mod]);
+}
+
 /* ---------- 7. sitemap.xml, robots.txt, llms.txt ---------- */
 for (const u of Object.keys(lastmod)) if (!seen.has(u)) delete lastmod[u];
 fs.writeFileSync(LASTMOD_FILE, JSON.stringify(lastmod));
@@ -353,6 +377,12 @@ ${exList.map(e => `- [${e.question}](${BASE}/${e.slug}.html): the rules (GDPR Ar
 
 - [The full text, 99 articles and 173 recitals](${BASE}/gdpr/)
 ${topArts.map(n => `- [Article ${n}: ${gdpr.arts[n].t}](${BASE}/gdpr/article-${n}.html): ${fmt(F.artStats(n).list.length)} decisions cite it`).join('\n')}
+
+## About
+
+- [Who made Fino and how it works](${BASE}/About.html): sources, duplicates, who the decision is against, private people, currency conversion, case numbers, the review process and known limits
+- [Privacy](${BASE}/Privacy.html)
+- [AI Act triage](${BASE}/Tool.html): three questions, the likely AI Act category and what to do next
 
 ## Optional
 

@@ -42,6 +42,12 @@ Facts about the data:
 - [Article 32: Security of processing](https://pharosprivacy.com/gdpr/article-32.html): 844 decisions cite it
 - [Article 58: Powers](https://pharosprivacy.com/gdpr/article-58.html): 378 decisions cite it
 
+## About
+
+- [Who made Fino and how it works](https://pharosprivacy.com/About.html): sources, duplicates, who the decision is against, private people, currency conversion, case numbers, the review process and known limits
+- [Privacy](https://pharosprivacy.com/Privacy.html)
+- [AI Act triage](https://pharosprivacy.com/Tool.html): three questions, the likely AI Act category and what to do next
+
 ## Optional
 
 - [All decisions as JSON](https://pharosprivacy.com/data/cases.json): one row per decision (field names in meta.fields); summaries are in https://pharosprivacy.com/data/summaries/0.json and onwards, 250 per file, in the same order. CC BY-NC-SA 4.0.

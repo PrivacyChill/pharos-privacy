@@ -2,41 +2,136 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'none'; img-src 'self' data:; connect-src 'self'; base-uri 'self'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; connect-src 'self'; base-uri 'self'; form-action 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Privacy — Pharos</title>
-<meta name="description" content="What pharosprivacy.com collects: almost nothing.">
-<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<title>Privacy: almost nothing is collected · Fino</title>
+<meta name="description" content="Fino uses no cookies, analytics, trackers or forms and loads nothing from other websites. What the host records, what stays in your browser, and your rights.">
 <link rel="canonical" href="https://pharosprivacy.com/Privacy.html">
-<link rel="stylesheet" href="style.css">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Fino">
+<meta property="og:title" content="Privacy: almost nothing is collected">
+<meta property="og:description" content="Fino uses no cookies, analytics, trackers or forms and loads nothing from other websites. What the host records, what stays in your browser, and your rights.">
+<meta property="og:url" content="https://pharosprivacy.com/Privacy.html">
+<meta property="og:image" content="https://pharosprivacy.com/og/fino.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Fino, the mascot of the site, next to the words: GDPR fines and decisions, in plain English">
+<meta property="og:locale" content="en_GB">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="preload" href="/fonts/fraunces-300-800-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/assets/fino.css?v=cc6ee90f1f03">
+<script>try { if (localStorage.getItem('mode') === 'light') document.documentElement.dataset.mode = 'light'; } catch (e) {}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@id":"https://pharosprivacy.com/Privacy.html","url":"https://pharosprivacy.com/Privacy.html","name":"Privacy: almost nothing is collected","description":"Fino uses no cookies, analytics, trackers or forms and loads nothing from other websites. What the host records, what stays in your browser, and your rights.","inLanguage":"en","dateModified":"2026-10-06","publisher":{"@id":"https://pharosprivacy.com/#org"},"@type":"WebPage"},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Fino","item":"https://pharosprivacy.com/"},{"@type":"ListItem","position":2,"name":"Privacy"}]},{"@type":"Organization","@id":"https://pharosprivacy.com/#org","name":"Fino","url":"https://pharosprivacy.com/","logo":"https://pharosprivacy.com/og/fino-logo.png"}]}</script>
+<style>
+.p-wrap { max-width: 820px; margin-inline: auto; padding-block: 18px 72px; }
+.paper { background: var(--latte); color: var(--latte-ink); border: 2px solid var(--latte-ink); border-radius: 28px; box-shadow: 8px 8px 0 var(--pink);
+  padding: 44px 56px 40px; color-scheme: light; font-size: 1.125rem; line-height: 1.7; min-width: 0; }
+.paper :focus-visible { outline-color: var(--go-deep); }
+.paper .meta { font-family: var(--mono); font-size: 0.8rem; color: var(--latte-muted); margin: 0 0 14px; }
+.paper h1 { font-size: clamp(2rem, 4.2vw, 3rem); line-height: 1.04; margin: 0 0 22px; }
+.paper h2 { font-family: var(--display); font-variation-settings: "SOFT" 100, "opsz" 72; font-weight: 580; font-size: 1.45rem; line-height: 1.15; letter-spacing: -0.01em; margin: 36px 0 10px; text-wrap: balance; }
+.paper p, .paper ul { margin: 0 0 14px; max-width: 38em; }
+.paper li { margin-bottom: 6px; }
+.paper li::marker { color: var(--latte-muted); }
+.paper a { color: var(--go-deep); font-weight: 700; text-decoration: none; border-bottom: 1.5px solid currentColor; }
+.paper a:hover { background: #E6E9CF; }
+.a-lead { font-size: 1.28rem; line-height: 1.6; }
+.a-lead strong { background: linear-gradient(transparent 60%, #FFC4D3 60%, #FFC4D3 92%, transparent 92%); }
+.none { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; max-width: none; margin: 18px 0 8px; }
+.none li { margin: 0; font-family: var(--mono); font-size: 0.78rem; letter-spacing: 0.05em; text-transform: uppercase; padding: 4px 10px; border-radius: 5px;
+  border: 1.5px solid var(--latte-ink); background: var(--field); }
+.none li s { text-decoration-color: #F59BB4; text-decoration-thickness: 2px; }
+.sign { margin-top: 40px; border-top: 2px solid var(--latte-ink); padding-top: 14px; font-size: 0.95rem; color: var(--latte-muted); }
+.sign p { margin: 0 0 6px; max-width: none; }
+.paper .mail { color: var(--latte-ink); }
+@media (max-width: 900px) { .paper { padding: 28px 22px; } }
+</style>
 </head>
 <body>
-<header class="site">
-  <a class="name" href="index.html">Pharos</a>
-  <nav><a href="index.html">Home</a> <a href="Enforcement.html">Database</a> <a href="Tool.html">AI Act triage</a> <a href="Method.html">How it’s built</a> <a href="About.html">About</a></nav>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="/" aria-label="Fino, home">
+      <svg viewBox="0 0 200 180" aria-hidden="true">
+        <path d="M100 24 C152 24 184 60 186 106 C188 148 152 166 100 166 C48 166 12 148 14 106 C16 60 48 24 100 24 Z" fill="var(--puff)" stroke="var(--ink)" stroke-width="9"/>
+        <ellipse cx="78" cy="100" rx="9" ry="13" fill="var(--eye)"/>
+        <ellipse cx="122" cy="100" rx="9" ry="13" fill="var(--eye)"/>
+      </svg>
+      Fino
+    </a>
+    <nav aria-label="Main">
+      <a href="/explainers.html">Explainers</a>
+      <a href="/fines.html" id="nav-fines">Fines</a>
+      <div class="laws" id="laws">
+        <button type="button" id="nav-gdpr" aria-expanded="false" aria-controls="laws-menu">Laws <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5 6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <ul class="laws-menu" id="laws-menu" hidden>
+          <li><a href="/gdpr/"><b>GDPR</b><span>General Data Protection Regulation</span></a></li>
+          <li><div class="soon-law"><b>AI Act</b><span>Artificial Intelligence Act</span><em>Coming soon</em></div></li>
+          <li><div class="soon-law"><b>ePrivacy</b><span>Cookies and electronic communications</span><em>Coming soon</em></div></li>
+        </ul>
+      </div>
+      <a href="/Tool.html">Tools</a>
+      <a href="/About.html">About</a>
+    </nav>
+    <button class="mode" id="mode" type="button" aria-label="Switch to light mode" title="Switch to light mode">
+      <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5a8.5 8.5 0 1 0 11 11z"/></svg>
+    </button>
+  </div>
 </header>
-<main class="prose">
 
-<h1>Privacy. <span>Almost nothing is collected.</span></h1>
-<p>This site doesn&rsquo;t use cookies, analytics, trackers, ads or forms, and it doesn&rsquo;t load anything from other websites.</p>
-<ul>
-  <li>The site is hosted on GitHub Pages. GitHub (a US company, part of Microsoft) processes your IP address to deliver the pages and logs it for security, like any web host. <a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement">GitHub&rsquo;s privacy statement</a> applies to that.</li>
-  <li>Searching the database happens in your browser. What you type isn&rsquo;t sent anywhere.</li>
-  <li>If you press the light/dark button on the homepage, your browser remembers that choice on your own device. It is never sent to me or anyone else, and you can clear it in your browser settings.</li>
-  <li>If you email me, I&rsquo;ll only use your address to reply.</li>
-</ul>
-<p>An earlier version of this site had a &ldquo;join the waitlist&rdquo; form. It never sent or stored anything.</p>
-<p>You can ask me what data I hold about you (in practice, only emails you&rsquo;ve sent me) and ask me to delete it. You can also complain to a data protection authority, such as the <a href="https://ico.org.uk/make-a-complaint/">ICO</a> in the UK or the authority where you live in the EU.</p>
-<p>Site run by Lorenzo A. — <a href="mailto:angelillolorenzo@gmail.com">angelillolorenzo@gmail.com</a></p>
+<main id="main"><div class="wrap">
+  <nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a><span aria-hidden="true">/</span><span aria-current="page">Privacy</span></nav>
+  <div class="p-wrap">
+    <article class="paper">
+      <p class="meta">Privacy &middot; last changed 6 October 2026</p>
+      <h1>Privacy. Almost nothing is collected.</h1>
+      <p class="a-lead">This site uses <strong>no cookies, analytics, trackers, ads or forms</strong>, and it doesn&rsquo;t load anything from other websites. Even the fonts are served from this site.</p>
+      <ul class="none" aria-label="Not used on this site">
+        <li><s>Cookies</s></li><li><s>Analytics</s></li><li><s>Trackers</s></li><li><s>Ads</s></li><li><s>Forms</s></li><li><s>Outside fonts or scripts</s></li>
+      </ul>
 
+      <h2>What the host records</h2>
+      <p>The site is hosted on GitHub Pages. GitHub (a US company, part of Microsoft) processes your IP address to deliver the pages and logs it for security, like any web host. <a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement" target="_blank" rel="noopener">GitHub&rsquo;s privacy statement</a> applies to that. I don&rsquo;t receive those logs and I don&rsquo;t see who visits.</p>
+
+      <h2>What stays in your browser</h2>
+      <ul>
+        <li>Searching and filtering the fines happens in your browser. What you type isn&rsquo;t sent anywhere.</li>
+        <li>If you press the light/dark button, your browser remembers that choice on your own device. It&rsquo;s never sent to me or anyone else, and you can clear it in your browser settings.</li>
+        <li>&ldquo;Copy citation&rdquo; only puts text on your clipboard when you press it.</li>
+      </ul>
+
+      <h2>If you email me</h2>
+      <p>I use your address and your message only to reply, and I delete them when they&rsquo;re no longer needed. My address is a Gmail account, so Google processes those emails. The reason I may do this is my legitimate interest in answering you (Article 6(1)(f) GDPR).</p>
+
+      <h2>People named in the decisions</h2>
+      <p>The decisions come from regulators&rsquo; published decisions, through the CMS Enforcement Tracker and GDPRhub. Companies and public bodies are named as the sources name them. Private individuals are never named here; they&rsquo;re only described (&ldquo;Doctor&rdquo;). I publish this to inform the public about how data protection law is enforced, which is my legitimate interest (Article 6(1)(f) GDPR).</p>
+      <p>If you&rsquo;re mentioned in a decision and something is wrong, or you&rsquo;d like it removed, write to me. You can ask to see, correct or delete what concerns you, or object to it, and I&rsquo;ll answer within one month.</p>
+
+      <h2>Search engines and AI assistants</h2>
+      <p>The pages are public, so search engines and AI assistants may read them and show them in their results. That&rsquo;s on purpose: the point of Fino is to make the decisions easy to find.</p>
+
+      <h2>Who is responsible, and complaints</h2>
+      <p>The site is run by Lorenzo A. You can always complain to a data protection authority, such as the <a href="https://ico.org.uk/make-a-complaint/" target="_blank" rel="noopener">ICO</a> in the UK or the authority where you live in the EU.</p>
+
+      <div class="sign">
+        <p>Questions about your data: <span class="mail">angelillolorenzo@gmail.com</span></p>
+        <p>An earlier version of this site had a &ldquo;join the waitlist&rdquo; form. It never sent or stored anything.</p>
+      </div>
+    </article>
+  </div>
+</div>
 </main>
-<footer class="site"><div class="wrap">
-  <p>Pharos is a free, personal project by Lorenzo A. It is not legal advice.
-  Data from <a href="https://www.enforcementtracker.com/">enforcementtracker.com, provided by CMS</a> and
-  <a href="https://gdprhub.eu/">GDPRhub</a> (noyb), under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a>.</p>
-  <p><a href="mailto:angelillolorenzo@gmail.com">angelillolorenzo@gmail.com</a> · <a href="Privacy.html">Privacy</a></p>
-</div></footer>
 
+<footer>
+  <div class="wrap">
+    <p>Decisions from enforcementtracker.com, provided by CMS, and GDPRhub (noyb), under CC BY-NC-SA 4.0. GDPR text from EUR-Lex, &copy; European Union. Not legal advice.</p>
+    <p>Spotted a mistake? <span class="mail">angelillolorenzo@gmail.com</span> &middot; <a href="/Privacy.html">Privacy</a></p>
+  </div>
+</footer>
+
+<script src="/assets/fino.js?v=c643e857d407" defer></script>
 </body>
 </html>
