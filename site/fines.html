@@ -116,6 +116,9 @@ a:focus-visible, button:focus-visible, select:focus-visible, input:focus-visible
 .eyebrow { font-family: var(--mono); font-size: 0.8rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin: 0 0 14px; }
 h1 { font-family: var(--display); font-variation-settings: "SOFT" 100, "opsz" 144; font-weight: 560; font-size: clamp(2.2rem, 5vw, 3.9rem); line-height: 1.0; letter-spacing: -0.025em; margin: 0 0 16px; text-wrap: balance; overflow-wrap: anywhere; }
 h1.unnamed { font-style: italic; font-weight: 400; color: var(--muted); }
+h1 .tag-person { display: inline-block; vertical-align: 0.4em; margin-left: 12px; font-family: var(--mono); font-style: normal; font-size: 0.75rem;
+  font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; background: var(--latte); color: var(--latte-ink);
+  border-radius: 6px; padding: 5px 10px; box-shadow: inset 0 0 0 1.5px var(--latte-line); }
 .sec-h { font-family: var(--display); font-variation-settings: "SOFT" 100, "opsz" 72; font-weight: 560; font-size: 1.7rem; letter-spacing: -0.015em; line-height: 1.1; margin: 0 0 14px; text-wrap: balance; }
 .lede { margin: 0; font-size: 1.2rem; color: var(--muted); max-width: 36em; }
 .lede strong, .hl { color: var(--ink); font-weight: 700; background: linear-gradient(transparent 62%, var(--pink) 62%, var(--pink) 92%, transparent 92%); }
@@ -532,9 +535,11 @@ const CHAPTER = Object.fromEntries(GDPR.chapters.map(ch => [ch.id, ch]));
 /* The party a decision is about. When the source names several parties without saying who is who,
    they are shown as named, marked as not yet checked, and never presented as the one fined. */
 const party = c => c.controller ? { name: c.controller, cls: '', sub: c.controller_note ? `Described in the source as: ${c.controller_note}` : '' }
+  : c.party_kind === 'person' ? { name: c.controller_note || 'Private person', cls: 'unnamed', person: true, sub: 'Private person' }
+  : c.party_kind === 'opinion' ? { name: 'General opinion', cls: 'unnamed', sub: 'No party: the regulator gave an opinion or guidance' }
   : c.parties_named ? { name: c.parties_named.split('; ').join(' · '), cls: 'unnamed', unchecked: true, sub: 'Named in the source, roles not yet checked' }
   : c.controller_note ? { name: c.controller_note, cls: 'unnamed', sub: 'Name not published' }
-  : { name: 'Party not named', cls: 'unnamed', sub: '' };
+  : { name: 'Not named in the source', cls: 'unnamed', sub: '' };
 /* the date the sources were last read, not the date of the last export */
 const UPDATED = (() => { const s = (DATA.meta.last_fetch || DATA.meta.generated_at).slice(0, 10).split('-'); return `${+s[2]} ${MONTHS[s[1] - 1]} ${s[0]}`; })();
 
@@ -805,9 +810,9 @@ function renderDecision(c) {
     <div class="head">
       <div>
         <p class="eyebrow">${esc(authority(c.authority))} &middot; ${esc(d.main)}</p>
-        <h1 class="${party(c).cls}">${esc(party(c).name)}</h1>
+        <h1 class="${party(c).cls}">${esc(party(c).name)}${party(c).person ? '<span class="tag-person">Private person</span>' : ''}</h1>
         ${party(c).unchecked ? '<p class="legend" style="margin:0 0 12px">The source names these parties without saying which one the decision is about. I&rsquo;m checking it.</p>'
-          : party(c).sub ? `<p class="legend" style="margin:0 0 12px">${esc(party(c).sub)}.</p>` : ''}
+          : party(c).sub && !party(c).person ? `<p class="legend" style="margin:0 0 12px">${esc(party(c).sub)}.</p>` : ''}
         <p class="lede">${about}</p>
       </div>
       <div class="fine"><span class="lbl">Fine</span><span class="amt ${f.none ? 'none' : ''}">${f.conv ? `<span class="cur">${esc(c.currency)}</span>${esc(f.label.slice(c.currency.length + 1))}` : esc(f.label)}</span>${f.conv ? `<span class="conv" title="${esc(f.note)}">${esc(f.conv)}</span>` : ''}${pill}</div>
@@ -954,7 +959,7 @@ function renderArticle(n) {
         <section class="card">
           <h2 class="sec-h">In the fines database</h2>
           ${st.list.length ? `<p class="stat">Cited in <b>${num(st.list.length)}</b> decisions${st.fined.length ? `, with ${bigEur(st.total)} in fines` : ''}.</p>
-            ${top.length ? `<p class="legend" style="margin:0 0 4px">Biggest fines citing Article ${n}</p><ul class="sim">${top.map(s => `<li><a href="#d-${slug(s.pharos_id)}"><b>${esc(party(s).name || 'Party not named')}</b><span>${esc(s.country)} · ${s.year} · ${money(s)}</span></a></li>`).join('')}</ul>` : ''}
+            ${top.length ? `<p class="legend" style="margin:0 0 4px">Biggest fines citing Article ${n}</p><ul class="sim">${top.map(s => `<li><a href="#d-${slug(s.pharos_id)}"><b>${esc(party(s).name || 'Not named in the source')}</b><span>${esc(s.country)} · ${s.year} · ${money(s)}</span></a></li>`).join('')}</ul>` : ''}
             <p style="margin:16px 0 0"><a class="btn small latte" href="#fines" data-art="${n}">See all ${num(st.list.length)} decisions &rarr;</a></p>`
           : '<p class="note">No decision in the database cites this article yet.</p>'}
         </section>
@@ -1021,7 +1026,7 @@ function sheet(c) {
   const src = sourceLinks(c);
   return `
     <div class="s-top"><div class="s-brand">${SHEET_MARK}Fino</div><div class="s-kind">Decision record<br>${esc(c.pharos_id)}</div></div>
-    <h2 class="s-title">${esc(party(c).name)}</h2>
+    <h2 class="s-title">${esc(party(c).name)}${party(c).person ? ' (private person)' : ''}</h2>
     ${party(c).unchecked ? '<p class="s-small">Named in the source; which of them the decision is about has not been checked yet.</p>' : ''}
     <p class="s-meta">${esc(authority(c.authority))} &middot; ${esc(d.main)} &middot; ${esc(c.country || '')}</p>
     <div class="s-fine"><b>${esc(f.label)}</b>${f.conv ? `<span>${esc(f.conv)}</span>` : ''}${c.best_outcome ? `<span>${esc(c.best_outcome)}</span>` : ''}</div>

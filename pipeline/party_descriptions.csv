@@ -1,0 +1,551 @@
+fino_id,kind,text,basis,case_id
+2018/AT/005,description,Bank,read,DSB (Austria) - D122.844/0006-DSB/2018
+2018/AT/006,description,Betting store,summary,DSB (Austria) - D550.038/0003-DSB/2018
+2018/NL/001,name,UWV,read,AP (The Netherlands) - z2018-02009
+2019/AT/004,description,Dating platform,read,DSB (Austria) - D130.073/0008-DSB/2019
+2019/BE/008,description,Recruiter,read,APD/GBA (Belgium) - 08/2019
+2019/BE/009,person,Mayor,read,APD/GBA (Belgium) - 10/2019
+2019/CY/007,person,Doctor,summary,Commissioner (Cyprus) - patient data on Instagram
+2019/EE/002,description,Financial service provider,read,AKI (Estonia) - 2.1.-3/19/3971
+2019/GR/009,description,Ministry of Mercantile Marine,summary,HDPA (Greece) - 41/2019
+2019/GR/012,description,Nautical Club,summary,HDPA (Greece) - 42/2024
+2019/HU/024,description,"Organiser of the ""Join the EPPO"" initiative",read,NAIH (Hungary) - NAIH/2020/974/4
+2019/IS/002,description,Employer,read,Persónuvernd- nr. 2018/1779
+2019/IS/003,description,Employer,read,Persónuvernd - nr. 2018/1779
+2019/IS/004,description,Telecommunication company,summary,Persónuvernd - nr. 2018/1640
+2019/MT/002,description,Bank,summary,IDPC (Malta) - EDPBI:MT:OSS:D:2019:70
+2019/NL/001,name,Credit Registration Office (BKR),read,AP (The Netherlands) - AWB-20 2533/20 2938
+2019/NL/002,description,Company,read,AP (The Netherlands) - Boete vingerafdrukken personeel
+2019/PT/007,opinion,General opinion,read,CNPD (Portugal) - Deliberação 2019/494
+2019/PT/008,opinion,General opinion,read,CNPD (Portugal) - Deliberação 2019/495
+2019/SI/001,opinion,General opinion,read,IP - 0712-1/2019/2419
+2019/SI/002,opinion,General opinion,read,IP - 0712-1/2019/2356
+2019/SI/003,opinion,General opinion,read,IP - 0712-1/2019/2504
+2020/AT/007,description,Insurance company,read,DSB (Austria) - 2020-0.225.643
+2020/AT/008,description,Post office,read,DSB (Austria) - 2020-0.349.984
+2020/AT/015,description,Ski lift operator,summary,DSB (Austria) - 2020-0.759.615
+2020/BE/021,description,Schoolboard,summary,APD/GBA (Belgium) - 31/2020
+2020/BE/023,description,Insurance companies,read,APD/GBA (Belgium) - 34/2020
+2020/BE/026,description,Hospital,summary,APD/GBA (Belgium) - 41/2020
+2020/BE/030,description,Environmental regulation enforcement agency,summary,APD/GBA (Belgium) - 61/2020
+2020/BE/031,opinion,General opinion,read,APD/GBA (Belgium) - 64/2020
+2020/BE/032,person,Individual,read,APD/GBA (Belgium) - 71/2020
+2020/BE/035,description,Car wash,read,APD/GBA (Belgium) - 80/2020
+2020/BE/037,description,Hospital,read,APD/GBA (Belgium) - 72/2020
+2020/BG/005,description,Utility services company,read,CPDP (Bulgaria) - PNN-01-137/2019
+2020/DK/013,name,Copenhagen Zoo,read,Datatilsynet (Denmark) - 2020-441-4364
+2020/EE/010,description,Police,read,AKI (Estonia) - 2.1-3/20/347
+2020/ES/145,description,Gas installation company,summary,AEPD (Spain) - PS/00075/2020
+2020/ES/154,description,Nursery school,read,AEPD (Spain) - PS/00120/2020
+2020/ES/161,person,Private individual,summary,AEPD (Spain) - PS/00043/2020
+2020/ES/162,person,Individual,read,AEPD (Spain) - PS/00050/2020
+2020/ES/167,name,Equifax,read,AEPD (Spain) - PS/00451/2019
+2020/ES/168,name,Xfera Móviles S.A.,read,AEPD (Spain) - PS/00415/2019
+2020/FI/009,description,Housing cooperative,facts,Tietosuojavaltuutetun toimisto (Finland) - 1809/452/18
+2020/FI/010,name,Euroclear Finland Oy,read,Tietosuojavaltuutetun toimisto (Finland) - 9401/163/18
+2020/FI/011,description,Company,read,"Tietosuojavaltuutetun toimisto (Finland) - 3425/157/2019, 3578/157/2019, 3846/157/2019, 3871/157/2019, 3891/152/2019, 3918/157/2019, 4338/157/2019, 4666/154/2019, 5973/157/2019, 6773/157/2019 ja 7022/157/2019"
+2020/FI/013,description,Employer,read,Tietosuojavaltuutetun toimisto (Finland) - 6652/154/19
+2020/FR/007,opinion,General opinion,read,CNIL (France) - SAN-2020-056
+2020/GB/017,description,Public authority,read,ICO - FS50912491
+2020/GB/018,description,Public authority,read,ICO - IC-44531-X9L7
+2020/GR/013,name,AXA Insurance,read,HDPA (Greece) - 6/2020
+2020/GR/015,person,Politician,read,HDPA (Greece) - 19/2020
+2020/GR/017,person,Parliamentary candidate,read,HDPA (Greece) - 10/2020
+2020/GR/021,name,Ministry of Education and Religious Affairs,read,HDPA (Greece) - 32/2020
+2020/GR/023,description,Shop (employer),read,HDPA (Greece) - 31/2020
+2020/GR/024,person,Political candidate,summary,HDPA (Greece) - 8/2021
+2020/HU/017,person,Deputy mayor,read,NAIH (Hungary) - NAIH/2020/32/4
+2020/IE/007,name,Tusla,read,DPC - Tusla Child and Family Agency
+2020/IE/013,description,HSE,summary,DPC - Health Service Executive (IN-19-9-2)
+2020/IS/005,description,Citizens' Ombudsman,read,Persónuvernd - 2020010591
+2020/IS/006,opinion,General opinion,read,Persónuvernd - 2020010373
+2020/IS/007,description,Bank,read,Persónuvernd - 2020010425
+2020/IS/009,person,Individual,read,Persónuvernd - 2020010550
+2020/IS/010,person,Resident of an apartment building,summary,Persónuvernd - 2020010548
+2020/IS/014,name,Creditinfo Lánstraust hf.,read,Persónuvernd - 2020010613
+2020/IS/016,description,Ombudsman,read,Persónuvernd - 2020010677
+2020/IS/017,name,Creditinfo,read,Persónuvernd - 2020010678
+2020/IS/020,person,Individual,read,Persónuvernd - 2020010610
+2020/IS/021,description,Media company,read,Persónuvernd - 2020082249
+2020/IS/022,description,Police,read,Persónuvernd - 2020010601
+2020/IS/023,description,Municipality,read,Persónuvernd - 2020010628
+2020/IT/047,opinion,General opinion,read,Garante per la protezione dei dati personali (Italy) - 9296257
+2020/IT/050,name,Ministry of Health,read,Garante per la protezione dei dati personali (Italy) - 9356568
+2020/IT/060,opinion,General opinion,read,Garante per la protezione dei dati personali (Italy) - 9347280
+2020/IT/065,opinion,General opinion,read,Garante per la protezione dei dati personali (Italy) - 9451049
+2020/LU/001,description,Company established outside the EU,read,CNPD (Luxembourg) - Délibération n° 3018
+2020/NO/011,name,Folkehelseinstituttet,read,Datatilsynet (Norway) - 20/02058
+2020/NO/016,description,Missionary organisation,read,Datatilsynet (Norway) - 17/01281
+2020/PL/027,person,Sole proprietor,summary,UODO (Poland) - DKE.561.17.2020
+2020/RO/040,description,Cluj-Napoca Municipality,summary,ANSPDCP (Romania) - Warning issued to Cluj-Napoca Municipality
+2020/RO/041,description,Bucharest Municipality - District,summary,ANSPDCP (Romania) - Warning issued to Bucharest Municipality (District 4)
+2020/SE/017,name,Educational Board of Stockholm,read,Datainspektionen - DI-2019-7024
+2020/SI/001,opinion,General opinion,read,IP - 0712-1/2019/2725
+2020/SI/002,opinion,General opinion,read,IP - 07121-1/2020/197
+2020/SI/003,opinion,General opinion,read,IP - 07121-1/2020/305
+2020/SI/004,opinion,General opinion,read,IP - 07121-1/2020/390
+2020/SI/005,opinion,General opinion,read,IP - 07121-1/2020/428
+2020/SI/006,opinion,General opinion,read,IP - 07121-1/2020/387
+2020/SI/007,opinion,General opinion,read,IP - 7121-1/2020/369
+2020/SI/008,opinion,General opinion,read,IP - 07120-1/2020/278
+2020/SI/009,opinion,General opinion,read,IP - 07120-1/2020/290
+2020/SI/010,opinion,General opinion,read,IP - 07121-1/2020/638
+2020/SI/011,opinion,General opinion,read,IP - 07121-1/2020/519
+2020/SI/012,opinion,General opinion,read,IP - 07121-1/2020/527
+2020/SI/013,opinion,General opinion,read,IP - 07121-1/2020/693
+2020/SI/014,opinion,General opinion,read,IP - 07121-1/2020/701
+2020/SI/015,opinion,General opinion,read,IP - 07120-1/2020/358
+2020/SI/016,opinion,General opinion,read,IP - 07121-1/2020/1242
+2020/SI/018,opinion,General opinion,read,IP - 07121-1/2020/1159
+2020/SI/019,opinion,General opinion,read,IP - 07126-1/2020/29
+2020/SI/020,opinion,General opinion,read,IP - 07121-1/2020/1570
+2020/SI/021,description,Bank,summary,IP - 07121-1/2020/1869
+2020/SI/022,opinion,General opinion,read,IP - 07121-1/2020/2187
+2020/SI/023,opinion,General opinion,read,IP - 07120-1/2020/628
+2020/SI/024,opinion,General opinion,read,IP - 07121-1/2020/2166
+2020/SI/025,opinion,General opinion,read,IP - 07121-1 / 2020/2260
+2020/SI/026,opinion,General opinion,read,IP - 07121-1 / 2020/2263
+2020/SI/027,opinion,General opinion,read,IP - 07121-1/2020/2281
+2021/AT/020,description,Recruiter,read,DSB (Austria) - DPA 2021-0.415.529
+2021/BE/009,description,School,read,APD/GBA (Belgium) - 03/2021
+2021/BE/013,description,Employer,summary,APD/GBA (Belgium) - 15/2021
+2021/BE/021,description,Family allowance fund,read,APD/GBA (Belgium) - 54/2021
+2021/BE/025,description,Public authority,summary,APD/GBA (Belgium) - 72/2021
+2021/BE/026,description,Company,read,APD/GBA (Belgium) - 80/2021
+2021/BE/027,description,Political campaign,read,APD/GBA (Belgium) - 85/2021
+2021/BE/029,description,Fitness club,summary,APD/GBA (Belgium) - 125/2021
+2021/BE/032,description,Public authority,summary,APD/GBA (Belgium) - 130/2021
+2021/CY/010,description,Employer,read,Commissioner (Cyprus) - 11.17.001.008.042
+2021/DE/054,name,Facebook Ireland Ltd.,read,HmbBfDI (Hamburg) - Facebook/WhatsApp
+2021/DE/056,description,Employer,facts,LfDI (Baden-Württemberg) - 4 Sa 70/20
+2021/DK/014,description,Insurance company,summary,Datatilsynet (Denmark) - 2020-31-3586
+2021/ES/183,person,Private individual,summary,AEPD (Spain) - PS/00054/2020
+2021/ES/186,description,Local council,summary,AEPD (Spain) - PS/00128/2020
+2021/ES/191,name,Spanish Tax Authority,read,AEPD (Spain) - PS/00129/2020
+2021/ES/200,description,Beauty salon,summary,AEPD (Spain) - PS/00273/2020
+2021/FI/012,description,Housing company,summary,Tietosuojavaltuutetun toimisto (Finland) - 2368/182/20
+2021/FI/013,description,Finnish police,summary,Tietosuojavaltuutetun toimisto (Finland) - 3394/171/21
+2021/FI/017,description,Cleaning company,read,Tietosuojavaltuutetun toimisto (Finland) - 9024/181/19
+2021/FR/029,description,Company,read,CNIL (France) - SAN-2021-022
+2021/GB/005,description,Digital contact tracing service,read,ICO (UK) - ICO Monetary Penalty on Tested.me Ltd
+2021/GB/007,description,Funeral plan service,read,ICO (UK) - LTH Holdings Limited
+2021/GB/014,description,Claims management company,read,ICO (UK) - Brazier Consulting Services Ltd
+2021/GB/031,name,Unite the Union,read,ICO (UK) - Unite the Union
+2021/GR/025,description,Nursing home,summary,HDPA (Greece) - 41/2021
+2021/GR/026,description,Sports clothing company,summary,HDPA (Greece) - 13/2021
+2021/GR/027,name,Athens Bar Association,read,HDPA (Greece) - 7/2021
+2021/GR/031,description,Bank,read,HDPA (Greece) - 51/2021
+2021/GR/032,description,Greek company,summary,HDPA (Greece) - 1/2022
+2021/HR/005,description,Newspaper,summary,AZOP (Croatia) - Decision 30-12-2021
+2021/HR/006,description,Real estate agency,facts,AZOP (Croatia) - Decision 16-11-2021
+2021/HR/007,description,Bank,summary,AZOP (Croatia) - Decision 29-06-2022 (bank)
+2021/HR/008,description,Company,read,AZOP (Croatia) - Decision 29-11-2021
+2021/HU/011,description,Employer,read,NAIH (Hungary) - NAIH-4495-1/2021
+2021/HU/015,person,Individual,read,NAIH (Hungary) - NAIH-1743/2021
+2021/HU/016,description,Car importer,read,NAIH (Hungary) - NAIH-2857-20/2021
+2021/IS/005,description,School management system operator,read,Persónuvernd (Iceland) - 2020010355
+2021/IS/006,description,Municipality and trade union,read,Persónuvernd (Iceland) - 2020010394
+2021/IS/007,person,Neighbours,read,Persónuvernd (Iceland) - 2020010587
+2021/IS/009,description,Municipality,read,Persónuvernd - 2020051637
+2021/IS/010,description,Public institution,summary,Persónuvernd - 2020031337
+2021/IS/018,description,Credit rating company,summary,Persónuvernd - 2020010708
+2021/IS/019,description,Primary school,summary,Persónuvernd - 2020031243
+2021/IS/020,person,Police officer,summary,Persónuvernd (Iceland) - 2020010609
+2021/IS/021,description,School,summary,Persónuvernd (Iceland) - 2020031242
+2021/IS/023,description,Employers,read,Persónuvernd (Iceland) - 2020010633
+2021/IS/025,description,Children Protection Committee,read,Persónuvernd (Iceland) - 2020010642
+2021/IS/028,person,Private individual,read,Persónuvernd (Iceland) - 2021010073
+2021/IS/030,description,Employer,read,Persónuvernd (Iceland) - nr. 2020123070
+2021/IT/084,description,Italian telecommunication company,summary,Garante per la protezione dei dati personali (Italy) - 9570997
+2021/IT/085,opinion,General opinion,read,Garante per la protezione dei dati personali (Italy) - 9578184
+2021/IT/088,name,Associazione Rousseau,read,Garante per la protezione dei dati personali (Italy) - 9592011
+2021/IT/090,description,Mayor of Messina,summary,Garante per la protezione dei dati personali (Italy) - 9670001
+2021/LU/021,description,Employer,read,CNPD (Luxembourg) - Délibération n°13FR/2021
+2021/LU/027,description,Company,read,CNPD (Luxembourg) - Délibération n°37FR/2021
+2021/LU/032,description,Company,read,CNPD (Luxembourg) - Délibération n° 42FR/2021
+2021/LU/033,description,Non-profit association,summary,CNPD (Luxembourg) - Délibération n°43FR/2021
+2021/NO/042,description,Company,read,Datatilsynet (Norway) - 20/02274
+2021/PL/016,person,Healthcare entrepreneur,read,UODO (Poland) - DKE.561.11.2020
+2021/PL/017,description,Company,read,UODO (Poland) - DKN.5130.2815.2020
+2021/PL/021,description,Bank,read,UODO (Poland) - DKE.523.10.2021
+2021/PL/030,description,Public university,read,UODO (Poland) - DKN.5130.2559.2020
+2021/PT/002,description,Educational institution,summary,CNPD (Portugal) - Deliberação 2021/622
+2021/SI/001,description,Employer,read,IP - 07121-1/2021/563
+2021/SI/003,person,Individual,read,IP - 07121-1/2021/400
+2021/SI/006,opinion,General opinion,read,IP - 0610–643/2020/5
+2021/SI/007,opinion,General opinion,read,IP - 0611-762/2020/8
+2021/SI/008,person,Individual,read,IP - 07121-1/2021/597
+2021/SI/010,description,Building manager,summary,IP - 07121-1/2021/678
+2021/SI/013,description,Company,read,IP - 0613-438/2019/16
+2021/SI/014,description,Public body,read,IP - 07120-1/2021/182
+2021/SI/015,person,Bar owner,summary,IP (Slovenia) - 0611-10/2021/11
+2021/SI/016,description,EGovernment portal,summary,IP (Slovenia) - 0610-32/2021/7
+2022/AT/003,description,Operator of a search engine,summary,DSB (Austria) - 2021-0.187.619
+2022/AT/005,description,Law firm,summary,DSB (Austria) - 2021-0.347.702
+2022/AT/008,description,Embassy,read,DSB (Austria) - 2022-0.876.190
+2022/BE/013,description,Website owner,summary,APD/GBA (Belgium) - 11/2022
+2022/BE/016,description,Municipality,summary,APD/GBA (Belgium) - 41/2022
+2022/BE/025,description,Website provider,summary,APD/GBA (Belgium) - 84-2022
+2022/BE/026,description,Telecommunications provider,summary,APD/GBA (Belgium) - 101/2022
+2022/BE/030,description,Employer,read,APD/GBA (Belgium) - 115/2022
+2022/BE/032,description,Company with offices in Belgium and the UK,read,APD/GBA (Belgium) - 135/2022
+2022/BE/033,description,Car company,facts,APD/GBA (Belgium) - 136/2022
+2022/BE/036,person,Neighbour,read,APD/GBA (Belgium) - 138/2022
+2022/BE/038,description,Vacation park owner,read,APD/GBA (Belgium) - 147/2022
+2022/BE/039,description,Social housing organisation,summary,APD/GBA (Belgium) - 149/2022
+2022/BE/040,description,Employer,summary,APD/GBA (Belgium) - 143/2022
+2022/BE/041,description,Newspaper,read,APD/GBA (Belgium) - 141/2022
+2022/BE/045,description,Service provider,facts,APD/GBA (Belgium) - 158/2022
+2022/BE/046,description,Employer,summary,APD/GBA (Belgium) - 159/2022
+2022/BE/049,description,Company,read,APD/GBA (Belgium) - 160/2022
+2022/BE/053,description,Human resources provider,summary,APD/GBA (Belgium) - 189/2022
+2022/BE/054,description,Producer of a television show,facts,APD/GBA (Belgium) - 188/2022
+2022/BE/055,description,Company,read,APD/GBA (Belgium) - 51/2023
+2022/BG/005,person,Doctor,summary,CPDP (Bulgaria) - PNN-01-33/2022
+2022/CY/015,description,Cyprus electricity authority,summary,Commissioner (Cyprus) - 11.17.001.010.064
+2022/DE/053,person,Photographer,summary,"BlnBDI (Berlin) - 632.276, 521.11692, 591.616"
+2022/DK/016,description,Former employer,read,Datatilsynet (Denmark) - 2021-32-2438
+2022/DK/038,description,Employer,read,Datatilsynet (Denmark) - 2021-31-5737
+2022/EE/004,description,Former employer,read,AKI (Estonia) - 2.1.-1/22/2643
+2022/ES/218,description,Owner of a commercial website,summary,AEPD (Spain) - PS/00132/2022
+2022/ES/223,description,Private parking lot owner,read,AEPD (Spain) - 00027-2022
+2022/ES/225,person,Businessman,read,AEPD (Spain) - EXP202207084
+2022/ES/236,description,Local police force,read,DBEB/AVPD (Basque Country) - CN21-012
+2022/EU/001,description,European Parliament,summary,EDPS - 2020-1013
+2022/FI/010,description,Healthcare provider,summary,Tietosuojavaltuutetun toimisto (Finland) - 3895/83/22
+2022/FI/013,description,Healthcare provider,facts,Tietosuojavaltuutetun toimisto (Finland) - 4022/171/22
+2022/FI/019,description,Insurance company,summary,Tietosuojavaltuutetun toimisto (Finland) - 7285/183/18
+2022/FI/020,description,Bank,summary,Tietosuojavaltuutetun toimisto (Finland) - 7587/163/20
+2022/FI/022,description,Healthcare provider,facts,Tietosuojavaltuutetun toimisto (Finland) - 6482/186/2020
+2022/FI/027,description,Healthcare provider,summary,Tietosuojavaltuutetun toimisto (Finland) - 5546/163/2019
+2022/GB/007,name,Energy Suite,read,ICO (UK) - Energy Suite Limited
+2022/GR/025,description,Private school,read,HDPA (Greece) - 12/2022
+2022/GR/034,description,Employer,facts,HDPA (Greece) - 24/2022
+2022/GR/039,description,Polling company,summary,HDPA (Greece) - 65/2022
+2022/HR/017,description,Building co-owners,read,AZOP (Croatia) - Decision 17-05-2022
+2022/HR/020,description,School,read,AZOP (Croatia) - Decision 31-05-2022
+2022/HU/019,description,Organisation and its chair,read,NAIH (Hungary) - NAIH-175-12/2022
+2022/HU/020,description,Telecom operator,facts,NAIH (Hungary) - NAIH-180-16/2022
+2022/HU/022,description,Car repair shop,read,NAIH (Hungary) - NAIH-1006-3/2022
+2022/HU/023,description,Debt management company,read,NAIH (Hungary) - NAIH-2727-2/2022.
+2022/HU/025,description,Installation company,read,NAIH (Hungary) - NAIH-2801-17-2022 (NAIH-8701/2021)
+2022/HU/029,description,Operator of a surveillance camera system,read,NAIH (Hungary) - NAIH-5114-35/2022
+2022/IE/008,name,Personal Injuries Assessment Board,read,DPC (Ireland) - IN-20-4-7
+2022/IE/011,name,Meta Platforms Ireland Limited,read,DPC (Ireland) - Meta Platforms Ireland Limited (Facebook) - IN-18-5-5
+2022/IS/006,description,Primary school,summary,Persónuvernd (Iceland) - 2020031451
+2022/IS/009,description,School,summary,Persónuvernd (Iceland) - 2021101909
+2022/IS/016,person,School administrator,summary,Persónuvernd (Iceland) - Case no. 2021030666
+2022/IS/017,description,Car repair shop,summary,Persónuvernd (Iceland) - Case no. 2021061304
+2022/IS/018,description,Genealogical database,read,Persónuvernd (Iceland) - Case no. 2021010248
+2022/IS/019,description,Provider of a digital signature,summary,Persónuvernd (Iceland) - Case no. 2021101924
+2022/IT/126,name,Google,read,Garante per la protezione dei dati personali (Italy) - 9747505
+2022/IT/145,description,Website operator,summary,Garante per la protezione dei dati personali (Italy) - 9782890
+2022/IT/147,name,TikTok,read,Garante per la protezione dei dati personali (Italy) - 9788429
+2022/IT/181,person,Doctor,read,Garante per la protezione dei dati personali (Italy) - 9855545
+2022/LU/015,description,Website and app operator,read,CNPD (Luxembourg) - Délibération n° 24FR/2022
+2022/LV/005,description,Police office,summary,DVI (Latvia) - Cēsu novada Pašvaldības policijai
+2022/MT/007,description,Investment services provider,facts,IDPC (Malta) - CDP/IMI/LSA/17/2022
+2022/NL/005,name,Dutch police,read,AP (The Netherlands) - mobiele camera-auto's Rotterdam - besluit tot boeteoplegging
+2022/PL/015,description,Bank,read,UODO (Poland) - DKN.5131.33.2021
+2022/PL/018,description,Medical facility,summary,UODO (Poland) - DKN.5131.34.2021
+2022/PL/022,description,Law firm,summary,UODO (Poland) - DKN.5112.5.2021
+2022/RO/052,description,Building owners association,summary,ANSPDCP (Romania) - Fine against Asociația de Proprietari Aviației Park
+2022/RO/053,description,Residential complex management,read,ANSPDCP (Romania) - Asociația de Proprietari Aviației Park
+2022/SE/007,description,Background check database,read,IMY (Sweden) - IMY-2022-1621
+2022/SE/011,description,Newspaper subscription service,summary,IMY (Sweden) - DI-2020-10547
+2022/SI/001,description,Company,read,IP (Slovenia) - 0611-608/2021/9
+2022/SI/002,description,COVID-19 test provider,read,IP (Slovenia) - 0611-623/2021/10
+2022/SI/004,person,Individual,facts,IP (Slovenia) - 0603-98/2022/6
+2023/AT/017,description,Employer,read,DSB (Austria) - 2023-0.583.644
+2023/AT/025,description,School,read,DSB (Austria) - 2022-0.858.901
+2023/BE/010,description,Public authority,read,APD/GBA (Belgium) - 15/2023
+2023/BE/011,description,Municipality,read,APD/GBA (Belgium) - 17/2023
+2023/BE/015,person,Landlord,facts,APD/GBA (Belgium) - 27/2023
+2023/BE/016,description,Employer,summary,APD/GBA (Belgium) - 40/2023
+2023/BE/019,description,School,read,APD/GBA (Belgium) - 49/2023
+2023/BE/020,description,Employer,read,APD/GBA (Belgium) - 47/2023
+2023/BE/022,person,Content creator,read,APD/GBA (Belgium) - 57/2023
+2023/BE/024,description,Supermarket,read,APD/GBA (Belgium) - 60/2023
+2023/BE/026,description,Employer,facts,APD/GBA (Belgium) - 63/2023
+2023/BE/027,person,Lawyer,read,APD/GBA (Belgium) - 72/2023
+2023/BE/031,description,Conference organiser,read,APD/GBA (Belgium) - 87/2023
+2023/BE/033,description,Municipality,read,APD/GBA (Belgium) - 99/2023
+2023/BE/034,description,Hospital group,summary,APD/GBA (Belgium) - 103/2023
+2023/BE/037,description,Municipal school,read,APD/GBA (Belgium) - 110/2023
+2023/BE/039,description,Real estate agent,read,APD/GBA (Belgium) - 128/2023
+2023/BE/041,description,Employer,read,APD/GBA (Belgium) - 135/2023
+2023/BE/043,description,Flemish municipality,summary,APD/GBA (Belgium) - 136/2023
+2023/BE/044,description,College,read,APD/GBA (Belgium) - 145/2023
+2023/BE/045,description,Employer,read,APD/GBA (Belgium) - 154/2023
+2023/BE/047,description,Political party,read,APD/GBA (Belgium) - 141/2023
+2023/BG/007,description,Political party,read,"CPDP (Bulgaria) - PPN-01-223/2021, PPN-01-307/2021, PPN-01-296/2021"
+2023/BG/009,person,Co-owner of a residential building,read,CPDP (Bulgaria) - PPN-01-462/15.06.2021
+2023/CY/015,description,Operator of a website,summary,Commissioner (Cyprus) - 11.17.001.010.172
+2023/DK/001,name,Jysk Fynske Medier,read,Datatilsynet (Denmark) - 2021-31-5553
+2023/DK/002,name,GulogGratis,read,Datatilsynet (Denmark) - 2021-31-4871
+2023/DK/008,description,Regional administration,summary,Datatilsynet (Denmark) - Region Sjælland
+2023/DK/012,name,City of Copenhagen,read,Datatilsynet (Denmark) - 2023-212-0015
+2023/ES/260,name,Island Council of El Hierro,read,AEPD (Spain) - EXP202102056
+2023/ES/278,description,Company,read,AEPD (Spain) - EXP202210346
+2023/ES/288,description,Education department,read,CTPDA (Spain) - RPS-2023/007
+2023/FI/004,description,Pre-school,read,Tietosuojavaltuutetun toimisto (Finland) - 3116/163/20
+2023/FI/008,description,Email service provider,read,Tietosuojavaltuutetun toimisto (Finland) - 10048/182/20
+2023/FI/011,description,Telecommunications company,summary,Tietosuojavaltuutetun toimisto (Finland) - 9885/157/19
+2023/FI/014,description,Healthcare provider,summary,Tietosuojavaltuutetun toimisto (Finland) - 6629/163/21
+2023/FI/015,description,Municipality-run educational institution,facts,Tietosuojavaltuutetun toimisto (Finland) - TSV/35/2022
+2023/FI/016,description,School,facts,Tietosuojavaltuutetun toimisto (Finland) - 1011/161/22
+2023/FR/014,name,Ministry of Interior,read,CNIL (France) - SAN-2023-076
+2023/FR/019,opinion,General opinion,read,CNIL (France) - SAN-2023-082
+2023/FR/020,opinion,General opinion,read,CNIL (France) - CNIL2326891X
+2023/FR/024,name,TAGADAMEDIA,read,CNIL (France) - SAN-2023-025
+2023/GB/005,name,Nottinghamshire County Council,read,ICO (UK) - Nottinghamshire County Council
+2023/GR/012,description,Hotel,summary,HDPA (Greece) - 2/2023
+2023/GR/013,name,Google,read,HDPA (Greece) - 1/2023
+2023/GR/020,name,VOLTON Hellenic Energy Joint Stock Company,read,HDPA (Greece) - 22/2023
+2023/GR/026,description,Municipality,summary,HDPA (Greece) - 33/2023
+2023/GR/030,name,Google,read,HDPA (Greece) - 38/2023
+2023/GR/031,description,Employer,summary,HDPA (Greece) - 27/2024
+2023/HR/009,description,Gambling and betting companies,read,AZOP (Croatia) - Decision 14-09-2023
+2023/HR/013,description,Media outlet,summary,AZOP (Croatia) - Decision 10-08-2023
+2023/HR/014,description,City Tourist Board,summary,AZOP (Croatia) - Decision 12-12-2023
+2023/HR/015,description,Building manager,read,AZOP (Croatia) - Decision 16-02-2023
+2023/HU/006,description,Beauty salon,read,NAIH (Hungary) - NAIH-2732-2-2023
+2023/HU/007,description,Solarium studio,summary,NAIH (Hungary) - NAIH/4410-1/2023
+2023/HU/009,description,Bank,facts,NAIH (Hungary) - NAIH-5377-12/2023
+2023/HU/013,description,Job application platform,read,NAIH (Hungary) - 7286-1/2023
+2023/IE/009,name,Kildare County Council,read,DPC (Ireland) - 05/SIU/2018
+2023/IE/016,name,Galway County Council,read,DPC (Ireland) - 06/SIU/2018
+2023/IS/012,person,Individual,read,Persónuvernd (Iceland) - 2021101915
+2023/IS/014,person,Individual,read,Persónuvernd (Iceland) - 2021091678
+2023/IS/016,name,City of Kópavogur,read,Persónuvernd (Island) - 2020010726
+2023/IS/017,person,Neighbour,read,Persónuvernd (Iceland) - 2022030544
+2023/IS/022,description,Directorate of Fisheries,summary,Persónuvernd (Island) - 2021020374
+2023/IS/024,description,National Police Commissioner,summary,Persónuvernd (Island) - 2022081290
+2023/IS/025,opinion,General opinion,read,Persónuvernd (Island) - 2022050850
+2023/IT/095,description,AI chatbot provider,read,Garante per la protezione dei dati personali (Italy) - 9852214
+2023/IT/097,description,Newspaper,summary,Garante per la protezione dei dati personali (Italy) - 9860461
+2023/IT/098,description,Newspaper,summary,Garante per la protezione dei dati personali (Italy) - 9860487
+2023/IT/099,description,Newspaper,summary,Garante per la protezione dei dati personali (Italy) - 9860513
+2023/IT/100,description,Newspaper,summary,Garante per la protezione dei dati personali (Italy) - 9860529
+2023/IT/103,description,Electronic communications provider,read,Garante per la protezione dei dati personali (Italy) - 9864063
+2023/IT/108,description,Online newspaper,read,Garante per la protezione dei dati personali (Italy) - 9873031
+2023/IT/109,description,Telesales company,read,Garante per la protezione dei dati personali (Italy) - 9871886
+2023/IT/118,description,Company,read,Garante per la protezione dei dati personali (Italy) - 9891673
+2023/IT/123,description,Municipality,summary,Garante per la protezione dei dati personali (Italy) - 9896808;
+2023/IT/129,description,Newspaper company,facts,Garante per la protezione dei dati personali (Italy) - 9917900
+2023/IT/140,description,Employer,read,Garante per la protezione dei dati personali (Italy) - 9909235
+2023/IT/143,description,Medical centre,summary,Garante per la protezione dei dati personali (Italy) - 9938463
+2023/IT/150,person,Researcher,read,Garante per la protezione dei dati personali (Italy) - 9954241
+2023/LV/003,description,Company,read,"DVI (Latvia) - SIA ""Fitsypro"""
+2023/LV/004,description,Company,read,"DVI (Latvia) - SIA ""SOAAR"""
+2023/NL/002,name,ICS,read,AP (The Netherlands) - Boete ICS
+2023/NL/003,name,Nuts Topholding BV,read,AP (The Netherlands) - z2020-19687
+2023/NO/004,name,Statistics Norway,read,Datatilsynet (Norway) - 22/03622
+2023/NO/009,name,Argon Medical Devices,read,Datatilsynet (Norway) - 21/03126
+2023/NO/016,description,Child welfare services,read,Personvernnemnda (Norway) - PVN-2022-19
+2023/RO/052,name,BODY LINE SRL,read,ANSPDCP (Romania) - 23.08.2023
+2023/SE/019,name,Trygg-Hansa,read,IMY (Sweden) - DI-2021-1905
+2023/SI/001,person,Individual,read,IP (Slovenia) - 0603-99/2021/4
+2023/SI/002,description,Company,read,IP (Slovenia) - 0611-182/2021/23
+2023/SI/004,description,Company,read,IP (Slovenia) - 06111-1/2023/8
+2023/SI/009,description,Slovenian ministry,read,IP (Slovenia) - 07100-15-2023-1
+2023/SI/010,description,Employer,read,IP (Slovenia) - 0603-47/2023/5
+2024/AT/010,description,Company,read,DSB (Austria) - 2024-0.641.771
+2024/AT/011,person,Individual,read,DSB (Austria) - 2024-0.796.258
+2024/AT/013,description,Real estate company,summary,DSB (Austria) - 2025-0.587.686
+2024/BE/004,description,Employer,read,APD/GBA (Belgium) - 01/2024
+2024/BE/005,description,Recruitment agency,read,APD/GBA (Belgium) - 03/2024
+2024/BE/009,description,E-reputation consultancy company,summary,APD/GBA (Belgium) - 39/2024
+2024/BE/010,description,Employer,read,APD/GBA (Belgium) - 35/2024
+2024/BE/015,description,Lender,read,APD/GBA (Belgium) - 32/2024
+2024/BE/017,description,Embassy,summary,APD/GBA (Belgium) - 48/2024
+2024/BE/020,description,Mobility aid rental provider,read,APD/GBA (Belgium) - 57/2024
+2024/BE/021,description,Municipality,read,APD/GBA (Belgium) - 67/2024
+2024/BE/022,description,Employer,read,APD/GBA (Belgium) - 71/2024
+2024/BE/023,description,Doctor's appointment booking platform,read,APD/GBA (Belgium) - 63/2024
+2024/BE/029,description,Provider of a weekly magazine,summary,APD/GBA (Belgium) - 70/2024
+2024/BE/031,description,Employer,read,APD/GBA (Belgium) - 97/2024
+2024/BE/032,person,Technician,summary,APD/GBA (Belgium) - 79/2024
+2024/BE/033,person,Resident,facts,APD/GBA (Belgium) - 98/2024
+2024/BE/038,description,Telecom provider,summary,APD/GBA (Belgium) - 107/2024
+2024/BE/039,description,Employer,summary,APD/GBA (Belgium) - 114/2024
+2024/BE/041,person,Employee of a company,facts,APD/GBA (Belgium) - 99/2024
+2024/BE/042,description,Broker,facts,APD/GBA (Belgium) - 109/2024
+2024/BE/044,person,Landlord,read,APD/GBA (Belgium) - 132/2024
+2024/BE/045,description,Employer,read,APD/GBA (Belgium) - 133/2024
+2024/BE/047,description,Media company,summary,APD/GBA (Belgium) - 162/2024
+2024/ES/158,person,Individual,read,AEPD (Spain) - EXP202403325
+2024/ES/161,description,Residents' association,read,AEPD (Spain) - EXP202310203
+2024/FI/006,description,Hospital,read,Tietosuojavaltuutetun toimisto (Finland) - TSV/29/2020
+2024/FI/007,description,Telecom operator,summary,Tietosuojavaltuutetun toimisto (Finland) - TSV/2/2018
+2024/FI/008,description,Media company,facts,Tietosuojavaltuutetun toimisto (Finland) - TSV/88/2022
+2024/FI/009,description,Bus operator,summary,Tietosuojavaltuutetun toimisto (Finland) - TSV/206/2022
+2024/FI/012,description,Telecommunications operator,summary,Tietosuojavaltuutetun toimisto (Finland) - TSV/12/2019
+2024/FI/014,description,Insurance company,summary,Tietosuojavaltuutetun toimisto (Finland) - TSV/428/2022
+2024/FR/024,description,Telemarketing company,read,CNIL (France) - SAN-2024-003
+2024/FR/031,description,Employer,summary,CNIL (France) - SAN-2024-021
+2024/GB/012,name,Clyde Valley Housing Association,read,ICO (UK) - Clyde Valley Housing Association
+2024/GR/011,description,Employer,read,HDPA (Greece) - 6/2024
+2024/GR/012,description,Employer,read,HDPA (Greece) - 7/2024
+2024/GR/016,person,Accountant,summary,HDPA (Greece) - 48/2023
+2024/GR/024,description,Municipality,read,HDPA (Greece) - 31/2024
+2024/GR/027,person,Doctor,summary,HDPA (Greece) - 37/2024
+2024/GR/029,person,Doctor,summary,HDPA (Greece) - 50 2024
+2024/HR/008,description,Company,read,AZOP (Croatia) - UP/I-034-01/24-01/33
+2024/HR/009,description,Business information publisher,summary,AZOP (Croatia) - UP/I-034-01/24-01/30
+2024/HU/001,description,Postal service,summary,NAIH (Hungary) - NAIH 6737 1/2024
+2024/IE/009,name,Apple,read,DPC (Ireland) - Inquiry into Apple Distribution International Limited - March 2024
+2024/IS/004,description,Police,facts,Persónuvernd (Island) - 2021061342
+2024/IT/062,person,General practitioner,summary,Garante per la protezione dei dati personali (Italy) - 9983244
+2024/IT/072,name,Enel Energia S.p.A.,read,Garante per la protezione dei dati personali (Italy) - 9988710
+2024/IT/082,description,Municipality,summary,Garante per la protezione dei dati personali (Italy) - 10013356
+2024/IT/084,description,Ministry of Justice,summary,Garante per la protezione dei dati personali (Italy) - 10021491
+2024/IT/105,opinion,General opinion,read,Garante per la protezione dei dati personali (Italy) - 10021468
+2024/IT/121,person,Doctor,summary,Garante per la protezione dei dati personali (Italy) - 10070330
+2024/IT/126,description,Clinic,read,Garante per la protezione dei dati personali (Italy) - 10057346
+2024/IT/127,person,Parent,read,Garante per la protezione dei dati personali (Italy) - 10076481
+2024/IT/128,description,Health Agency,summary,Garante per la protezione dei dati personali (Italy) - 10084453
+2024/IT/136,description,Travel agency,summary,Garante per la protezione dei dati personali (Italy) - 10102462
+2024/IT/145,description,Credit repair company,summary,Garante per la protezione dei dati personali (Italy) - 10106904
+2024/IT/147,name,Google,read,Garante per la protezione dei dati personali (Italy) - 10095553
+2024/LT/006,description,School,summary,VDAI (Lithuania) - 3R-741
+2024/LU/002,description,Employer,read,CNPD (Luxembourg) - Délibération n° 2FR/2024
+2024/NL/004,description,Food delivery company,summary,AP (The Netherlands) - Takeaway B.V. - z2022-04011
+2024/PL/020,description,Financial institution,facts,UODO (Poland) - DKN.5112.14.2022
+2024/PL/029,person,Sole entrepreneur,facts,UODO (Poland) - DKN.5131.1.2021
+2024/PL/031,description,Operator of a website,summary,UODO (Poland) - DKN.5130.2415.2020
+2024/SI/004,description,Company,read,IP (Slovenia) - 0609-20/2024/6
+2024/SI/005,description,Company,read,IP (Slovenia) - 0609-6/2024/7
+2024/SI/008,description,School,summary,IP (Slovenia) - 07101-37/2023/30
+2024/SI/011,description,Employer,read,IP (Slovenia) - 0603 30 2023 12
+2025/AT/008,person,Individual,read,DSB (Austria) - DSB-D213.2544
+2025/AT/009,person,Person receiving home care,read,DSB (Austria) - DSB-D124.1328/24
+2025/AT/016,person,Restaurant owner,summary,DSB (Austria) - 2025-0.607.071
+2025/AT/018,person,Lawyer,summary,DSB (Austria) - 2025-0.533.437
+2025/AT/021,description,Bar association,read,DSB (Austria) - 2025-0.395.497
+2025/AT/024,description,Event organiser,summary,DSB (Austria) - 2025-0.813.131
+2025/AT/026,description,Real estate agency,summary,DSB (Austria) - 2024-0.917.161
+2025/AT/029,description,Operator of a live-streaming website,summary,DSB (Austria) - 2025-0.891.622
+2025/AT/032,description,Online store,summary,DSB (Austria) - 2025-0.950.759
+2025/AT/034,person,Individual,read,DSB (Austria) - 2025-0.968.031
+2025/AT/036,description,Video streaming service,summary,DSB (Austria) - 2025-0.626.844
+2025/BE/005,description,Employer,summary,APD/GBA (Belgium) - 02/2025
+2025/BE/010,person,Hospital manager,summary,APD/GBA (Belgium) - 64/2025
+2025/BE/011,description,Company,read,APD/GBA (Belgium) - 71/2025
+2025/BE/016,description,Retail company,summary,APD/GBA (Belgium) - 76/2025
+2025/BE/017,description,Screen capture software provider,read,APD/GBA (Belgium) - 88/2025
+2025/BE/018,description,Daycare center,summary,APD/GBA (Belgium) - 91/2025
+2025/BE/020,person,Politician,summary,APD/GBA (Belgium) - 133/2025
+2025/BE/021,description,Bike rental company,read,APD/GBA (Belgium) - 132/2025
+2025/BE/024,description,Company,read,APD/GBA (Belgium) - 158/2025
+2025/BE/025,description,Municipality,summary,APD/GBA (Belgium) - 188/2025
+2025/BE/029,description,Company,read,APD/GBA (Belgium) - 200/2025
+2025/BE/030,description,Hospital,summary,APD/GBA (Belgium) - 209/2025
+2025/BG/003,description,Event organiser,read,"CPDP (Bulgaria) - Teachers ""blacklist"""
+2025/CH/002,description,Bank,summary,EDÖB/PFPDT/IFPDT (Switzerland) - Cembra Money Bank AG
+2025/DE/005,name,Vodafone,read,BfDI (Germany) - Vodafone
+2025/ES/141,description,Accommodation provider,read,AEPD (Spain) - EXP202313983
+2025/ES/182,description,Communication network provider,summary,AEPD (Spain) - EXP202307113
+2025/FI/006,description,Public authority,summary,Tietosuojavaltuutetun toimisto (Finland) - 2025/AR/253
+2025/GR/019,person,Individual,summary,HDPA (Greece) - 9/2025
+2025/GR/021,description,Bank,summary,HDPA (Greece) - 07/2025
+2025/GR/022,description,Provider of DeepSeek AI,summary,HDPA (Greece) - 18/2025
+2025/GR/030,person,Doctor,read,HDPA (Greece) - 40 /2025
+2025/GR/034,description,Private tutoring centre,summary,HDPA (Greece) - 39/2025
+2025/IT/099,name,ClothOff,read,Garante per la protezione dei dati personali (Italy) - 0174164
+2025/IT/100,description,Business,summary,Garante per la protezione dei dati personali (Italy) - 10139147
+2025/IT/126,description,Local health authority of Ferrara,summary,Garante per la protezione dei dati personali (Italy) - 10185490
+2025/IT/127,description,News broadcaster,summary,Garante per la protezione dei dati personali (Italy) - 10188249
+2025/IT/130,description,University of Turin,summary,Garante per la protezione dei dati personali (Italy) - 10201426
+2025/LT/002,description,Employment Service,summary,VDAI (Lithuania) - 3R-345
+2025/LT/003,person,Politician,summary,VDAI (Lithuania) - 3R-537
+2025/LT/006,person,Neighbour,read,VDAI (Lithuania) - 3R-753
+2025/LT/011,person,Individual,facts,VDAI (Lithuania) - 3R-998
+2025/LT/012,description,Hospital,summary,VDAI (Lithuania) - 3R- 1876 (2.13-1.E)
+2025/LV/003,person,Police inspector,read,DVI (Latvia) - 04.11.2025
+2025/MT/002,description,Bank,summary,IDPC (Malta) - CDP/COMP/332/2024
+2025/PL/017,description,Hospital,facts,UODO (Poland) - DKN.5131.4.2024
+2025/PL/020,description,Bank,summary,UODO (Poland) - DKN.5112.6.2020
+2025/RO/074,description,E-billing website,summary,ANSPDCP (Romania) - Webrasoft SRL
+2025/SE/009,description,Moderate Party's national organization,summary,IMY (Sweden) - IMY-2023 4458
+2025/SI/013,description,Employer,read,IP (Slovenia) - 0600-43/2024/12
+2025/SI/016,description,Association,summary,IP (Slovenia) - 0600-43/2025/9
+2025/SI/017,description,Business operator,summary,IP (Slovenia) - 0602-44/2025/6
+2026/AT/004,person,Individual,read,DSB (Austria) - 2026-0.028.647
+2026/AT/007,description,Provider of an online shop,summary,DSB (Austria) - 2026-0.043.390
+2026/AT/008,description,Digital marketing agency,summary,DSB (Austria) - 2025-1.049.138
+2026/AT/009,description,Employer,read,DSB (Austria) - 2025-0.960.016
+2026/AT/012,person,Journalist,summary,DSB (Austria) - 2026-0.690.562
+2026/BE/007,description,Employer,summary,APD/GBA (Belgium) - 01/2026
+2026/BE/008,description,Employer,summary,APD/GBA (Belgium) - 10/2026
+2026/BE/009,description,Football club,summary,APD/GBA (Belgium) - 11/2026
+2026/BE/010,person,Landlord,summary,APD/GBA (Belgium) - 23/2026
+2026/BE/012,description,Laundry company,summary,APD/GBA (Belgium) - 28/2026
+2026/BE/013,person,Employee of a company,facts,APD/GBA (Belgium) - 37/2026
+2026/BE/014,description,Employer,read,APD/GBA (Belgium) - 44/2026
+2026/BE/015,person,Travel blogger,summary,APD/GBA (Belgium) - 66/2026
+2026/BE/018,person,Individuals,summary,APD/GBA (Belgium) - 45/2026
+2026/BE/019,description,Insurer,facts,APD/GBA (Belgium) - 75/2026
+2026/BE/020,description,Soccer club,summary,APD/GBA (Belgium) - 85/2026
+2026/BE/023,description,Real estate agency,summary,APD/GBA (Belgium) - 84/2026
+2026/BE/025,description,Management of an apartment complex,summary,APD/GBA (Belgium) - 100/2026
+2026/BE/029,description,Employer,summary,APD/GBA (Belgium) - 97/2026
+2026/BE/030,description,Search engine,facts,APD/GBA (Belgium) - DOS-2025-04652
+2026/CY/001,person,Member of Parliament,summary,Commissioner (Cyprus) - Online Platform “Agora”
+2026/DK/002,description,Employer,summary,Datatilsynet (Denmark) - 2025-31-1972
+2026/EE/001,person,Bailiff,summary,AKI (Estonia) - 2.1-1/25/724-1566-19
+2026/EE/003,person,Private website operator,read,AKI (Estonia) - 2.1.-4/26/1106-2333-4
+2026/ES/038,description,Catalan city council,summary,APDCAT (Catalonia) - PS-0127/2025
+2026/FI/005,description,Insurance company,summary,Tietosuojavaltuutetun toimisto (Finland) - TSV/5875/2024
+2026/FI/006,description,Comparison platform,summary,Tietosuojavaltuutetun toimisto (Finland) - TSV/4630/2023
+2026/FI/008,description,Real estate agency,summary,Tietosuojavaltuutetun toimisto (Finland) - TSV/1319/2025
+2026/FI/010,description,Pension insurance company,summary,Tietosuojavaltuutetun toimisto (Finland) - TSV/5059/2023
+2026/HR/002,description,Retailer,summary,AZOP (Croatia) - 05/01/2026
+2026/HU/008,description,Hungarian University,summary,NAIH (Hungary) - NAIH-3344-1/2026
+2026/HU/010,description,Guardianship authority,summary,NAIH (Hungary) - 4094-1/2026
+2026/HU/011,description,Online store,summary,NAIH (Hungary) - NAIH-11443-3/2026
+2026/IS/001,description,Trade union,summary,Persónuvernd (Island) - 2025041148
+2026/IS/002,person,Doctor,summary,Persónuvernd (Island) - 2025020471
+2026/IS/003,description,Employer,read,Persónuvernd (Island) - 2025010358
+2026/LT/008,description,Travel company,summary,VDAI (Lithuania) - Nr. 3R-219 (2.13-1.E)
+2026/PL/017,description,Municipal social welfare unit,facts,UODO (Poland) - DKN.5131.27.2023
+2026/PL/018,person,Individual,summary,UODO (Poland) - DKE.561.4.2026
+2026/PL/019,description,Hospital,summary,UODO (Poland) - DKN.5131.12.2022
+2026/PL/022,person,Mayor,summary,UODO (Poland) - DS.523.2582.2024
+2026/PL/027,description,Company,read,UODO (Poland) - DKE.561.7.2026
+2026/SE/003,description,Security services company,summary,IMY (Sweden) - 2025-10429
+2026/SI/006,person,Police officer,summary,IP (Slovenia) - 0609-143/2025/4
+2026/SI/007,description,Online store maintenance provider,read,IP (Slovenia) - 0609-42/2026/7
+ND/DE/001,name,Vattenfall Europe,read,HmbBfDI (Hamburg) - Vattenfall Europe Sales GmbH
+ND/ES/015,name,Socialist Party of Catalonia (PSC-PSOE),read,AEPD (Spain) - PS/00341/2019
+ND/ES/017,description,City council,read,AEPD (Spain) - PS/00439/2019
+ND/ES/019,name,VOX,read,AEPD (Spain) - PS/00367/2019
+ND/ES/023,name,Regionalist Party of Aragon (PAR),read,AEPD (Spain) - PS/00340/2019
+ND/ES/024,person,Private individual,read,AEPD (Spain) - PS/00454/2019
+ND/ES/030,person,Individual,read,AEPD (Spain) - E/00038/2021
+ND/ES/034,description,Home Owners' Association,summary,AEPD (Spain) - PS/00190/2020
+ND/ES/064,person,Minor,summary,AEPD (Spain) - PS/00408/2020
+ND/ES/065,person,Former employee of a business,read,AEPD (Spain) - PS/00334/2020
+ND/ES/092,person,Notary,summary,AEPD (Spain) - ps-00256-2025
+ND/ES/093,person,Landlord,summary,AEPD (Spain) - ps-0035-2025
+ND/ES/095,description,Public-sector group,summary,APDCAT (Catalonia) - PS-01092025
+ND/FI/002,description,Debt collection agency,summary,Tietosuojavaltuutetun toimisto (Finland) - 4359/163/2018
+ND/GB/002,name,Northamptonshire Police,read,ICO - FS50867088
+ND/GB/003,name,"Department for Digital, Culture, Media & Sport",read,ICO - FS50812647
+ND/GB/004,description,Scottish company,read,ICO - Monetary penalty to CRDNN
+ND/GB/005,description,Conservative Party,summary,ICO (UK) - ICO- Conservative Party Case
+ND/GR/001,person,Politician,summary,HDPA (Greece) - 37/2020
+ND/GR/002,person,Politician,summary,HDPA (Greece) - 38/2020
+ND/HR/001,name,Raiffeisen Bank,read,AZOP (Croatia) - Decision 11-08-2020
+ND/HR/002,description,IT company,summary,AZOP (Croatia) - Decision 05-07-2021
+ND/IS/003,name,National Commissioner of Police,read,Persónuvernd - 2020010646
+ND/IS/004,description,Farmers’ Association,summary,Persónuvernd (Iceland) - 2025010358
+ND/NL/001,description,Company,read,AP (The Netherlands) - 30.04.2020
+ND/SI/001,opinion,General opinion,read,IP - 07121-1/2020/199
+ND/SI/002,opinion,General opinion,read,IP - 07121-1/2020/196
+ND/SI/003,opinion,General opinion,read,IP - 07121-1/2020/195
+ND/SI/004,opinion,General opinion,read,IP - 07120-1/2020/25
+ND/SI/005,opinion,General opinion,read,IP - 07121-1/2021/577
+ND/SI/006,opinion,General opinion,read,IP - 07120-1/2021/181
+ND/SI/007,opinion,General opinion,read,IP (Slovenia) - 07121-1/2021/1039
+ND/SI/009,description,Company,read,IP (Slovenia) - 0609-113/2025/9

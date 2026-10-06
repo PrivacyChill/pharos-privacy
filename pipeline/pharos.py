@@ -45,6 +45,7 @@ EXPORT_DIR = os.path.join(HERE, 'exports')
 REVIEW_DIR = os.path.join(HERE, 'review')
 GROUPS_FILE = os.path.join(HERE, 'organisations.csv')
 SAME_FILE = os.path.join(HERE, 'same_company.csv')
+PARTY_DESC_FILE = os.path.join(HERE, 'party_descriptions.csv')  # who an unnamed decision is about, in the source's words
 SITE_DATA_DIR = os.path.normpath(os.path.join(HERE, '..', 'site', 'data'))
 SUMMARY_SHARD = 250  # summaries are split into files of this many cases, loaded only when a case is opened
 
@@ -1272,6 +1273,7 @@ def step_export(db):
             groups = load_groups()
             alias, _ = load_same()
             conv = {r['case_id']: r for r in db.execute('SELECT * FROM fines_converted')}
+            describe_parties(db, rows, cms_raw)
             for r in rows:
                 fx = conv.get(r['case_id'])
                 r['fine_amount'] = fx['amount'] if fx else None
@@ -1281,8 +1283,7 @@ def step_export(db):
                 r['org'] = alias.get(r['org'], r['org'])
                 g, status = org_group(r['controller'], groups) if r['org'] else (None, None)
                 r['org_group'] = g if status == 'ready' else None
-                r['parties_named'] = named.get(r['case_id'])
-                r['controller_note'] = cms_name(cms_raw[r['case_id']])[1] if r['case_id'] in cms_raw else None
+                r['parties_named'] = named.get(r['case_id']) if not r['controller'] and not r['party_kind'] else None
                 r['has_own_summary'] = r['case_id'] in own
             export_site(rows, meta)
             run.notes.append(f'website data written to {SITE_DATA_DIR}')
@@ -1292,7 +1293,105 @@ SITE_FIELDS = ['pharos_id', 'case_id', 'source', 'country', 'country_code', 'aut
                'date_precision', 'fine_eur', 'fine_original', 'currency', 'controller', 'sector_tag', 'articles',
                'categories', 'violation_type', 'best_outcome', 'source_url', 'source_page', 'gdprhub_page',
                'summary_by', 'parties_named', 'controller_note', 'org', 'org_group',
-               'fine_amount', 'fine_eur_est', 'fx']  # fx = 'day 2026-09-22|10.9012|SEK': basis, units per euro, currency
+               'fine_amount', 'fine_eur_est', 'fx', 'party_kind']  # fx = 'day 2026-09-22|10.9012|SEK': basis, units per euro, currency
+
+
+# ----- WHO AN UNNAMED DECISION IS ABOUT -----
+# When no source names the party, the site shows what the source says about it ("a hospital", "a Member of
+# Parliament") instead of "not named". party_descriptions.csv holds these, one row per decision:
+#   kind = name (the summary names it), description, person (a natural person: never named), opinion (no party)
+#   basis = summary / facts (read by the program from GDPRhub's text), read (read by Claude), checked (by Lorenzo)
+PERSON_WORDS = re.compile(r'^(?:private individual|private person|natural person|sole trader|individual)s?$', re.I)
+
+
+def load_party_descriptions():
+    if not os.path.exists(PARTY_DESC_FILE):
+        return {}
+    with open(PARTY_DESC_FILE, encoding='utf-8-sig') as f:
+        return {r['case_id']: r for r in csv.DictReader(f)}
+
+
+def describe_parties(db, rows, cms_raw):
+    """Sets controller, controller_note and party_kind ('person', 'opinion' or None) on the export rows."""
+    desc = load_party_descriptions()
+    persons = {cid: v.split(':', 1)[1].strip() for cid, v in
+               db.execute("SELECT case_id, controller FROM party_checks WHERE controller LIKE 'PERSON:%'")}
+    for r in rows:
+        r['party_kind'] = None
+        r['controller_note'] = cms_name(cms_raw[r['case_id']])[1] if r['case_id'] in cms_raw else None
+        if r['controller'] and PERSON_WORDS.match(r['controller'].strip()):   # CMS: 'Private individual'
+            r['controller_note'], r['controller'], r['party_kind'] = r['controller'].strip().capitalize(), None, 'person'
+        if r['controller']:
+            continue
+        if r['case_id'] in persons:
+            r['controller_note'], r['party_kind'] = persons[r['case_id']], 'person'
+            continue
+        d = desc.get(r['case_id'])
+        if not d or r['controller_note']:
+            continue
+        if d['kind'] == 'name':
+            r['controller'] = d['text']
+        elif d['kind'] in ('person', 'description'):
+            r['controller_note'], r['party_kind'] = d['text'], 'person' if d['kind'] == 'person' else None
+        elif d['kind'] == 'opinion':
+            r['party_kind'] = 'opinion'
+
+
+UNNAMED_HOW_TO = (
+    'DECISIONS WHERE NO SOURCE SAYS WHO THE DECISION IS ABOUT',
+    '',
+    'Optional: these show "Not named in the source" on the site, which is true. Answer only the ones you want to.',
+    'Open the source link, then fill the two yellow columns:',
+    '   kind   name          the organisation is named in the decision (text = its name)',
+    '          description   only described, e.g. a hospital (text = Hospital)',
+    '          person        a natural person (text = what they are, e.g. Doctor; never the name)',
+    '          opinion       a general opinion or guidance: nobody was the target (text can stay empty)',
+    '   text   as above',
+    '',
+    'When you are done: save (keep the .xlsx format), close Excel and tell Claude.',
+)
+
+
+def step_unnamed_review(db):
+    """review/unnamed.xlsx: decisions the site can only show as 'Not named in the source'."""
+    if review_has_answers('unnamed', ['kind', 'text']):
+        print('  review/unnamed has answers not applied yet: run unnamed-apply first.')
+        return
+    rows = [dict(r) for r in db.execute('SELECT * FROM v_cases ORDER BY pharos_id')]
+    cms_raw = dict(db.execute("SELECT p.case_id, p.name FROM case_parties p JOIN cases c USING (case_id) "
+                              "WHERE c.source = 'cms_tracker' AND p.position = 1"))
+    named = parties_named(db)
+    describe_parties(db, rows, cms_raw)
+    out = []
+    for r in rows:
+        if r['controller'] or r['controller_note'] or r['party_kind'] or named.get(r['case_id']):
+            continue
+        first = re.split(r'(?<=[.!?])\s', (r['best_summary'] or '').strip())[0][:300]
+        out.append({'status': 'optional', 'fino_id': r['pharos_id'], 'regulator': r['authority'],
+                    'date': r['decision_date'] or '', 'summary': first or '(no summary in the source)',
+                    'kind': '', 'text': '', 'source': r['source_url'] or r['source_page'] or '', 'case_id': r['case_id']})
+    path = review_write('unnamed', ['status', 'fino_id', 'regulator', 'date', 'summary', 'kind', 'text', 'source', 'case_id'],
+                        out, answer=('kind', 'text'), how_to=UNNAMED_HOW_TO,
+                        widths={'status': 12, 'fino_id': 13, 'regulator': 24, 'summary': 80, 'kind': 14, 'text': 30, 'source': 30})
+    print(f'  {len(out)} decisions, written to {path}')
+
+
+def step_unnamed_apply(db):
+    """Save the answers from review/unnamed.xlsx into party_descriptions.csv (basis: checked)."""
+    desc = load_party_descriptions()
+    with Run(db, 'unnamed-apply') as run:
+        for r in review_rows('unnamed'):
+            kind, text = (r.get('kind') or '').strip().lower(), (r.get('text') or '').strip()
+            if kind not in ('name', 'description', 'person', 'opinion') or (kind != 'opinion' and not text):
+                continue
+            desc[r['case_id']] = {'fino_id': r['fino_id'], 'kind': kind, 'text': text or 'General opinion',
+                                  'basis': 'checked', 'case_id': r['case_id']}
+            run.updated += 1
+        with open(PARTY_DESC_FILE, 'w', newline='', encoding='utf-8') as f:
+            w = csv.DictWriter(f, fieldnames=['fino_id', 'kind', 'text', 'basis', 'case_id'])
+            w.writeheader()
+            w.writerows(sorted(desc.values(), key=lambda d: d['fino_id']))
+    print('  Run "python pharos.py export" to put the answers on the website.')
 
 
 def summary_by(r):
@@ -1356,7 +1455,7 @@ def main():
     p = argparse.ArgumentParser(description='GDPR enforcement database pipeline')
     p.add_argument('step', choices=['migrate', 'fix-ids', 'cms', 'cms-summaries', 'gdprhub', 'parties',
                                     'parties-review', 'parties-apply', 'cms-names', 'organisations-review', 'organisations-apply', 'link', 'normalise', 'convert',
-                                    'currency-review', 'currency-apply', 'export', 'stats', 'update'])
+                                    'currency-review', 'currency-apply', 'unnamed-review', 'unnamed-apply', 'export', 'stats', 'update'])
     p.add_argument('--limit', type=int, default=50, help='cms-summaries: how many case pages to fetch')
     a = p.parse_args()
     if hasattr(sys.stdout, 'reconfigure'):
@@ -1395,6 +1494,10 @@ def main():
             step_currency_review(db)
         elif a.step == 'currency-apply':
             step_currency_apply(db)
+        elif a.step == 'unnamed-review':
+            step_unnamed_review(db)
+        elif a.step == 'unnamed-apply':
+            step_unnamed_apply(db)
         elif a.step == 'export':
             step_export(db)
         elif a.step == 'stats':
