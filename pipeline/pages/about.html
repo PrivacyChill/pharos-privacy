@@ -1,6 +1,6 @@
 <!--page {"file": "About.html", "title": "About Fino: who made it and how it works · Fino", "crumb": "About",
  "desc": "Who made Fino and how it works: where the GDPR decisions come from, how duplicates, private people and other currencies are handled, and what the data gets wrong.",
- "schema": {"@type": "AboutPage", "mainEntity": {"@type": "Person", "name": "Lorenzo A.", "hasCredential": {"@type": "EducationalOccupationalCredential", "name": "CIPP/E (Certified Information Privacy Professional/Europe)"}}}} -->
+ "schema": {"@type": "AboutPage", "mainEntity": {"@type": "Person", "name": "Lorenzo A.", "hasCredential": {"@type": "EducationalOccupationalCredential", "name": "CIPP/E (Certified Information Privacy Professional/Europe)", "url": "https://www.credential.net/98edbe48-0231-4993-b41e-b2ec89d3acc8", "image": "https://pharosprivacy.com/assets/cipp-e-badge.png", "recognizedBy": {"@type": "Organization", "name": "IAPP", "url": "https://iapp.org/"}}}}} -->
 <style>
 /* A latte reading sheet on the espresso desk, with the contents beside it (as on the explainers) */
 .a-grid { display: grid; grid-template-columns: 210px minmax(0, 760px); gap: 40px; justify-content: center; align-items: start; padding-block: 18px 72px; }
@@ -30,6 +30,16 @@
 .facts-row b { display: block; font-family: var(--display); font-variation-settings: "SOFT" 100, "opsz" 72; font-weight: 600; font-size: 1.6rem; line-height: 1.1; }
 .facts-row span { font-family: var(--mono); font-size: 0.75rem; color: var(--latte-muted); }
 .limits li { padding-left: 4px; }
+/* the CIPP/E badge beside the introduction; it opens the IAPP's verify page */
+.cred { display: grid; grid-template-columns: minmax(0, 1fr) 120px; gap: 8px 28px; align-items: start; margin: 0 0 14px; }
+.cred .a-lead { margin: 0; }
+.cred .badge { grid-column: 2; grid-row: 1 / span 2; display: grid; justify-items: center; gap: 8px; border: 0; text-align: center; }
+.paper .cred .badge:hover { background: none; }
+.cred .badge img { width: 120px; height: 120px; border-radius: 50%; display: block; transition: transform .15s ease; }
+.cred .badge:hover img { transform: translateY(-2px); }
+.cred .badge:focus-visible img { outline: 3px solid var(--go-deep); outline-offset: 3px; }
+.cred .badge span { font-family: var(--mono); font-size: 0.75rem; font-weight: 500; line-height: 1.3; border-bottom: 1.5px solid currentColor; }
+@media (prefers-reduced-motion: reduce) { .cred .badge img { transition: none; } }
 .sign { margin-top: 40px; border-top: 2px solid var(--latte-ink); padding-top: 14px; font-size: 0.95rem; color: var(--latte-muted); }
 .sign p { margin: 0 0 6px; max-width: none; }
 .paper .mail { color: var(--latte-ink); }
@@ -38,7 +48,9 @@
   .a-toc { position: static; }
   .paper { padding: 28px 22px; }
 }
-@media (max-width: 560px) { .facts-row { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 560px) { .facts-row { grid-template-columns: minmax(0, 1fr); } .cred { grid-template-columns: minmax(0, 1fr); gap: 14px; }
+  .cred .badge { grid-column: 1; grid-row: auto; display: flex; align-items: center; gap: 14px; justify-self: start; text-align: left; }
+  .cred .badge img { width: 72px; height: 72px; } }
 </style>
 <div class="wrap">
   <nav class="crumbs" aria-label="Breadcrumb"><a href="index.html">Home</a><span aria-hidden="true">/</span><span aria-current="page">About</span></nav>
@@ -59,7 +71,10 @@
     <article class="paper">
       <p class="meta">About Fino &middot; updated {{updated}}</p>
       <h1>Who made Fino, and how it works.</h1>
-      <p class="a-lead" id="who">I&rsquo;m Lorenzo. I&rsquo;m a <strong>Certified Information Privacy Professional/Europe (CIPP/E)</strong>, and I&rsquo;m preparing for the Solicitors Qualifying Examination in England.</p>
+      <div class="cred">
+        <p class="a-lead" id="who">I&rsquo;m Lorenzo. I&rsquo;m a <strong>Certified Information Privacy Professional/Europe (CIPP/E)</strong>, certified by the IAPP in June 2025, and I&rsquo;m preparing for the Solicitors Qualifying Examination in England.</p>
+        <a class="badge" href="https://www.credential.net/98edbe48-0231-4993-b41e-b2ec89d3acc8" target="_blank" rel="noopener" title="Opens my CIPP/E certificate on the IAPP's credential page"><img src="/assets/cipp-e-badge.png" width="120" height="120" alt="CIPP/E badge: Certified Information Privacy Professional/Europe, IAPP"><span>Verify my certificate &nearr;</span></a>
+      </div>
       <p>I made Fino because I wanted a simple way to see what data protection regulators actually do: who they fine, for what, and how much. That information is public, but it&rsquo;s spread across dozens of websites in many languages. Fino puts it in one place, so you can see what regulators did in cases like yours and judge your own.</p>
       <p>It&rsquo;s a personal project. It&rsquo;s free, there are no ads and no sign-up, and it isn&rsquo;t a law firm. I&rsquo;m not a qualified solicitor, and nothing here is legal advice.</p>
       <p>I built Fino with the help of Claude Code, an AI coding assistant. The decision summaries come from the sources, not from AI. The explainers are written with AI help, and every quote in them is checked against the official text.</p>
