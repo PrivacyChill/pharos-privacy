@@ -9,6 +9,8 @@ A list or link we cannot open is flagged in review/blocked.xlsx for Lorenzo, nev
     python inventory.py gdprhub       GDPRhub's court judgments (with the decision they rule on) and appeal fields
     python inventory.py cnil          the CNIL's sanction-type decisions from the French open data
     python inventory.py report        what the inventory holds, per country, next to Fino
+    python inventory.py vdai          Lithuania's 2025 and 2026 tables, from pages saved with the browser (cache/vdai/lists)
+    python inventory.py match         which listed decisions Fino already has (by link, number, then day)
     python inventory.py blocked       write review/blocked.xlsx
 """
 import glob
@@ -229,6 +231,35 @@ def cnil(db):
     print(f'  CNIL: {n} sanction-type texts since 25 May 2018', flush=True)
 
 
+VDAI_CACHE = os.path.join(pharos.HERE, 'cache', 'vdai')
+VDAI_LISTS = {'2025': 'https://vdai.lrv.lt/lt/sprendimai/2025/',
+              '2026': 'https://vdai.lrv.lt/lt/sprendimai/vdai-sprendimai-baudos-nurodymai-ir-kt-2026m/'}
+VDAI_RESULT = {'Pažeidimų nenustatyta': 'no violation', 'Nustatyti pažeidimai': 'violation found'}
+
+
+def vdai(db):
+    """Lithuania's yearly tables (all decisions since 2025). The site lets only a real browser through, so the
+    pages are saved by hand (or by the browser session) in cache/vdai/lists/<year>.html first. Lithuania numbers
+    its decisions again each year, so the key is '<year>/3R-<number>'."""
+    n = 0
+    for year, page in VDAI_LISTS.items():
+        s = open(os.path.join(VDAI_CACHE, 'lists', f'{year}.html'), encoding='utf-8').read()
+        for tr in re.findall(r'<tr.*?</tr>', s, re.S):
+            cells = [text(c) for c in re.findall(r'<t[dh][^>]*>(.*?)</t[dh]>', tr, re.S)]
+            link = re.search(r'href="([^"]+\.pdf[^"]*)"', tr)
+            m = re.search(r'(?:3R-?\s*|Nr\.\s*(?!Nr|3R))(\d+)', cells[3] if len(cells) > 3 else '', re.I)
+            if not (link and m):
+                continue
+            date = lt_date(cells[3].replace('2 025-', '2025-').replace('3025-', '2025-'))
+            save(db, {'publisher': 'vdai', 'ref': f'{year}/3R-{m.group(1)}', 'country_code': 'LT', 'authority': 'VDAI',
+                      'decision_date': date, 'party': None if cells[0] in ('Neskelbiama', '') else cells[0],
+                      'outcome': VDAI_RESULT.get(cells[2], cells[2] or None), 'url': urllib.parse.urljoin(page, link.group(1)),
+                      'page': page, 'extra': json.dumps({'subject': cells[1], 'result': cells[2], 'title': cells[3]}, ensure_ascii=False)})
+            n += 1
+    db.commit()
+    print(f'  VDAI: {n} decisions in the 2025 and 2026 tables', flush=True)
+
+
 def report(db):
     fino = dict(db.execute('SELECT country_code, COUNT(*) FROM v_cases GROUP BY 1'))
     print(f"{'':4}{'Fino':>6}  inventory by publisher")
@@ -236,6 +267,156 @@ def report(db):
     for cc in sorted({r['country_code'] or '?' for r in rows} | {k or '?' for k in fino}):
         parts = ', '.join(f"{r['publisher']} {r['n']}" for r in rows if (r['country_code'] or '?') == cc)
         print(f'{cc:4}{fino.get(cc, 0):>6}  {parts}')
+
+
+LT_MONTHS = {'sausio': 1, 'vasario': 2, 'kovo': 3, 'balandžio': 4, 'gegužės': 5, 'birželio': 6, 'liepos': 7,
+             'rugpjūčio': 8, 'rugsėjo': 9, 'spalio': 10, 'lapkričio': 11, 'gruodžio': 12}
+COURTS = ('gdprhub-court',)         # court rulings: listed, not yet shown in Fino (they will hang under the decision)
+SKIP = ('gdprhub-appeal',)          # GDPRhub's own regulator pages, already in Fino; only their appeal fields matter
+
+
+def ids(url):
+    """The document's own number inside a link, when the site has one; else the link without its noise."""
+    u = urllib.parse.unquote(urllib.parse.unquote(url or ''))
+    for pat, tag in ((r'CNILTEXT\d+', 'cnil'), (r'DSBT_\w+?_00\b', 'ris'), (r'ECLI:[A-Z]{2}:[A-Za-z]+:\d{4}:[\w.]+', 'ecli')):
+        m = re.search(pat, u)
+        if m:
+            return f'{tag}:{m.group(0).upper()}'
+    if 'docweb' in u:
+        return pharos.url_key(u)
+    return pharos.url_key(re.sub(r'\?__cf_chl\w*=.*$', '', u))
+
+
+def refs(text, cc, year=None):
+    """Regulator numbers written in a title or summary, normalised: 'SAN-2018-003' -> 'FR:SAN2018003'.
+    Lithuania numbers its decisions again each year ('3R-205'), so the year comes from the date."""
+    out = set()
+    if cc == 'FR':
+        out |= {f'FR:{k.upper()}{y}{int(n):03d}' for k, y, n in re.findall(r'\b(SAN|MED|MEDP)[\s-]*(\d{4})[\s-]*(\d+)', text or '', re.I)}
+    if cc == 'LT' and year:
+        out |= {f'LT:{year}:{int(n)}' for n in re.findall(r'(?:\b3R-?\s*|Nr\.\s*(?!3R))(\d+)', text or '', re.I)}
+    return out
+
+
+def lt_date(s):
+    m = re.search(r'(20\d\d)-(\d\d)-(\d\d)', s or '')
+    if m:
+        return m.group(0)
+    m = re.search(r'(20\d\d) m\. (\w+) (\d+) d\.', s or '')
+    if m and m.group(2) in LT_MONTHS:
+        return f'{m.group(1)}-{LT_MONTHS[m.group(2)]:02d}-{int(m.group(3)):02d}'
+
+
+TITLE_WORDS = set("""societe commune decision deliberation formation restreinte concernant encontre mettant demeure
+    cloture sanction prononcant pecuniaire relative partielle injonction astreinte prise pdf sprendimas sprendimo
+    apibendrinimas privatus viesasis privatusis del dėl""".split())
+
+
+def name_words(name):
+    """The words that make a name a name: no legal forms, no title words, nothing shorter than 4 letters."""
+    return {w for w in pharos._org_tokens(name) if len(w) > 3 and not w.isdigit()} - pharos._GENERIC_WORDS - TITLE_WORDS
+
+
+def match(db):
+    """Which listed decisions Fino already has. A link or the regulator's own number is a sure match; the same
+    country and day, when both sides have only one decision that day, is a probable one (the reader confirms it
+    from the original later). Everything else is missing from Fino."""
+    db.executescript("""
+        CREATE TABLE IF NOT EXISTS inventory_match (
+            publisher TEXT NOT NULL, ref TEXT NOT NULL,
+            case_id   TEXT,                 -- NULL: not in Fino
+            how       TEXT NOT NULL,        -- 'link', 'number', 'day', 'day+name', 'year+name', 'fine, near day', 'follow-up', 'missing', 'court ruling'
+            PRIMARY KEY (publisher, ref));
+        DELETE FROM inventory_match;""")
+    cases = db.execute("""SELECT c.case_id, c.country_code cc, c.decision_date d, c.controller, c.source_url, c.fine_eur,
+                                 c.case_id || ' ' || COALESCE(c.summary, '') || ' ' || COALESCE(c.source_url, '') txt
+                          FROM v_cases c""").fetchall()
+    by_link, by_ref, by_day, by_year, numbers = {}, {}, {}, {}, {}
+    for c in cases:
+        by_link.setdefault(ids(c['source_url']), set()).add(c['case_id'])
+        c_refs = refs(c['case_id'] + ' ' + urllib.parse.unquote(c['source_url'] or ''), c['cc'], (c['d'] or '')[:4])
+        c_refs |= refs(c['txt'], c['cc']) if c['cc'] == 'FR' else set()
+        numbers[c['case_id']] = c_refs
+        for r in c_refs:
+            by_ref.setdefault(r, set()).add(c['case_id'])
+        if c['d'] and len(c['d']) == 10:
+            by_day.setdefault((c['cc'], c['d']), []).append(c)
+        by_year.setdefault((c['cc'], (c['d'] or '')[:4]), []).append(c)
+    rows = db.execute('SELECT * FROM inventory WHERE publisher NOT IN (%s)' % ','.join('?' * len(SKIP)), SKIP).fetchall()
+    day_count = {}
+    for r in rows:
+        r = dict(r)
+        if r['publisher'] == 'vdai':
+            r['decision_date'] = r['decision_date'] or lt_date(r['ref'])
+        day_count[(r['publisher'], r['country_code'], r['decision_date'])] = day_count.get((r['publisher'], r['country_code'], r['decision_date']), 0) + 1
+    is_fine = lambda r: bool(re.search(r'fine|^Sanction', r['outcome'] or '', re.I))
+    days = lambda d: (int(d[:4]) * 12 + int(d[5:7])) * 31 + int(d[8:10])
+    fines_listed = {}
+    for r in rows:
+        if is_fine(r):
+            fines_listed.setdefault((r['publisher'], r['country_code']), []).append((r['decision_date'], r))
+    out, later, taken = [], [], set()
+    for r in rows:                                   # first the sure pairs: the same link or the same number
+        r = dict(r)
+        if r['publisher'] == 'vdai':
+            r['decision_date'] = r['decision_date'] or lt_date(r['ref'])
+        extra = json.loads(r['extra'] or '{}')
+        if r['publisher'] in COURTS:
+            out.append((r['publisher'], r['ref'], None, 'court ruling'))
+            continue
+        hit, how = set(), 'missing'
+        for u in [r['url']] + extra.get('files', []):
+            hit |= by_link.get(ids(u), set()) if u else set()
+        how = 'link' if hit else how
+        r['year'] = (r['decision_date'] or re.search(r'20\d\d|$', r['ref']).group(0))[:4]
+        r['mine'] = refs(f"{r['ref']} {extra.get('numero', '')} {extra.get('title', '')}", r['country_code'], r['year'])
+        if not hit:
+            for k in r['mine']:
+                hit |= by_ref.get(k, set())
+            how = 'number' if hit else how
+        if re.match(r'Cl[oô]ture', r['outcome'] or '') or re.search(r'^Cl[oô]ture|relative à l.injonction', r['party'] or ''):
+            how = 'follow-up'        # the CNIL closing a formal notice, or ruling on a penalty payment: an event, not a decision
+        if hit:
+            taken |= {(r['publisher'], c) for c in hit}
+            out += [(r['publisher'], r['ref'], c, how) for c in hit]
+        elif how == 'follow-up':
+            out.append((r['publisher'], r['ref'], None, how))
+        else:
+            later.append(r)
+    for r in later:                                  # then the likely ones, among the cases still free
+        mine, pub = r['mine'], r['publisher']
+        free = lambda pool: [c for c in pool if (pub, c['case_id']) not in taken
+                             and not (mine and numbers[c['case_id']] and not mine & numbers[c['case_id']])]
+        party = name_words(r['party'] or (r['ref'][4:] if r['ref'].startswith('sel:') else ''))
+        named = lambda pool: [c for c in free(pool) if party & name_words(c['controller'])]
+        hit, how = None, 'missing'
+        if r['decision_date'] and len(r['decision_date']) == 10:
+            same = free(by_day.get((r['country_code'], r['decision_date']), []))
+            if len(named(same)) == 1:
+                hit, how = named(same)[0]['case_id'], 'day+name'
+            elif len(same) == 1 and day_count[(pub, r['country_code'], r['decision_date'])] == 1:
+                hit, how = same[0]['case_id'], 'day'
+        if not hit and r['year'] and len(named(by_year.get((r['country_code'], r['year']), []))) == 1:
+            hit, how = named(by_year[(r['country_code'], r['year'])])[0]['case_id'], 'year+name'
+        if not hit and is_fine(r) and r['decision_date'] and len(r['decision_date']) == 10:
+            near = lambda d, pool: [x for x in pool if x[0] and len(x[0]) == 10 and abs(days(x[0]) - days(d)) <= 10]
+            mine_near = near(r['decision_date'], fines_listed[(pub, r['country_code'])])
+            theirs = [c for _, c in near(r['decision_date'], [(c['d'], c) for c in free(by_year.get((r['country_code'], r['year']), [])) if c['fine_eur']])]
+            if len(theirs) == 1 and len(mine_near) == 1:
+                hit, how = theirs[0]['case_id'], 'fine, near day'
+        if hit:
+            taken.add((pub, hit))
+        out.append((pub, r['ref'], hit, how))
+    db.executemany('INSERT OR IGNORE INTO inventory_match VALUES (?, ?, ?, ?)', out)
+    db.commit()
+    print(f"{'':4}{'listed':>7}{'sure':>6}{'likely':>7}{'missing':>8}{'courts':>7}   publisher")
+    for r in db.execute("""SELECT i.country_code cc, i.publisher p, COUNT(DISTINCT i.ref) n,
+                COUNT(DISTINCT CASE WHEN m.how IN ('link', 'number') THEN i.ref END) sure,
+                COUNT(DISTINCT CASE WHEN m.how IN ('day', 'day+name', 'year+name', 'fine, near day') THEN i.ref END) likely,
+                COUNT(DISTINCT CASE WHEN m.how = 'missing' THEN i.ref END) miss,
+                COUNT(DISTINCT CASE WHEN m.how = 'court ruling' THEN i.ref END) courts
+            FROM inventory i JOIN inventory_match m USING (publisher, ref) GROUP BY 1, 2 ORDER BY 1, 2"""):
+        print(f"{r['cc'] or '?':4}{r['n']:>7}{r['sure']:>6}{r['likely']:>7}{r['miss']:>8}{r['courts']:>7}   {r['p']}")
 
 
 def blocked(db):
@@ -262,4 +443,4 @@ KNOWN_BLOCKED = [
 if __name__ == '__main__':
     cmd = sys.argv[1] if len(sys.argv) > 1 else 'report'
     db = connect()
-    {'edpb': edpb, 'gdprhub': gdprhub, 'cnil': cnil, 'report': report, 'blocked': blocked}[cmd](db)
+    {'edpb': edpb, 'gdprhub': gdprhub, 'cnil': cnil, 'report': report, 'match': match, 'vdai': vdai, 'blocked': blocked}[cmd](db)

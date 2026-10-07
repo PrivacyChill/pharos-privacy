@@ -1122,6 +1122,37 @@ def step_status(db):
         print(f'  {r[0]:12} {r[1]:9} {r[2]} -> {r[3]}   ({r[4]})')
 
 
+FIXES_FILE = os.path.join(HERE, 'case_fixes.csv')  # fields corrected from the regulator's own document
+FIXABLE = {'decision_date', 'fine_eur', 'source_url', 'duplicate_of'}
+
+
+def step_fixes(db):
+    """case_fixes.csv: what the original says, where CMS or GDPRhub says otherwise. One row per field, with the
+    original's link and its exact words. Runs after every import, so a refresh of the sources cannot undo it.
+    'duplicate_of' hides the row behind another Fino decision (a confirmed link)."""
+    if not os.path.exists(FIXES_FILE):
+        return
+    with Run(db, 'fixes') as run, open(FIXES_FILE, encoding='utf-8') as f:
+        for r in csv.DictReader(f):
+            run.fetched += 1
+            cid = db.execute('SELECT case_id FROM cases WHERE pharos_id = ?', (r['fino_id'],)).fetchone()
+            if not cid or r['field'] not in FIXABLE:
+                print(f"  {r['fino_id']} {r['field']}: unknown decision or field, skipped")
+                continue
+            if r['field'] == 'duplicate_of':
+                primary = db.execute('SELECT case_id FROM cases WHERE pharos_id = ?', (r['value'],)).fetchone()
+                db.execute("INSERT OR REPLACE INTO case_links (primary_id, duplicate_id, rule, status, created_at) "
+                           "VALUES (?, ?, ?, 'confirmed', ?)", (primary[0], cid[0], f"original read: {r['note']}", now()))
+            elif r['field'] == 'decision_date':
+                db.execute('UPDATE cases SET decision_date = ?, date_precision = ? WHERE case_id = ?',
+                           (r['value'], {10: 'day', 7: 'month', 4: 'year'}[len(r['value'])], cid[0]))
+            else:
+                db.execute(f"UPDATE cases SET {r['field']} = ? WHERE case_id = ?",
+                           (int(r['value']) if r['field'] == 'fine_eur' else r['value'], cid[0]))
+            run.updated += 1
+        db.commit()
+
+
 # ----- STEP: NORMALISE -----
 # The CMS tracker's own 11 sectors are kept as they are; only typos and 'Not assigned' are cleaned
 SECTOR_FIXES = {
@@ -1603,7 +1634,7 @@ def step_stats(db):
 def main():
     p = argparse.ArgumentParser(description='GDPR enforcement database pipeline')
     p.add_argument('step', choices=['migrate', 'fix-ids', 'cms', 'cms-summaries', 'gdprhub', 'parties',
-                                    'parties-review', 'parties-apply', 'cms-names', 'organisations-review', 'organisations-apply', 'link', 'status', 'normalise', 'convert',
+                                    'parties-review', 'parties-apply', 'cms-names', 'organisations-review', 'organisations-apply', 'link', 'status', 'fixes', 'normalise', 'convert',
                                     'currency-review', 'currency-apply', 'unnamed-review', 'unnamed-apply', 'export', 'stats', 'update'])
     p.add_argument('--limit', type=int, default=50, help='cms-summaries: how many case pages to fetch')
     a = p.parse_args()
@@ -1637,6 +1668,8 @@ def main():
             step_status(db)
         elif a.step == 'link':
             step_link(db)
+        elif a.step == 'fixes':
+            step_fixes(db)
         elif a.step == 'normalise':
             step_normalise(db)
         elif a.step == 'convert':
@@ -1654,7 +1687,7 @@ def main():
         elif a.step == 'stats':
             step_stats(db)
         elif a.step == 'update':
-            for step in (step_cms, step_gdprhub, step_link, step_normalise, step_convert, step_export):
+            for step in (step_cms, step_gdprhub, step_fixes, step_link, step_normalise, step_convert, step_export):
                 step(db)
             step_stats(db)
     finally:

@@ -64,3 +64,67 @@ Italian courts publish little: the Garante's removal notices are the main signal
   France (CNIL sanctions page, incl. the simplified procedure), Poland (news).
 - **To fix (pattern or address):** Finland (Finlex page), Slovakia, Slovenia, Iceland, Portugal, Italy (decision list).
 - **Refused:** Estonia, Lithuania, Bulgaria and Cyprus feeds (in review/blocked.xlsx).
+
+## What Fino is missing, per country (7 October 2026)
+
+`python inventory.py match` pairs every listed decision with a Fino decision: first by the same link or the
+regulator's own number (sure), then by the same day, the same name or, for fines, the same country within 10 days
+with exactly one fine on each side (likely). Everything else is missing. CNIL closures of formal notices and
+penalty-payment rulings are follow-ups on an earlier decision, not new decisions. Court rulings are listed but not
+shown in Fino yet. Results are in the `inventory_match` table.
+
+| Country | Fino | EDPB register: listed / in Fino / missing | National list: listed / in Fino / missing | Court rulings (GDPRhub) |
+|---|---|---|---|---|
+| ES | 1294 | 26 / 9 / 17 (10 fines) |  | 19 |
+| IT | 766 | 13 / 0 / 13 (1 fines) |  | 19 |
+| RO | 320 | 7 / 2 / 5 (2 fines) |  | 5 |
+| BE | 269 | 21 / 5 / 16 |  | 36 |
+| DE | 236 | 15 / 1 / 14 |  | 417 |
+| GR | 198 |  |  | 1 |
+| PL | 151 | 13 / 1 / 12 |  | 45 |
+| AT | 145 | 83 / 6 / 77 |  | 232 |
+| FR | 128 | 158 / 19 / 139 (9 fines) | CNIL 182 / 62 / 70 (16 fines) +50 follow-ups | 58 |
+| HU | 124 | 8 / 0 / 8 (1 fines) |  |  |
+| IS | 123 | 2 / 2 / 0 |  |  |
+| GB | 122 | 11 / 2 / 9 |  | 31 |
+| NO | 117 | 40 / 6 / 34 |  | 33 |
+| DK | 116 | 48 / 6 / 42 (1 fines) |  | 4 |
+| SI | 104 | 3 / 0 / 3 |  | 9 |
+| FI | 102 | 8 / 2 / 6 |  | 18 |
+| SE | 92 | 187 / 18 / 169 (3 fines) |  | 19 |
+| CZ | 84 | 9 / 1 / 8 |  | 4 |
+| CY | 69 | 41 / 7 / 34 (2 fines) |  | 7 |
+| HR | 67 |  |  | 17 |
+| IE | 62 | 551 / 10 / 541 (4 fines) |  | 18 |
+| NL | 57 | 32 / 2 / 30 |  | 294 |
+| LU | 44 | 150 / 0 / 150 |  | 11 |
+| EE | 39 | 80 / 6 / 74 |  | 8 |
+| BG | 37 | 4 / 0 / 4 (2 fines) |  | 8 |
+| LT | 34 | 26 / 3 / 23 | VDAI 454 / 31 / 423 | 1 |
+| MT | 23 | 21 / 4 / 17 (1 fines) |  |  |
+| LV | 22 | 2 / 0 / 2 (1 fines) |  |  |
+| PT | 14 |  |  | 4 |
+| SK | 13 | 5 / 0 / 5 |  | 6 |
+| EU | 12 |  |  | 11 |
+| ? | 1 | 7 / 0 / 7 |  | 6 |
+| LI | 1 | 4 / 0 / 4 |  |  |
+
+What it means:
+- **Most of the gap is decisions without a fine.** The EDPB register is mostly complaints settled, dismissed or
+  closed under the one-stop shop (Ireland 551, Luxembourg 150, Sweden 187); Lithuania's own tables since 2025 are
+  mostly complaints (no violation, reprimands, orders). Of the 70 fines in the EDPB register, 32 are already in Fino.
+- **Fines missing:** about 38 EDPB-register fines (Spain 10, France 9, Ireland 4 ...) and 16 CNIL sanctions
+  (several from 2018 under the old French law) are not in Fino. The reader confirms each from the original.
+- Lithuania's numbers restart every year (3R-741 exists in 2024 and 2025), so its key is `<year>/3R-<number>`.
+
+## Official check: Lithuania (7 October 2026)
+
+All 36 Lithuanian entries checked against VDAI's own documents (453 PDFs in `cache/vdai`, the 2020 and 2024
+annual reports). Every fine amount matches. Corrections are in `case_fixes.csv` (with the original's words);
+statuses in `case_status.csv`:
+- 2 duplicates hidden: 2021/LT/007 (Prime Leasing shown as EUR 110 instead of 110,000) and ND/LT/001 (Vilnius City).
+- 3 dates corrected to the decision date (CMS had the press-release or report date): 2023/LT/003, 2025/LT/001, 2025/LT/013.
+- 2024/LT/003 Vinted (EUR 2,385,276): under appeal at the Regional Administrative Court (VDAI summary).
+- 2026/LT/001: a doctor fined personally; her name was shown and is now removed (private person).
+- 31 of 34 now link to the decision or VDAI's summary of it; the other 3 to VDAI's own news page or annual report.
+- No decision text exists for 2020/LT/001 (EUR 8,000): the 2020 report only says the two largest fines were 15,000 and 8,000.
