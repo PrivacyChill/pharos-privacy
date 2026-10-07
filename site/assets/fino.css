@@ -328,6 +328,12 @@ h1 .tag-person { display: inline-block; vertical-align: 0.4em; margin-left: 12px
 .card.changed { box-shadow: 4px 4px 0 var(--pink); }
 .text .sh { font-weight: 700; margin: 22px 0 10px; }
 .text sup { font-size: 0.7em; line-height: 0; }
+/* The other law: one small square tag, in the text's own ink. "GDPR" on a link from the AI Act to the GDPR,
+   "AI Act" the other way round. It is drawn by CSS, so the law's words stay untouched (and copy without it). */
+.law-tag, .text a.xref[title$=" GDPR"]::after { display: inline-block; font-family: var(--mono); font-style: normal; font-weight: 500; font-size: 0.62rem;
+  letter-spacing: 0.06em; text-transform: uppercase; line-height: 1; padding: 3px 5px 2px; border: 1.2px solid currentColor; border-radius: 4px; vertical-align: 2px; }
+.text a.xref[title$=" GDPR"]::after { content: "GDPR"; margin-left: 4px; }
+.sim .law-tag { margin-right: 7px; vertical-align: 3px; }
 .text .tbl { overflow-x: auto; margin: 0 0 16px; }
 .text table { border-collapse: collapse; font-size: 0.95rem; line-height: 1.45; min-width: 100%; }
 .text th, .text td { text-align: left; vertical-align: top; padding: 7px 10px; border-bottom: 1px solid var(--line); }

@@ -64,7 +64,13 @@ def link(s):
     if not OWN['on']: return s
     def art(m):
         word, rest = m.group(1), m.group(2)
-        if OTHER_ACT.match(m.string, m.end()): return m.group(0)
+        o = OTHER_ACT.match(m.string, m.end())
+        if o:
+            # the GDPR is on Fino too: "Article 35 of Regulation (EU) 2016/679" links to our GDPR page
+            if o.group(0).endswith('of ') and m.string.startswith('Regulation (EU) 2016/679', o.end()):
+                rest = re.sub(r'(?<![(\d])\b(\d{1,2})\b(?!\))', lambda n: f'<a class="xref" href="#art-{n.group(1)}" title="Article {n.group(1)} GDPR">{n.group(1)}</a>', rest)
+                return word + rest
+            return m.group(0)
         rest = re.sub(r'(?<![(\d])\b(\d{1,3}a?)\b(?!\))',
                       lambda n: f'<a class="xref" href="#ai-art-{n.group(1)}">{n.group(1)}</a>' if n.group(1) in ART_KEYS else n.group(1), rest)
         return word + rest

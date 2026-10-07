@@ -65,3 +65,14 @@ node ../build_seo.mjs
 - The official text has a typing slip in the title of Article 1 ("Subject matter`" in the Official
   Journal, "Subject matter'" in the consolidated text). It has no meaning, so the parser removes it
   (`TITLE_FIX` in aiact_parse.py). The words of the law are not changed.
+
+# GDPR and AI Act links
+
+`law_links.py` writes `site/data/law-links.json`, which feeds the "In the AI Act" box on GDPR article pages and
+the "In the GDPR" box on AI Act pages. Run it after rebuilding either law, then `node ../build_seo.mjs`.
+
+- **cites**: where the AI Act names a GDPR article ("Article 35 of Regulation (EU) 2016/679"). `aiact_parse.py`
+  turns those references into links to the GDPR pages; `law_links.py` reads them back. Facts, always shown.
+- **pairs**: same topic in both laws, judged by hand. Suggestions live in `pairs.csv` (tracked) with a reason;
+  only rows answered `yes` reach the site. `python law_links.py review` writes review/law-pairs.xlsx,
+  `python law_links.py apply` saves the answers. `--preview` also shows unanswered pairs: never push that build.

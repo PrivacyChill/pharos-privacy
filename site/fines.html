@@ -340,6 +340,12 @@ h1 .tag-person { display: inline-block; vertical-align: 0.4em; margin-left: 12px
 .card.changed { box-shadow: 4px 4px 0 var(--pink); }
 .text .sh { font-weight: 700; margin: 22px 0 10px; }
 .text sup { font-size: 0.7em; line-height: 0; }
+/* The other law: one small square tag, in the text's own ink. "GDPR" on a link from the AI Act to the GDPR,
+   "AI Act" the other way round. It is drawn by CSS, so the law's words stay untouched (and copy without it). */
+.law-tag, .text a.xref[title$=" GDPR"]::after { display: inline-block; font-family: var(--mono); font-style: normal; font-weight: 500; font-size: 0.62rem;
+  letter-spacing: 0.06em; text-transform: uppercase; line-height: 1; padding: 3px 5px 2px; border: 1.2px solid currentColor; border-radius: 4px; vertical-align: 2px; }
+.text a.xref[title$=" GDPR"]::after { content: "GDPR"; margin-left: 4px; }
+.sim .law-tag { margin-right: 7px; vertical-align: 3px; }
 .text .tbl { overflow-x: auto; margin: 0 0 16px; }
 .text table { border-collapse: collapse; font-size: 0.95rem; line-height: 1.45; min-width: 100%; }
 .text th, .text td { text-align: left; vertical-align: top; padding: 7px 10px; border-bottom: 1px solid var(--line); }
@@ -431,6 +437,8 @@ footer .mail { color: inherit; }
   .sheet h3 { break-after: avoid; }
 }
 </style>
+
+
 
 
 
@@ -1027,6 +1035,7 @@ function renderArticle(n) {
           : '<p class="note">No decision in the database cites this article yet.</p>'}
         </section>
         ${explainedBlock(EX_BY_ART.get(n))}
+        ${inAiAct(n)}
         <section class="official">
           <h2 class="sec-h">About this text</h2>
           <p>Shown here from the consolidated version on EUR-Lex, which includes the published corrections. Only the version in the Official Journal of the EU is legally binding.</p>
@@ -1041,6 +1050,35 @@ function renderArticle(n) {
   </div>`;
   const all = document.querySelector('[data-art]');
   if (all) all.addEventListener('click', () => { Object.assign(state, { q: '', country: '', year: '', sector: '', art: String(n), outcome: '', band: '', org: '', group: '', shown: 40 }); });
+}
+
+/* ---------- GDPR and AI Act side by side ----------
+   data/law-links.json (pipeline/law/law_links.py): 'cites' = the AI Act names this GDPR article in its text (a fact);
+   'pairs' = same topic in both laws, shown only once Lorenzo has said yes. Without the file the boxes simply don't show. */
+const LL = DATA.links || { cites: {}, cite_recs: {}, pairs: [] };
+const aiHref = (kind, k) => kind === 'ai-art' ? `#ai-art-${k}` : `#ai-annex-${k}`;
+const aiName = (kind, k) => kind === 'ai-art' ? `Article ${k}` : `Annex ${k}`;
+function inAiAct(n) {
+  const cites = LL.cites[n] || [], recs = LL.cite_recs[n] || [];
+  const named = new Set(cites.map(([kind, k]) => kind + k));
+  const pairs = LL.pairs.filter(p => p.gdpr === n && !named.has(p.kind + p.ai));
+  if (!cites.length && !pairs.length && !recs.length) return '';
+  return `<section><h2 class="sec-h">In the AI Act</h2>
+    ${cites.length || pairs.length ? `<ul class="sim">${cites.map(([kind, k, t]) => `<li><a href="${aiHref(kind, k)}"><b><small class="law-tag">AI Act</small>${aiName(kind, k)} &middot; ${esc(t)}</b><span>Names this article &rarr;</span></a></li>`).join('')}${pairs.map(p =>
+      `<li><a href="${aiHref(p.kind, p.ai)}"><b><small class="law-tag">AI Act</small>${aiName(p.kind, p.ai)} &middot; ${esc(p.ai_t)}</b><span>Same topic: ${esc(p.topic)} &rarr;</span></a></li>`).join('')}</ul>` : ''}
+    ${recs.length ? `<p class="legend" style="margin:10px 0 0">${cites.length || pairs.length ? 'Also named in' : 'Named in'} AI Act recital${recs.length > 1 ? 's' : ''} ${recs.map(r => `<a href="#ai-rec-${r}">${r}</a>`).join(', ')}.</p>` : ''}
+  </section>`;
+}
+function inGdpr(kind, k, h) {
+  const named = [...new Set([...(h || '').matchAll(/href="#art-(\d+)"/g)].map(m => +m[1]))].sort((a, b) => a - b);
+  const pairs = LL.pairs.filter(p => p.kind === kind && p.ai === k && !named.includes(p.gdpr));
+  const row = (n, why) => {
+    if (!GDPR.arts[n]) return '';
+    const c = (BY_ART[n] || []).length;
+    return `<li><a href="#art-${n}"><b><small class="law-tag">GDPR</small>Article ${n} &middot; ${esc(GDPR.arts[n].t)}</b><span>${why}${c ? ` &middot; ${num(c)} decision${c > 1 ? 's' : ''}` : ''} &rarr;</span></a></li>`;
+  };
+  const rows = named.map(n => row(n, 'Named here')).join('') + pairs.map(p => row(p.gdpr, `Same topic: ${esc(p.topic)}`)).join('');
+  return rows ? `<section><h2 class="sec-h">In the GDPR</h2><ul class="sim">${rows}</ul></section>` : '';
 }
 
 /* ---------- View: AI Act ----------
@@ -1071,8 +1109,9 @@ function aiChanged(k, what) {
     <p style="margin:0"><a href="${AI_OMNIBUS}" target="_blank" rel="noopener">Regulation (EU) 2026/1744 on EUR-Lex &nearr;</a></p>
   </section>`;
 }
-const aiAside = (k, what) => `<aside>
+const aiAside = (k, what, h) => `<aside>
         ${aiChanged(k, what)}
+        ${inGdpr(what === 'annex' ? 'ai-annex' : 'ai-art', what === 'annex' ? k.slice(6) : k, h)}
         <section class="card">
           <h2 class="sec-h">Where does your AI system fit?</h2>
           <p>Three questions give a first idea of its AI Act category and which articles to read.</p>
@@ -1113,7 +1152,7 @@ function renderAiArticle(k) {
         <p class="atitle">${esc(a.t)}</p>
         <div class="text">${a.h}</div>
       </article>
-      ${aiAside(k, 'article')}
+      ${aiAside(k, 'article', a.h)}
     </div>
     <nav class="prevnext" aria-label="Other articles">
       ${prev ? `<a href="#ai-art-${prev}"><span>&larr; Article ${prev}</span><b>${esc(AI.arts[prev].t)}</b></a>` : '<span></span>'}
@@ -1133,7 +1172,7 @@ function renderAiAnnex(r) {
         <p class="atitle">${esc(a.t)}</p>
         <div class="text">${a.h}</div>
       </article>
-      ${aiAside('annex-' + r, 'annex')}
+      ${aiAside('annex-' + r, 'annex', a.h)}
     </div>
     <nav class="prevnext" aria-label="Other annexes">
       ${prev ? `<a href="#ai-annex-${prev}"><span>&larr; Annex ${prev}</span><b>${esc(AI.annexes[prev].t)}</b></a>` : `<a href="#ai-art-${last}"><span>&larr; Article ${last}</span><b>${esc(AI.arts[last].t)}</b></a>`}
@@ -1234,6 +1273,9 @@ function renderStyle() {
       <li><h2>Round means clickable, square means label</h2>
         <p>Buttons and filter choices are fully rounded. Labels such as an outcome or a topic have small square corners and do nothing when clicked.</p>
         <div class="demo"><span class="btn small">Copy citation</span><span class="btn small latte">See all decisions &rarr;</span><span class="pill ok">Rejected</span><span class="pill bad">Violation found</span></div></li>
+      <li><h2>A GDPR or AI Act tag: the other law</h2>
+        <p>A small square tag naming a law means the link takes you to that other law on Fino, for example from an AI Act article to the GDPR article it mentions.</p>
+        <div class="demo"><span class="text" style="font-size:1rem">see <a class="xref" href="#art-35" title="Article 35 GDPR">Article 35</a></span><span><small class="law-tag">AI Act</small> Article 27</span></div></li>
       <li><h2>Arrows tell you where you go</h2>
         <p>&rarr; stays on Fino. &nearr; opens another website in a new tab, such as a regulator, GDPRhub or EUR-Lex.</p>
         <div class="demo"><span class="btn small">See all decisions &rarr;</span><span class="btn small">The regulator&rsquo;s decision &nearr;</span></div></li>
@@ -1298,13 +1340,14 @@ route();
   try {
     /* cases.json is always checked with the server; the summary files carry its export time, so a cached
        summary file from an older export (rows in a different order) is never paired with newer cases. */
-    const [cases, gdpr, ex] = await Promise.all([get('data/cases.json', { cache: 'no-cache' }), get('data/reg-2016-679.json').catch(() => null),
-                                                 get('data/explainers.json', { cache: 'no-cache' }).catch(() => null)]);
+    const [cases, gdpr, ex, links] = await Promise.all([get('data/cases.json', { cache: 'no-cache' }), get('data/reg-2016-679.json').catch(() => null),
+                                                 get('data/explainers.json', { cache: 'no-cache' }).catch(() => null),
+                                                 get('data/law-links.json', { cache: 'no-cache' }).catch(() => null)]);
     const n = Math.ceil(cases.rows.length / cases.meta.summary_shard);
     const v = encodeURIComponent(cases.meta.generated_at || '');
     const sum = (await Promise.all(Array.from({ length: n }, (_, i) => get(`data/summaries/${i}.json?v=${v}`)))).flat().map(clean);
     const by = cases.meta.fields.indexOf('summary_by');
-    boot({ meta: cases.meta, fields: cases.meta.fields, rows: cases.rows, sum, gdpr, ex,
+    boot({ meta: cases.meta, fields: cases.meta.fields, rows: cases.rows, sum, gdpr, ex, links,
            cred: cases.rows.map(r => r[by] === 'cms_tracker' ? 'c' : 'g') });
   } catch (e) {
     main.innerHTML = `<div class="wrap"><p class="lede" style="padding-block:80px">The decisions could not be loaded. Please reload the page; if it keeps happening, write to <span class="mail">angelillolorenzo@gmail.com</span>.</p></div>`;

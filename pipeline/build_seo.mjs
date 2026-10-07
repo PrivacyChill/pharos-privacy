@@ -86,12 +86,17 @@ write('assets/fino.js', '/* Built from fines.html by pipeline/build_seo.mjs. Do 
 const cases = JSON.parse(read('data/cases.json'));
 const gdpr = JSON.parse(read('data/reg-2016-679.json'));
 const aiact = JSON.parse(read('data/reg-2024-1689.json'));
+let lawLinks = null; try { lawLinks = JSON.parse(read('data/law-links.json')); } catch (e) {}
+/* what the GDPR / AI Act boxes say about one article, so a page's date moves when its box changes */
+const linksOf = (kind, k) => !lawLinks ? '' : JSON.stringify(kind === 'gdpr'
+  ? [lawLinks.cites[k], lawLinks.cite_recs[k], lawLinks.pairs.filter(p => p.gdpr === +k)]
+  : lawLinks.pairs.filter(p => p.kind === kind && p.ai === k));
 let ex = null; try { ex = JSON.parse(read('data/explainers.json')); } catch (e) {}
 const shards = Math.ceil(cases.rows.length / cases.meta.summary_shard);
 const clean = s => (s && s.replace(/<!--[\s\S]*?-->/g, '').replace(/\s+/g, ' ').trim()) || null;
 const sum = Array.from({ length: shards }, (_, i) => JSON.parse(read(`data/summaries/${i}.json`))).flat().map(clean);
 const by = cases.meta.fields.indexOf('summary_by');
-const DATA = { meta: cases.meta, fields: cases.meta.fields, rows: cases.rows, sum, gdpr, aiact, ex, cred: cases.rows.map(r => r[by] === 'cms_tracker' ? 'c' : 'g') };
+const DATA = { meta: cases.meta, fields: cases.meta.fields, rows: cases.rows, sum, gdpr, aiact, ex, links: lawLinks, cred: cases.rows.map(r => r[by] === 'cms_tracker' ? 'c' : 'g') };
 
 /* a pretend browser: just enough for the drawing code; #main keeps what it is given */
 const el = () => ({ innerHTML: '', textContent: '', value: '', style: {}, dataset: {}, hidden: false,
@@ -249,7 +254,7 @@ for (const n of artNums) {
   const title = `Article ${n} GDPR: ${a.t} · Fino`;
   const desc = cut(`Full text of Article ${n} GDPR (${a.t})${st.list.length ? `, cited in ${F.num(st.list.length)} decisions${st.fined.length ? ` with ${F.bigEur(st.total)} in fines` : ''}. See the biggest fines` : '. With a link to the official text on EUR-Lex'}.`);
   const main = links(show('art-' + n));
-  const mod = stamp(url, a.h + st.list.length);
+  const mod = stamp(url, a.h + st.list.length + linksOf('gdpr', n));
   const json = { '@graph': [
     { '@type': 'Legislation', '@id': url, url, name: `Article ${n} GDPR: ${a.t}`, legislationIdentifier: `Regulation (EU) 2016/679, Article ${n}`,
       legislationType: 'Article', legislationJurisdiction: 'EU', legislationLegalForce: 'InForce', inLanguage: 'en', isPartOf: GDPR_LAW,
@@ -280,7 +285,7 @@ for (const k of aiact.order) {
   const title = `Article ${k} AI Act: ${a.t} · Fino`;
   const desc = cut(`Full text of Article ${k} of the EU AI Act (${a.t}), in the official English text.${aiChanged(k)} With a link to the original on EUR-Lex.`);
   const main = links(show('ai-art-' + k));
-  const mod = stamp(url, a.h);
+  const mod = stamp(url, a.h + linksOf('ai-art', k));
   const json = { '@graph': [
     { '@type': 'Legislation', '@id': url, url, name: `Article ${k} AI Act: ${a.t}`, legislationIdentifier: `Regulation (EU) 2024/1689, Article ${k}`,
       legislationType: 'Article', legislationJurisdiction: 'EU', legislationLegalForce: 'InForce', inLanguage: 'en', isPartOf: AI_LAW,
@@ -294,7 +299,7 @@ for (const r of aiact.annex_order) {
   const title = `Annex ${r} AI Act: ${a.t} · Fino`;
   const desc = cut(`Full text of Annex ${r} of the EU AI Act (${a.t}), in the official English text.${aiChanged('annex-' + r)} With a link to the original on EUR-Lex.`);
   const main = links(show('ai-annex-' + r));
-  const mod = stamp(url, a.h);
+  const mod = stamp(url, a.h + linksOf('ai-annex', r));
   const json = { '@graph': [
     { '@type': 'Legislation', '@id': url, url, name: `Annex ${r} AI Act: ${a.t}`, legislationIdentifier: `Regulation (EU) 2024/1689, Annex ${r}`,
       legislationJurisdiction: 'EU', legislationLegalForce: 'InForce', inLanguage: 'en', isPartOf: AI_LAW, sameAs: `${AI_CONS}#anx_${r}`, dateModified: mod },
