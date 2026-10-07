@@ -94,3 +94,17 @@ Sonnet matched Opus and found one infringement Opus missed (Fastweb, Articles 33
 "Differences" in the scoring were reference gaps (Spain: no date in the text for either reader).
 **Choice:** Sonnet for the full reading; Haiku is good enough for the official check of the core facts
 (date, amount, party, outcome) only.
+
+## Lean reader test (7 October 2026)
+
+`excerpt.py` cuts each decision to about 20,000 characters (opening, fine passages, operative part, end; short
+texts whole). Sonnet read only the excerpts of the 6 test cases (`analysis_lean.json`, `compare.py lean`).
+
+- Quotes: 93 of 93 found word for word.
+- Core fields equal to Sonnet on the full text: fine 4/4, organisation 6/6, outcome 6/6, document kind 6/6, date 4/4
+  where the document has one (the Spanish decision carries no date; the Dutch text is a press release), status
+  consistent (the two "differs" are wording).
+- Thinner on long decisions: Italy and Belgium lost most per-article findings, orders and Article 83(2) factors.
+- Cost: 56-67k tokens per decision as an agent run (about 64k on average, against about 80k for the full text).
+  About 50k of that is the agent's fixed overhead, not the decision. A direct request with only the excerpt and
+  the instructions would be about 10k tokens.
