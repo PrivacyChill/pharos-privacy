@@ -60,19 +60,21 @@ ${SHELL_JS}
   });
 })();
 
-/* Recitals (GDPR page): "Go to recital", and links straight to #rec-12 open the preamble */
+/* Recitals (GDPR and AI Act pages): "Go to recital", and links straight to #rec-12 or #ai-rec-12 open the preamble */
 (() => {
   const pre = byId('preamble'); if (!pre) return;
-  const open = n => { const el = byId('rec-' + n); if (!el) return; pre.open = true; el.scrollIntoView({ block: 'start' }); };
-  const m = location.hash.match(/^#rec-(\\d+)$/); if (m) open(+m[1]);
-  addEventListener('hashchange', () => { const k = location.hash.match(/^#rec-(\\d+)$/); if (k) open(+k[1]); });
+  const p = (pre.querySelector('.rec') || { id: 'rec-1' }).id.replace(/\\d+$/, ''), max = +(byId('goto-rec') || {}).max;
+  const re = new RegExp('^#' + p + '(\\\\d+)$');
+  const open = n => { const el = byId(p + n); if (!el) return; pre.open = true; el.scrollIntoView({ block: 'start' }); };
+  const m = location.hash.match(re); if (m) open(+m[1]);
+  addEventListener('hashchange', () => { const k = location.hash.match(re); if (k) open(+k[1]); });
   const f = byId('goto-form'); if (!f) return;
   f.addEventListener('submit', e => {
     e.preventDefault();
     const n = +byId('goto-rec').value;
-    if (!(n >= 1 && n <= 173)) { byId('goto-msg').textContent = 'Choose a number from 1 to 173.'; return; }
+    if (!(n >= 1 && n <= max)) { byId('goto-msg').textContent = 'Choose a number from 1 to ' + max + '.'; return; }
     byId('goto-msg').textContent = '';
-    history.replaceState(null, '', '#rec-' + n); open(n);
+    history.replaceState(null, '', '#' + p + n); open(n);
   });
 })();
 `;
@@ -83,12 +85,13 @@ write('assets/fino.js', '/* Built from fines.html by pipeline/build_seo.mjs. Do 
 /* ---------- 2. Run the page's own code on the data ---------- */
 const cases = JSON.parse(read('data/cases.json'));
 const gdpr = JSON.parse(read('data/reg-2016-679.json'));
+const aiact = JSON.parse(read('data/reg-2024-1689.json'));
 let ex = null; try { ex = JSON.parse(read('data/explainers.json')); } catch (e) {}
 const shards = Math.ceil(cases.rows.length / cases.meta.summary_shard);
 const clean = s => (s && s.replace(/<!--[\s\S]*?-->/g, '').replace(/\s+/g, ' ').trim()) || null;
 const sum = Array.from({ length: shards }, (_, i) => JSON.parse(read(`data/summaries/${i}.json`))).flat().map(clean);
 const by = cases.meta.fields.indexOf('summary_by');
-const DATA = { meta: cases.meta, fields: cases.meta.fields, rows: cases.rows, sum, gdpr, ex, cred: cases.rows.map(r => r[by] === 'cms_tracker' ? 'c' : 'g') };
+const DATA = { meta: cases.meta, fields: cases.meta.fields, rows: cases.rows, sum, gdpr, aiact, ex, cred: cases.rows.map(r => r[by] === 'cms_tracker' ? 'c' : 'g') };
 
 /* a pretend browser: just enough for the drawing code; #main keeps what it is given */
 const el = () => ({ innerHTML: '', textContent: '', value: '', style: {}, dataset: {}, hidden: false,
@@ -115,6 +118,10 @@ function links(html, { inPageRecitals = false } = {}) {
     .replace(/href="#art-(\d+)"/g, 'href="/gdpr/article-$1.html"')
     .replace(/href="#rec-(\d+)"/g, inPageRecitals ? 'href="#rec-$1"' : 'href="/gdpr/#rec-$1"')
     .replace(/href="#gdpr"/g, 'href="/gdpr/"')
+    .replace(/href="#ai-art-(\d+a?)"/g, 'href="/ai-act/article-$1.html"')
+    .replace(/href="#ai-annex-([IVX]+)"/g, (_, r) => `href="/ai-act/annex-${r.toLowerCase()}.html"`)
+    .replace(/href="#ai-rec-(\d+)"/g, inPageRecitals ? 'href="#ai-rec-$1"' : 'href="/ai-act/#ai-rec-$1"')
+    .replace(/href="#ai-act"/g, 'href="/ai-act/"')
     .replace(/href="#fines" data-(art|org|group)="([^"]*)"/g, (_, k, v) => `href="/fines.html#fines-${k}-${encodeURIComponent(unesc(v))}"`)
     .replace(/href="#fines"/g, 'href="/fines.html"')
     .replace(/href="#style"/g, 'href="/fines.html#style"')
@@ -261,6 +268,51 @@ for (const n of artNums) {
   sitemap.unshift([url, mod]);
 }
 
+/* ---------- 5b. The AI Act: one page per article and annex, and the whole text with the recitals ---------- */
+clearHtml('ai-act');
+const AI_LAW = { '@type': 'Legislation', '@id': `${BASE}/ai-act/#law`, name: 'Artificial Intelligence Act (AI Act)', alternateName: 'Regulation (EU) 2024/1689',
+  legislationIdentifier: 'CELEX:32024R1689', legislationType: 'Regulation', legislationJurisdiction: 'EU', legislationDate: '2024-06-13',
+  sameAs: 'https://eur-lex.europa.eu/eli/reg/2024/1689/oj' };
+const AI_CONS = 'https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:02024R1689-20260727';
+const aiChanged = k => aiact.amended.includes(k) ? (/a$/.test(k) || k === 'annex-XIV' ? ' Added in July 2026 by the Digital Omnibus on AI.' : ' Includes the July 2026 changes (Digital Omnibus on AI).') : '';
+for (const k of aiact.order) {
+  const a = aiact.arts[k], url = `${BASE}/ai-act/article-${k}.html`;
+  const title = `Article ${k} AI Act: ${a.t} · Fino`;
+  const desc = cut(`Full text of Article ${k} of the EU AI Act (${a.t}), in the official English text.${aiChanged(k)} With a link to the original on EUR-Lex.`);
+  const main = links(show('ai-art-' + k));
+  const mod = stamp(url, a.h);
+  const json = { '@graph': [
+    { '@type': 'Legislation', '@id': url, url, name: `Article ${k} AI Act: ${a.t}`, legislationIdentifier: `Regulation (EU) 2024/1689, Article ${k}`,
+      legislationType: 'Article', legislationJurisdiction: 'EU', legislationLegalForce: 'InForce', inLanguage: 'en', isPartOf: AI_LAW,
+      sameAs: `${AI_CONS}#art_${k}`, dateModified: mod },
+    crumbs([['Fino', `${BASE}/`], ['AI Act', `${BASE}/ai-act/`], [`Article ${k}`]]), ORG ] };
+  write(`ai-act/article-${k}.html`, page({ title, desc, url, on: 'gdpr', main, json }));
+  sitemap.push([url, mod]);
+}
+for (const r of aiact.annex_order) {
+  const a = aiact.annexes[r], url = `${BASE}/ai-act/annex-${r.toLowerCase()}.html`;
+  const title = `Annex ${r} AI Act: ${a.t} · Fino`;
+  const desc = cut(`Full text of Annex ${r} of the EU AI Act (${a.t}), in the official English text.${aiChanged('annex-' + r)} With a link to the original on EUR-Lex.`);
+  const main = links(show('ai-annex-' + r));
+  const mod = stamp(url, a.h);
+  const json = { '@graph': [
+    { '@type': 'Legislation', '@id': url, url, name: `Annex ${r} AI Act: ${a.t}`, legislationIdentifier: `Regulation (EU) 2024/1689, Annex ${r}`,
+      legislationJurisdiction: 'EU', legislationLegalForce: 'InForce', inLanguage: 'en', isPartOf: AI_LAW, sameAs: `${AI_CONS}#anx_${r}`, dateModified: mod },
+    crumbs([['Fino', `${BASE}/`], ['AI Act', `${BASE}/ai-act/`], [`Annex ${r}`]]), ORG ] };
+  write(`ai-act/annex-${r.toLowerCase()}.html`, page({ title, desc, url, on: 'gdpr', main, json }));
+  sitemap.push([url, mod]);
+}
+{
+  const url = `${BASE}/ai-act/`, main = links(show('ai-act'), { inPageRecitals: true });
+  const nArts = aiact.order.length, nAnx = aiact.annex_order.length, nRec = Object.keys(aiact.preamble.recitals).length;
+  const title = `The EU AI Act: full text, all ${nArts} articles, ${nAnx} annexes and ${nRec} recitals, as amended in 2026 · Fino`;
+  const desc = `The Artificial Intelligence Act (Regulation (EU) 2024/1689) in the official English text, including the July 2026 changes: all ${nArts} articles, ${nAnx} annexes and ${nRec} recitals, each linked to EUR-Lex.`;
+  const mod = stamp(url, main);
+  write('ai-act/index.html', page({ title, desc, url, on: 'gdpr', main,
+    json: { '@graph': [{ ...AI_LAW, url, inLanguage: 'en', legislationLegalForce: 'InForce', dateModified: mod }, crumbs([['Fino', `${BASE}/`], ['AI Act']]), ORG] } }));
+  sitemap.unshift([url, mod]);
+}
+
 /* ---------- 6. Main pages: search tags in their head, figures on the homepage ---------- */
 const S = cases.meta.stats;
 const fmt = n => Number(n).toLocaleString('en-GB');
@@ -337,7 +389,7 @@ for (const f of fs.existsSync(PAGES) ? fs.readdirSync(PAGES).filter(f => f.endsW
 /* ---------- 7. sitemap.xml, robots.txt, llms.txt ---------- */
 for (const u of Object.keys(lastmod)) if (!seen.has(u)) delete lastmod[u];
 fs.writeFileSync(LASTMOD_FILE, JSON.stringify(lastmod));
-const order = u => u === `${BASE}/` ? 0 : /\/(fines|explainers)\.html$/.test(u) ? 1 : /\/gdpr\/$/.test(u) ? 2 : /\/decisions\//.test(u) ? 5 : /\/gdpr\//.test(u) ? 4 : 3;
+const order = u => u === `${BASE}/` ? 0 : /\/(fines|explainers)\.html$/.test(u) ? 1 : /\/(gdpr|ai-act)\/$/.test(u) ? 2 : /\/decisions\//.test(u) ? 5 : /\/(gdpr|ai-act)\//.test(u) ? 4 : 3;
 sitemap.sort((a, b) => order(a[0]) - order(b[0]));
 write('sitemap.xml', `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -353,7 +405,7 @@ Sitemap: ${BASE}/sitemap.xml
 const topArts = artNums.map(n => [n, F.artStats(n).list.length]).sort((a, b) => b[1] - a[1]).slice(0, 15).map(x => x[0]).sort((a, b) => a - b);
 write('llms.txt', `# Fino
 
-> Fino is a free, independent website about EU privacy law. It has a searchable database of ${fmt(S.cases)} GDPR fines and decisions from data protection authorities in ${S.countries} countries (${total} in fines), the full GDPR text with every article linked to the decisions that cite it, and plain-English explainers that answer common compliance questions with the rules and real decisions. Made by Lorenzo A., CIPP/E. Not legal advice.
+> Fino is a free, independent website about EU privacy law. It has a searchable database of ${fmt(S.cases)} GDPR fines and decisions from data protection authorities in ${S.countries} countries (${total} in fines), the full GDPR text with every article linked to the decisions that cite it, the full EU AI Act as amended in 2026, and plain-English explainers that answer common compliance questions with the rules and real decisions. Made by Lorenzo A., CIPP/E. Not legal advice.
 
 Facts about the data:
 
@@ -378,6 +430,14 @@ ${exList.map(e => `- [${e.question}](${BASE}/${e.slug}.html): the rules (GDPR Ar
 - [The full text, 99 articles and 173 recitals](${BASE}/gdpr/)
 ${topArts.map(n => `- [Article ${n}: ${gdpr.arts[n].t}](${BASE}/gdpr/article-${n}.html): ${fmt(F.artStats(n).list.length)} decisions cite it`).join('\n')}
 
+## The AI Act
+
+- [The full text as amended in July 2026: ${aiact.order.length} articles, ${aiact.annex_order.length} annexes and ${Object.keys(aiact.preamble.recitals).length} recitals](${BASE}/ai-act/)
+- [Article 5: ${aiact.arts['5'].t}](${BASE}/ai-act/article-5.html)
+- [Article 6: ${aiact.arts['6'].t}](${BASE}/ai-act/article-6.html)
+- [Article 50: ${aiact.arts['50'].t}](${BASE}/ai-act/article-50.html)
+- [Annex III: ${aiact.annexes.III.t}](${BASE}/ai-act/annex-iii.html)
+
 ## About
 
 - [Who made Fino and how it works](${BASE}/About.html): sources, duplicates, who the decision is against, private people, currency conversion, case numbers, the review process and known limits
@@ -395,7 +455,7 @@ if (!key) { key = crypto.randomBytes(16).toString('hex'); write(`${key}.txt`, ke
 let pending = []; try { pending = JSON.parse(fs.readFileSync(PENDING_FILE, 'utf8')); } catch (e) {}
 fs.writeFileSync(PENDING_FILE, JSON.stringify([...new Set([...pending, ...changed])].filter(u => seen.has(u))));
 
-console.log(`SEO: ${F.CASES.length} decision pages, ${artNums.length + 1} GDPR pages, ${sitemap.length} URLs in the sitemap, ${changed.length} new or changed.`);
+console.log(`SEO: ${F.CASES.length} decision pages, ${artNums.length + 1} GDPR pages, ${aiact.order.length + aiact.annex_order.length + 1} AI Act pages, ${sitemap.length} URLs in the sitemap, ${changed.length} new or changed.`);
 
 async function ping() {
   const key = fs.readdirSync(SITE).find(f => /^[0-9a-f]{32}\.txt$/.test(f))?.slice(0, 32);

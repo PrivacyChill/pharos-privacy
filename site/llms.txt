@@ -1,6 +1,6 @@
 # Fino
 
-> Fino is a free, independent website about EU privacy law. It has a searchable database of 5,034 GDPR fines and decisions from data protection authorities in 34 countries (€9.18 billion in fines), the full GDPR text with every article linked to the decisions that cite it, and plain-English explainers that answer common compliance questions with the rules and real decisions. Made by Lorenzo A., CIPP/E. Not legal advice.
+> Fino is a free, independent website about EU privacy law. It has a searchable database of 5,034 GDPR fines and decisions from data protection authorities in 34 countries (€9.18 billion in fines), the full GDPR text with every article linked to the decisions that cite it, the full EU AI Act as amended in 2026, and plain-English explainers that answer common compliance questions with the rules and real decisions. Made by Lorenzo A., CIPP/E. Not legal advice.
 
 Facts about the data:
 
@@ -41,6 +41,14 @@ Facts about the data:
 - [Article 28: Processor](https://pharosprivacy.com/gdpr/article-28.html): 201 decisions cite it
 - [Article 32: Security of processing](https://pharosprivacy.com/gdpr/article-32.html): 844 decisions cite it
 - [Article 58: Powers](https://pharosprivacy.com/gdpr/article-58.html): 378 decisions cite it
+
+## The AI Act
+
+- [The full text as amended in July 2026: 116 articles, 14 annexes and 180 recitals](https://pharosprivacy.com/ai-act/)
+- [Article 5: Prohibited AI practices](https://pharosprivacy.com/ai-act/article-5.html)
+- [Article 6: Classification rules for high-risk AI systems](https://pharosprivacy.com/ai-act/article-6.html)
+- [Article 50: Transparency obligations for providers and deployers of certain AI systems](https://pharosprivacy.com/ai-act/article-50.html)
+- [Annex III: High-risk AI systems referred to in Article 6(2)](https://pharosprivacy.com/ai-act/annex-iii.html)
 
 ## About
 

@@ -28,3 +28,6 @@ pipeline/review/
 
 # IndexNow: pages waiting to be sent after the next push
 pipeline/seo_pending.json
+
+# AI Act sources downloaded by pipeline/law/aiact_parse.py
+pipeline/law/aiact/

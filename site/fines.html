@@ -335,6 +335,16 @@ h1 .tag-person { display: inline-block; vertical-align: 0.4em; margin-left: 12px
 .rec-tools .goto-msg { flex-basis: 100%; text-align: right; font-size: 0.72rem; }
 .pre-end { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px; margin-top: 14px; }
 .pre-end .legend { margin: 0; }
+/* AI Act: the "Changed 2026" label, headings inside annexes, the one annex table, 10 to the power 25 */
+.toc .chg { font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.06em; text-transform: uppercase; padding: 2px 6px; border-radius: 6px; background: var(--soon-bg); color: var(--soon); }
+.card.changed { box-shadow: 4px 4px 0 var(--pink); }
+.text .sh { font-weight: 700; margin: 22px 0 10px; }
+.text sup { font-size: 0.7em; line-height: 0; }
+.text .tbl { overflow-x: auto; margin: 0 0 16px; }
+.text table { border-collapse: collapse; font-size: 0.95rem; line-height: 1.45; min-width: 100%; }
+.text th, .text td { text-align: left; vertical-align: top; padding: 7px 10px; border-bottom: 1px solid var(--line); }
+.text th { font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.04em; font-weight: 500; color: var(--muted); border-bottom: 2px solid var(--ink); }
+.text td:first-child { font-family: var(--mono); font-size: 0.85rem; white-space: nowrap; }
 
 /* ---------- Export sheet ---------- */
 .x-bar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 14px; padding: 16px 20px; margin-block: 24px 14px; }
@@ -421,6 +431,9 @@ footer .mail { color: inherit; }
   .sheet h3 { break-after: avoid; }
 }
 </style>
+
+
+
 <!-- seo -->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Fino">
@@ -455,7 +468,7 @@ footer .mail { color: inherit; }
         <button type="button" id="nav-gdpr" aria-expanded="false" aria-controls="laws-menu">Laws <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5 6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
         <ul class="laws-menu" id="laws-menu" hidden>
           <li><a href="#gdpr"><b>GDPR</b><span>General Data Protection Regulation</span></a></li>
-          <li><div class="soon-law"><b>AI Act</b><span>Artificial Intelligence Act</span><em>Coming soon</em></div></li>
+          <li><a href="#ai-act"><b>AI Act</b><span>Artificial Intelligence Act</span></a></li>
           <li><div class="soon-law"><b>ePrivacy</b><span>Cookies and electronic communications</span><em>Coming soon</em></div></li>
         </ul>
       </div>
@@ -473,7 +486,7 @@ footer .mail { color: inherit; }
 
 <footer>
   <div class="wrap">
-    <p>Decisions from enforcementtracker.com, provided by CMS, and GDPRhub (noyb), under CC BY-NC-SA 4.0. GDPR text from EUR-Lex, &copy; European Union. Not legal advice.</p>
+    <p>Decisions from enforcementtracker.com, provided by CMS, and GDPRhub (noyb), under CC BY-NC-SA 4.0. GDPR and AI Act texts from EUR-Lex, &copy; European Union. Not legal advice.</p>
     <p>Spotted a mistake? <span class="mail">angelillolorenzo@gmail.com</span> &middot; <a href="Privacy.html">Privacy</a></p>
   </div>
 </footer>
@@ -928,16 +941,17 @@ function artStats(n) {
   const fined = list.filter(c => c.fine_eur);
   return { list, fined, total: fined.reduce((a, c) => a + c.fine_eur, 0) };
 }
-function bindGdpr() {
+function bindGdpr(pre = 'rec-') {
   const f = $('goto-form'); if (!f) return;
+  const max = +$('goto-rec').max;
   /* the Go button and the Enter key do the same thing */
   f.addEventListener('submit', e => {
     e.preventDefault();
     const n = +$('goto-rec').value;
-    if (!(n >= 1 && n <= 173)) { $('goto-msg').textContent = 'Choose a number from 1 to 173.'; return; }
+    if (!(n >= 1 && n <= max)) { $('goto-msg').textContent = `Choose a number from 1 to ${max}.`; return; }
     $('goto-msg').textContent = '';
-    history.replaceState(null, '', '#rec-' + n);
-    openRecital(n);
+    history.replaceState(null, '', '#' + pre + n);
+    openRecital(n, pre);
   });
 }
 function renderGdpr() {
@@ -955,17 +969,20 @@ function renderGdpr() {
     }).join('')}</ol></section>`).join('')}</div>
   </div>`;
 }
-function preamble() {
-  const P = GDPR.preamble;
+/* The preamble of a law (GDPR or AI Act): the legal bases and the recitals, closed until opened */
+const GDPR_PRE = { pre: 'rec-', hint: 71, oj: 'https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:32016R0679', legend: '',
+  fix: n => GDPR.preamble.corrected.includes(n) ? '<span class="fix">As corrected by the corrigendum in OJ L 127, 23.5.2018, p. 2.</span>' : '' };
+function preamble(P = GDPR.preamble, L = GDPR_PRE) {
+  const nums = Object.keys(P.recitals).map(Number).sort((a, b) => a - b), max = nums[nums.length - 1];
   return `<section>
     <h2><span>Preamble</span>Legal bases and recitals</h2>
     <details class="preamble" id="preamble">
-      <summary><span class="n">1&ndash;173</span><span>The legal bases and the 173 recitals, which explain why each rule exists and how to read it</span><span class="tw" aria-hidden="true"></span></summary>
+      <summary><span class="n">1&ndash;${max}</span><span>The legal bases and the ${max} recitals, which explain why each rule exists and how to read it</span><span class="tw" aria-hidden="true"></span></summary>
       <div class="inner">
         <div class="rec-tools">
           <form class="goto panel" id="goto-form" novalidate>
             <label for="goto-rec">Go to recital</label>
-            <input id="goto-rec" type="number" min="1" max="173" inputmode="numeric" placeholder="71" aria-describedby="goto-msg">
+            <input id="goto-rec" type="number" min="1" max="${max}" inputmode="numeric" placeholder="${L.hint}" aria-describedby="goto-msg">
             <button type="submit" class="btn small">Go</button>
           </form>
           <p class="goto-msg" id="goto-msg" aria-live="polite"></p>
@@ -973,20 +990,20 @@ function preamble() {
         <p class="formal">${esc(P.opening)}</p>
         <ul class="cits">${P.citations.map(c => `<li>${esc(c)}</li>`).join('')}</ul>
         <p class="formal">Whereas:</p>
-        ${Object.keys(P.recitals).map(Number).sort((a, b) => a - b).map(n => `<div class="rec" id="rec-${n}"><a class="rn" href="#rec-${n}" aria-label="Recital ${n}">(${n})</a><div>${P.recitals[n]}${P.corrected.includes(n) ? '<span class="fix">As corrected by the corrigendum in OJ L 127, 23.5.2018, p. 2.</span>' : ''}</div></div>`).join('')}
+        ${nums.map(n => `<div class="rec" id="${L.pre}${n}"><a class="rn" href="#${L.pre}${n}" aria-label="Recital ${n}">(${n})</a><div>${P.recitals[n]}${L.fix(n)}</div></div>`).join('')}
         <p class="formal">${esc(P.closing)}</p>
         <div class="pre-end">
-          <p class="legend">Footnotes of the Official Journal are left out here; they are on EUR-Lex.</p>
-          ${EURLEX_BADGE('https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:32016R0679', 'Official Journal text on EUR-Lex')}
+          <p class="legend">Footnotes of the Official Journal are left out here; they are on EUR-Lex.${L.legend}</p>
+          ${EURLEX_BADGE(L.oj, 'Official Journal text on EUR-Lex')}
         </div>
       </div>
     </details>
   </section>`;
 }
-function openRecital(n) {
+function openRecital(n, pre = 'rec-') {
   const d = $('preamble'); if (!d) return;
   d.open = true;
-  const el = $('rec-' + n); if (el) el.scrollIntoView({ block: 'start' });
+  const el = $(pre + n); if (el) el.scrollIntoView({ block: 'start' });
 }
 function renderArticle(n) {
   const a = GDPR.arts[n], ch = CHAPTER[a.ch], st = artStats(n);
@@ -1024,6 +1041,105 @@ function renderArticle(n) {
   </div>`;
   const all = document.querySelector('[data-art]');
   if (all) all.addEventListener('click', () => { Object.assign(state, { q: '', country: '', year: '', sector: '', art: String(n), outcome: '', band: '', org: '', group: '', shown: 40 }); });
+}
+
+/* ---------- View: AI Act ----------
+   data/reg-2024-1689.json, built by pipeline/law/aiact_parse.py. It is loaded only when an AI Act page is opened.
+   Keys: articles '1'...'113' plus '4a', '60a', '75a' (added in 2026); annexes 'I'...'XIV'. */
+const AI_CONS = 'https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:02024R1689-20260727';
+const AI_ELI = 'https://eur-lex.europa.eu/eli/reg/2024/1689/oj';
+const AI_OMNIBUS = 'https://eur-lex.europa.eu/eli/reg/2026/1744/oj';
+const AI_PRE = { pre: 'ai-rec-', hint: 12, oj: 'https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:32024R1689', fix: () => '',
+  legend: ' These are the recitals of the 2024 Act; the 2026 amendment has its own, on EUR-Lex.' };
+let AI = DATA.aiact || null, AI_CH = {}, aiLoading = false;
+const aiReady = d => { AI = d; AI_CH = Object.fromEntries(d.chapters.map(ch => [ch.id, ch])); };
+if (AI) aiReady(AI);
+function loadAi() {
+  $('main').innerHTML = `<div class="wrap"><p class="lede" style="padding-block:80px">Fetching the AI Act&hellip;</p></div>`;
+  if (aiLoading) return;
+  aiLoading = true;
+  fetch('data/reg-2024-1689.json').then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
+    .then(d => { aiReady(d); lastView = ''; route(); }, () => renderLawMissing('the AI Act', AI_ELI))
+    .finally(() => { aiLoading = false; });
+}
+const aiNew = k => /a$/.test(k) || k === 'annex-XIV';
+function aiChanged(k, what) {
+  if (!AI.amended.includes(k)) return '';
+  return `<section class="card changed">
+    <h2 class="sec-h">${aiNew(k) ? 'Added' : 'Changed'} in July 2026</h2>
+    <p>${aiNew(k) ? `This ${what} was added` : `Part of this ${what} was changed`} by the Digital Omnibus on AI, Regulation (EU) 2026/1744. The text here already includes the change.</p>
+    <p style="margin:0"><a href="${AI_OMNIBUS}" target="_blank" rel="noopener">Regulation (EU) 2026/1744 on EUR-Lex &nearr;</a></p>
+  </section>`;
+}
+const aiAside = (k, what) => `<aside>
+        ${aiChanged(k, what)}
+        <section class="card">
+          <h2 class="sec-h">Where does your AI system fit?</h2>
+          <p>Three questions give a first idea of its AI Act category and which articles to read.</p>
+          <p style="margin:16px 0 0"><a class="btn small latte" href="Tool.html">Try the AI Act triage &rarr;</a></p>
+        </section>
+        <section class="official">
+          <h2 class="sec-h">About this text</h2>
+          <p>Shown here from the consolidated version on EUR-Lex of 27 July 2026, which includes the changes made by Regulation (EU) 2026/1744. Only the version in the Official Journal of the EU is legally binding.</p>
+          <p><a href="${AI_ELI}" target="_blank" rel="noopener">Regulation (EU) 2024/1689, OJ L, 2024/1689, 12.7.2024</a></p>
+        </section>
+      </aside>`;
+const aiFlag = k => AI.amended.includes(k) ? `<span class="c"><span class="chg">${aiNew(k) ? 'New' : 'Changed'} 2026</span></span>` : '<span class="c"></span>';
+function renderAiAct() {
+  $('main').innerHTML = `<div class="wrap">
+    <div class="b-head">
+      <p class="eyebrow" style="margin:28px 0 0">Regulation (EU) 2024/1689</p>
+      <h1 style="margin:0">The AI Act, <em style="font-weight:420;color:var(--accent)">as amended in 2026.</em></h1>
+      <p class="lede">All ${AI.order.length} articles, ${AI.annex_order.length} annexes and ${Object.keys(AI.preamble.recitals).length} recitals in the official English text, including the July 2026 changes (the Digital Omnibus on AI). Each article links to the original on EUR-Lex.</p>
+    </div>
+    <div class="toc">
+    ${preamble(AI.preamble, AI_PRE)}
+    ${AI.chapters.map(ch => `<section><h2><span>${esc(ch.num)}</span>${esc(ch.title)}</h2><ol>${ch.arts.map(k =>
+      `<li><a href="#ai-art-${k}"><span class="n">Art. ${k}</span><span>${esc(AI.arts[k].t)}</span>${aiFlag(k)}</a></li>`).join('')}</ol></section>`).join('')}
+    <section><h2><span>Annexes</span>Lists, forms and technical details</h2><ol>${AI.annex_order.map(r =>
+      `<li><a href="#ai-annex-${r}"><span class="n">Annex ${r}</span><span>${esc(AI.annexes[r].t)}</span>${aiFlag('annex-' + r)}</a></li>`).join('')}</ol></section>
+    </div>
+  </div>`;
+}
+function renderAiArticle(k) {
+  const a = AI.arts[k], ch = AI_CH[a.ch], i = AI.order.indexOf(k);
+  const prev = AI.order[i - 1], next = AI.order[i + 1];
+  $('main').innerHTML = `<div class="wrap">
+    <nav class="crumbs" aria-label="Breadcrumb"><span>Laws</span><span aria-hidden="true">/</span><a href="#ai-act">AI Act</a><span aria-hidden="true">/</span><span>${esc(ch.num)}</span><span aria-hidden="true">/</span><span aria-current="page">Article ${k}</span></nav>
+    <div class="law">
+      <article>
+        <p class="eyebrow">${esc(ch.num)} &middot; ${esc(ch.title)}${a.sec ? ` &middot; ${esc(a.sec)}` : ''}</p>
+        <div class="titlerow"><h1>Article ${k}</h1>${EURLEX_BADGE(`${AI_CONS}#art_${k}`, 'Official text on EUR-Lex')}</div>
+        <p class="atitle">${esc(a.t)}</p>
+        <div class="text">${a.h}</div>
+      </article>
+      ${aiAside(k, 'article')}
+    </div>
+    <nav class="prevnext" aria-label="Other articles">
+      ${prev ? `<a href="#ai-art-${prev}"><span>&larr; Article ${prev}</span><b>${esc(AI.arts[prev].t)}</b></a>` : '<span></span>'}
+      ${next ? `<a href="#ai-art-${next}" style="text-align:right"><span>Article ${next} &rarr;</span><b>${esc(AI.arts[next].t)}</b></a>` : `<a href="#ai-annex-I" style="text-align:right"><span>Annex I &rarr;</span><b>${esc(AI.annexes.I.t)}</b></a>`}
+    </nav>
+  </div>`;
+}
+function renderAiAnnex(r) {
+  const a = AI.annexes[r], i = AI.annex_order.indexOf(r);
+  const prev = AI.annex_order[i - 1], next = AI.annex_order[i + 1], last = AI.order[AI.order.length - 1];
+  $('main').innerHTML = `<div class="wrap">
+    <nav class="crumbs" aria-label="Breadcrumb"><span>Laws</span><span aria-hidden="true">/</span><a href="#ai-act">AI Act</a><span aria-hidden="true">/</span><span>Annexes</span><span aria-hidden="true">/</span><span aria-current="page">Annex ${r}</span></nav>
+    <div class="law">
+      <article>
+        <p class="eyebrow">AI Act &middot; Annexes</p>
+        <div class="titlerow"><h1>Annex ${r}</h1>${EURLEX_BADGE(`${AI_CONS}#anx_${r}`, 'Official text on EUR-Lex')}</div>
+        <p class="atitle">${esc(a.t)}</p>
+        <div class="text">${a.h}</div>
+      </article>
+      ${aiAside('annex-' + r, 'annex')}
+    </div>
+    <nav class="prevnext" aria-label="Other annexes">
+      ${prev ? `<a href="#ai-annex-${prev}"><span>&larr; Annex ${prev}</span><b>${esc(AI.annexes[prev].t)}</b></a>` : `<a href="#ai-art-${last}"><span>&larr; Article ${last}</span><b>${esc(AI.arts[last].t)}</b></a>`}
+      ${next ? `<a href="#ai-annex-${next}" style="text-align:right"><span>Annex ${next} &rarr;</span><b>${esc(AI.annexes[next].t)}</b></a>` : ''}
+    </nav>
+  </div>`;
 }
 
 /* ---------- View: export sheet ---------- */
@@ -1092,8 +1208,8 @@ function sheet(c) {
 }
 
 /* ---------- View: design rules ---------- */
-function renderLawMissing() {
-  $('main').innerHTML = `<div class="wrap"><p class="lede" style="padding-block:80px">The text of the GDPR could not be loaded. Please reload the page. If it keeps happening, a content blocker may be stopping it; the official text is on <a href="https://eur-lex.europa.eu/eli/reg/2016/679/oj" rel="noopener">EUR-Lex &nearr;</a>.</p></div>`;
+function renderLawMissing(law = 'the GDPR', eli = ELI) {
+  $('main').innerHTML = `<div class="wrap"><p class="lede" style="padding-block:80px">The text of ${law} could not be loaded. Please reload the page. If it keeps happening, a content blocker may be stopping it; the official text is on <a href="${eli}" rel="noopener">EUR-Lex &nearr;</a>.</p></div>`;
 }
 function renderStyle() {
   $('main').innerHTML = `<div class="wrap">
@@ -1130,6 +1246,9 @@ function titleFor(h) {
   if ((m = h.match(/^[dx]-(.+)$/)) && BY_SLUG.has(m[1])) { const c = BY_SLUG.get(m[1]); return `${c.controller || 'Decision ' + c.pharos_id} · Fino`; }
   if ((m = h.match(/^art-(\d+)$/))) return `Article ${m[1]} GDPR · Fino`;
   if (h === 'gdpr' || h.startsWith('rec-')) return 'The GDPR · Fino';
+  if ((m = h.match(/^ai-art-(\w+)$/))) return `Article ${m[1]} AI Act · Fino`;
+  if ((m = h.match(/^ai-annex-(\w+)$/))) return `Annex ${m[1]} AI Act · Fino`;
+  if (h === 'ai-act' || h.startsWith('ai-rec-')) return 'The AI Act · Fino';
   return 'GDPR fines and decisions · Fino';
 }
 
@@ -1141,13 +1260,18 @@ function route() {
   const wasBrowse = lastView === 'fines';
   if (wasBrowse) state.scroll = window.scrollY;
   $('nav-fines').classList.toggle('on', /^(fines|d-|x-)/.test(h));
-  $('nav-gdpr').classList.toggle('on', /^(gdpr|art-|rec-)/.test(h));
+  $('nav-gdpr').classList.toggle('on', /^(gdpr|art-|rec-|ai-)/.test(h));
   if ((m = h.match(/^d-(.+)$/)) && BY_SLUG.has(m[1])) { fromBrowse = wasBrowse || (fromBrowse && lastView.startsWith('x-')); renderDecision(BY_SLUG.get(m[1])); window.scrollTo(0, 0); }
   else if ((m = h.match(/^x-(.+)$/)) && BY_SLUG.has(m[1])) { renderExport(BY_SLUG.get(m[1])); window.scrollTo(0, 0); }
   else if (!DATA.gdpr && /^(gdpr|art-\d+|rec-\d+)$/.test(h)) { renderLawMissing(); window.scrollTo(0, 0); }
   else if ((m = h.match(/^art-(\d+)$/)) && GDPR.arts[m[1]]) { renderArticle(+m[1]); window.scrollTo(0, 0); }
   else if (h === 'gdpr') { renderGdpr(); bindGdpr(); window.scrollTo(0, 0); }
   else if ((m = h.match(/^rec-(\d+)$/)) && GDPR.preamble.recitals[m[1]]) { if (lastView !== 'gdpr' && !lastView.startsWith('rec-')) { renderGdpr(); bindGdpr(); } openRecital(+m[1]); }
+  else if (!AI && /^ai-(act|art-\w+|annex-[IVX]+|rec-\d+)$/.test(h)) { loadAi(); window.scrollTo(0, 0); }
+  else if ((m = h.match(/^ai-art-(\d+a?)$/)) && AI.arts[m[1]]) { renderAiArticle(m[1]); window.scrollTo(0, 0); }
+  else if ((m = h.match(/^ai-annex-([IVX]+)$/)) && AI.annexes[m[1]]) { renderAiAnnex(m[1]); window.scrollTo(0, 0); }
+  else if (h === 'ai-act') { renderAiAct(); bindGdpr('ai-rec-'); window.scrollTo(0, 0); }
+  else if ((m = h.match(/^ai-rec-(\d+)$/)) && AI.preamble.recitals[m[1]]) { if (lastView !== 'ai-act' && !lastView.startsWith('ai-rec-')) { renderAiAct(); bindGdpr('ai-rec-'); } openRecital(+m[1], 'ai-rec-'); }
   else if (h === 'style') { renderStyle(); window.scrollTo(0, 0); }
   /* links from the static pages open the list already filtered: #fines-art-5, #fines-org-<key>, #fines-group-<key> */
   else if ((m = h.match(/^fines-(art|org|group)-(.+)$/))) {

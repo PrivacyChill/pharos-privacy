@@ -58,18 +58,20 @@ setMode(saved, false);
   });
 })();
 
-/* Recitals (GDPR page): "Go to recital", and links straight to #rec-12 open the preamble */
+/* Recitals (GDPR and AI Act pages): "Go to recital", and links straight to #rec-12 or #ai-rec-12 open the preamble */
 (() => {
   const pre = byId('preamble'); if (!pre) return;
-  const open = n => { const el = byId('rec-' + n); if (!el) return; pre.open = true; el.scrollIntoView({ block: 'start' }); };
-  const m = location.hash.match(/^#rec-(\d+)$/); if (m) open(+m[1]);
-  addEventListener('hashchange', () => { const k = location.hash.match(/^#rec-(\d+)$/); if (k) open(+k[1]); });
+  const p = (pre.querySelector('.rec') || { id: 'rec-1' }).id.replace(/\d+$/, ''), max = +(byId('goto-rec') || {}).max;
+  const re = new RegExp('^#' + p + '(\\d+)$');
+  const open = n => { const el = byId(p + n); if (!el) return; pre.open = true; el.scrollIntoView({ block: 'start' }); };
+  const m = location.hash.match(re); if (m) open(+m[1]);
+  addEventListener('hashchange', () => { const k = location.hash.match(re); if (k) open(+k[1]); });
   const f = byId('goto-form'); if (!f) return;
   f.addEventListener('submit', e => {
     e.preventDefault();
     const n = +byId('goto-rec').value;
-    if (!(n >= 1 && n <= 173)) { byId('goto-msg').textContent = 'Choose a number from 1 to 173.'; return; }
+    if (!(n >= 1 && n <= max)) { byId('goto-msg').textContent = 'Choose a number from 1 to ' + max + '.'; return; }
     byId('goto-msg').textContent = '';
-    history.replaceState(null, '', '#rec-' + n); open(n);
+    history.replaceState(null, '', '#' + p + n); open(n);
   });
 })();
