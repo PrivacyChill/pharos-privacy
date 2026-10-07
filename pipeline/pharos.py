@@ -1056,6 +1056,72 @@ def step_link(db):
         db.commit()
 
 
+# ----- STEP: WHAT HAPPENED NEXT (annulled, reduced, confirmed in court) -----
+STATUS_FILE = os.path.join(HERE, 'case_status.csv')  # checked by hand; wins over the automatic rule
+GARANTE_SCAN = os.path.join(HERE, 'pilot', 'garante', 'status.json')  # written by pilot/garante_removed.py
+IT_MONTHS = {m: i for i, m in enumerate(['gennaio', 'febbraio', 'marzo', 'aprile', 'maggio', 'giugno', 'luglio', 'agosto',
+                                         'settembre', 'ottobre', 'novembre', 'dicembre'], 1)}
+GARANTE_NOTE = 'The Garante removed this decision from its website after a final court judgment against it.'
+
+
+def step_status(db):
+    """case_status from two places. 1) case_status.csv, read by hand. 2) The Garante's removal notices, only when
+    the notice's own number and date ('n. 66 dell'8 febbraio 2024') fit exactly one decision in Fino with that
+    page and that date; everything else goes to review/statuses.xlsx. (A CMS link can be wrong: Medtronic was
+    linked to a newsletter page, and two municipalities shared one link.)"""
+    with Run(db, 'status') as run:
+        db.execute("DELETE FROM case_status WHERE rule LIKE 'auto:%'")
+        review = []
+        scan = json.load(open(GARANTE_SCAN, encoding='utf-8')) if os.path.exists(GARANTE_SCAN) else {}
+        visible = db.execute("SELECT case_id, pharos_id, decision_date, source_url, controller, fine_eur FROM v_cases "
+                             "WHERE country_code = 'IT' AND source_url IS NOT NULL").fetchall()
+        for n, st in sorted(scan.items()):
+            if st.get('state') != 'removed':
+                continue
+            run.fetched += 1
+            notice = st['notice']
+            cands = [r for r in visible if url_key(r['source_url']) == f'garante:{n}']
+            m = re.search(r"n\.\s*\d+\s+del?l?['’]?\s*(\d{1,2})\s*(?:°|º)?\s+(\w+)\s+(\d{4})", notice)
+            date = f'{m.group(3)}-{IT_MONTHS.get(m.group(2).lower(), 0):02d}-{int(m.group(1)):02d}' if m else None
+            fit = [r for r in cands if date and r['decision_date'] == date]
+            court = re.search(r'(Tribunale di \w+|Corte \w+(?: \w+)?|Cassazione)[^.]*?n\.\s*([\d/]+)(?: del?l?[’\']?\s*([\d/]+))?', notice)
+            if len(fit) == 1:
+                db.execute('INSERT OR IGNORE INTO case_status (case_id, status, court, ruling_ref, source_url, quote, note, rule, checked_at) '
+                           'VALUES (?,?,?,?,?,?,?,?,?)',
+                           (fit[0]['case_id'], 'annulled', court.group(1) if court else None, court.group(2) if court else None,
+                            f'https://www.garanteprivacy.it/web/guest/home/docweb/-/docweb-display/docweb/{n}', notice,
+                            GARANTE_NOTE, 'auto: Garante removal notice (number and date match)', now()))
+                run.inserted += 1
+            else:
+                review.append({'docweb': n, 'notice': notice, 'notice_date': date or '',
+                               'fino_cases': '; '.join(f"{r['pharos_id']} {r['controller'] or ''} {r['decision_date']}" for r in cands) or 'none',
+                               'why': 'several decisions share this page' if len(cands) > 1 else 'the notice gives no number and date' if not date else 'no decision with that date',
+                               'your_answer': '', 'note': ''})
+        if os.path.exists(STATUS_FILE):
+            with open(STATUS_FILE, encoding='utf-8') as f:
+                for r in csv.DictReader(f):
+                    cid = db.execute('SELECT case_id FROM v_cases WHERE pharos_id = ?', (r['fino_id'],)).fetchone()
+                    if not cid:
+                        print(f"  {r['fino_id']}: not a visible decision, skipped")
+                        continue
+                    db.execute('INSERT OR REPLACE INTO case_status (case_id, status, amount_before, amount_after, court, ruling_ref, '
+                               'ruling_date, source_url, quote, note, rule, checked_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)',
+                               (cid[0], r['status'], int(r['amount_before']) if r.get('amount_before') else None,
+                                int(r['amount_after']) if r['amount_after'] else None, r['court'] or None,
+                                r['ruling_ref'] or None, r['ruling_date'] or None, r['source_url'], r['quote'] or None,
+                                r['note'] or None, r['rule'], now()))
+                    run.updated += 1
+        db.commit()
+        if review:
+            path = review_write('statuses', list(review[0]), review, answer=('your_answer', 'note'), how_to=[
+                'Removal notices the program could not tie to exactly one decision in Fino.',
+                "your_answer: the Fino number the notice belongs to (e.g. 2023/IT/012), or 'none'.",
+                'Answers become rows in pipeline/case_status.csv.'])
+            print(f'  {len(review)} notices need a look: {path}')
+    for r in db.execute('SELECT v.pharos_id, s.status, v.fine_before, v.fine_eur, s.rule FROM case_status s JOIN v_cases v USING (case_id) ORDER BY 1'):
+        print(f'  {r[0]:12} {r[1]:9} {r[2]} -> {r[3]}   ({r[4]})')
+
+
 # ----- STEP: NORMALISE -----
 # The CMS tracker's own 11 sectors are kept as they are; only typos and 'Not assigned' are cleaned
 SECTOR_FIXES = {
@@ -1288,7 +1354,7 @@ def step_normalise(db):
 EXPORT_COLUMNS = ['pharos_id', 'case_id', 'source', 'country', 'country_code', 'authority', 'decision_date',
                   'date_precision', 'fine_eur', 'fine_original', 'currency', 'controller', 'sector_tag',
                   'articles', 'categories', 'violation_type', 'best_outcome', 'best_summary', 'source_url',
-                  'source_page', 'gdprhub_page', 'attribution']
+                  'source_page', 'gdprhub_page', 'attribution', 'status', 'status_note', 'status_source', 'fine_before']
 
 
 def step_export(db):
@@ -1376,7 +1442,7 @@ SITE_FIELDS = ['pharos_id', 'case_id', 'source', 'country', 'country_code', 'aut
                'date_precision', 'fine_eur', 'fine_original', 'currency', 'controller', 'sector_tag', 'articles',
                'categories', 'violation_type', 'best_outcome', 'source_url', 'source_page', 'gdprhub_page',
                'summary_by', 'parties_named', 'controller_note', 'org', 'org_group',
-               'fine_amount', 'fine_eur_est', 'fx', 'party_kind']  # fx = 'day 2026-09-22|10.9012|SEK': basis, units per euro, currency
+               'fine_amount', 'fine_eur_est', 'fx', 'party_kind', 'status', 'status_note', 'status_source', 'fine_before']  # fx = 'day 2026-09-22|10.9012|SEK': basis, units per euro, currency
 
 
 # ----- WHO AN UNNAMED DECISION IS ABOUT -----
@@ -1537,7 +1603,7 @@ def step_stats(db):
 def main():
     p = argparse.ArgumentParser(description='GDPR enforcement database pipeline')
     p.add_argument('step', choices=['migrate', 'fix-ids', 'cms', 'cms-summaries', 'gdprhub', 'parties',
-                                    'parties-review', 'parties-apply', 'cms-names', 'organisations-review', 'organisations-apply', 'link', 'normalise', 'convert',
+                                    'parties-review', 'parties-apply', 'cms-names', 'organisations-review', 'organisations-apply', 'link', 'status', 'normalise', 'convert',
                                     'currency-review', 'currency-apply', 'unnamed-review', 'unnamed-apply', 'export', 'stats', 'update'])
     p.add_argument('--limit', type=int, default=50, help='cms-summaries: how many case pages to fetch')
     a = p.parse_args()
@@ -1567,6 +1633,8 @@ def main():
             step_organisations_review(db)
         elif a.step == 'organisations-apply':
             step_organisations_apply(db)
+        elif a.step == 'status':
+            step_status(db)
         elif a.step == 'link':
             step_link(db)
         elif a.step == 'normalise':

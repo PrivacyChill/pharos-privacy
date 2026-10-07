@@ -205,6 +205,9 @@ h1 .tag-person { display: inline-block; vertical-align: 0.4em; margin-left: 12px
 .fine .lbl { font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
 .fine .amt { font-family: var(--display); font-variation-settings: "SOFT" 100, "opsz" 96; font-weight: 600; font-size: clamp(2rem, 4.4vw, 2.9rem); line-height: 1.05; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
 .fine .amt.none { font-size: 1.6rem; font-weight: 500; }
+.amt s { text-decoration-thickness: 2px; color: var(--muted); }
+.after { margin: 14px 0 0; padding: 10px 14px; border-left: 3px solid var(--latte-line); background: var(--neutral-bg); font-size: 0.92rem; max-width: 62ch; }
+.after a { white-space: nowrap; }
 .fine .amt .cur { font-size: 0.5em; font-weight: 500; letter-spacing: 0.02em; margin-right: 0.25em; vertical-align: 0.12em; }
 .fine .conv { font-family: var(--display); font-variation-settings: "SOFT" 100; font-weight: 500; font-size: 1.35rem; line-height: 1.1; font-variant-numeric: tabular-nums; }
 .fine .pill { margin-top: 6px; }
@@ -441,6 +444,7 @@ footer .mail { color: inherit; }
 
 
 
+
 
 <!-- seo -->
 <meta property="og:type" content="website">
@@ -623,7 +627,16 @@ const MINI = `<svg class="mini" viewBox="0 0 200 180" role="img" aria-label="Fin
 </svg>`;
 const SHEET_MARK = `<svg viewBox="0 0 200 180" aria-hidden="true"><path d="M100 24 C152 24 184 60 186 106 C188 148 152 166 100 166 C48 166 12 148 14 106 C16 60 48 24 100 24 Z" fill="#FFCDB8" stroke="#211915" stroke-width="9"/><ellipse cx="78" cy="100" rx="9" ry="13" fill="#211915"/><ellipse cx="122" cy="100" rx="9" ry="13" fill="#211915"/></svg>`;
 
+/* What happened next (case_status): an annulled fine shows struck through and counts nowhere; a fine changed
+   or confirmed in court shows the amount that stands, with a short label. */
+const STATUS_LABEL = { annulled: 'Annulled by a court', reduced: 'Reduced on appeal', increased: 'Increased on appeal', confirmed: 'Confirmed in court', appealed: 'Under appeal' };
 function fineInfo(c) {
+  const st = STATUS_LABEL[c.status];
+  if (c.status === 'annulled') return { label: c.fine_before ? eur(c.fine_before) : 'Fine', struck: true, status: st, none: !c.fine_before };
+  if (st) return { ...fineInfoPlain(c), status: st };
+  return fineInfoPlain(c);
+}
+function fineInfoPlain(c) {
   if (c.est) return { label: native(c), conv: money(c), note: fxNote(c), none: false };
   if (c.fine_eur) return { label: eur(c.fine_eur), none: false };
   if (c.fine_original && c.fine_original !== 'None' && c.currency && c.currency !== 'EUR') return { label: `${c.fine_original} ${c.currency}`, none: false };
@@ -766,7 +779,7 @@ function renderResults() {
       <span class="dt">${esc(d.short)}</span>
       <span class="who"><b class="${party(c).cls}">${esc(party(c).name)}</b>${party(c).sub ? `<small>${esc(party(c).sub)}</small>` : ''}${about ? `<span>${esc(about)}</span>` : ''}${c.arts.length ? `<small>${c.arts.slice(0, 5).map(n => 'Art. ' + n).join(', ')}${c.arts.length > 5 ? ' …' : ''}</small>` : ''}</span>
       <span class="cty">${esc(c.country || '')}</span>
-      <span class="amt ${f.none ? 'none' : ''}">${esc(f.label)}${f.conv ? `<small>${esc(f.conv)}</small>` : ''}</span>
+      <span class="amt ${f.none ? 'none' : ''}">${f.struck ? `<s>${esc(f.label)}</s>` : esc(f.label)}${f.conv ? `<small>${esc(f.conv)}</small>` : ''}${f.status ? `<small>${esc(f.status)}</small>` : ''}</span>
     </a></li>`;
   }).join('');
   $('more').innerHTML = list.length > state.shown
@@ -864,7 +877,9 @@ function groupBlock(c) {
 function renderDecision(c) {
   const d = when(c.decision_date, c.date_precision), f = fineInfo(c), k = context(c), sims = similar(c);
   const about = c.violation_type ? `<span class="hl">${esc(c.violation_type)}</span>` : c.categories ? `About: ${esc(c.categories)}` : '';
-  const pill = c.best_outcome ? `<span class="pill ${outcomeKind(c.best_outcome)}">${esc(c.best_outcome)}</span>` : '';
+  const pill = f.status ? `<span class="pill ok">${esc(f.status)}</span>`
+    : c.best_outcome ? `<span class="pill ${outcomeKind(c.best_outcome)}">${esc(c.best_outcome)}</span>` : '';
+  const after = c.status_note ? `<p class="after"><b>What happened next.</b> ${esc(c.status_note)}${c.status_source ? ` <a href="${esc(c.status_source)}" target="_blank" rel="noopener">Source &rarr;</a>` : ''}</p>` : '';
   const pc = k && Math.round(k.below / k.n * 100), eu = k && Math.round(k.eu_below / k.eu_n * 100);
   $('main').innerHTML = `
   <div class="wrap">
@@ -880,8 +895,9 @@ function renderDecision(c) {
         ${party(c).unchecked ? '<p class="legend" style="margin:0 0 12px">The source names these parties without saying which one the decision is about. I&rsquo;m checking it.</p>'
           : party(c).sub && !party(c).person ? `<p class="legend" style="margin:0 0 12px">${esc(party(c).sub)}.</p>` : ''}
         <p class="lede">${about}</p>
+        ${after}
       </div>
-      <div class="fine"><span class="lbl">Fine</span><span class="amt ${f.none ? 'none' : ''}">${f.conv ? `<span class="cur">${esc(c.currency)}</span>${esc(f.label.slice(c.currency.length + 1))}` : esc(f.label)}</span>${f.conv ? `<span class="conv" title="${esc(f.note)}">${esc(f.conv)}</span>` : ''}${pill}</div>
+      <div class="fine"><span class="lbl">Fine</span><span class="amt ${f.none ? 'none' : ''}">${f.conv ? `<span class="cur">${esc(c.currency)}</span>${esc(f.label.slice(c.currency.length + 1))}` : f.struck ? `<s>${esc(f.label)}</s>` : esc(f.label)}</span>${f.conv ? `<span class="conv" title="${esc(f.note)}">${esc(f.conv)}</span>` : ''}${pill}</div>
     </div>
     <dl class="facts">
       <div><dt>Regulator</dt><dd>${esc(authority(c.authority))}</dd></div>

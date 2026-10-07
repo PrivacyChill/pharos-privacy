@@ -193,6 +193,9 @@ h1 .tag-person { display: inline-block; vertical-align: 0.4em; margin-left: 12px
 .fine .lbl { font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
 .fine .amt { font-family: var(--display); font-variation-settings: "SOFT" 100, "opsz" 96; font-weight: 600; font-size: clamp(2rem, 4.4vw, 2.9rem); line-height: 1.05; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
 .fine .amt.none { font-size: 1.6rem; font-weight: 500; }
+.amt s { text-decoration-thickness: 2px; color: var(--muted); }
+.after { margin: 14px 0 0; padding: 10px 14px; border-left: 3px solid var(--latte-line); background: var(--neutral-bg); font-size: 0.92rem; max-width: 62ch; }
+.after a { white-space: nowrap; }
 .fine .amt .cur { font-size: 0.5em; font-weight: 500; letter-spacing: 0.02em; margin-right: 0.25em; vertical-align: 0.12em; }
 .fine .conv { font-family: var(--display); font-variation-settings: "SOFT" 100; font-weight: 500; font-size: 1.35rem; line-height: 1.1; font-variant-numeric: tabular-nums; }
 .fine .pill { margin-top: 6px; }

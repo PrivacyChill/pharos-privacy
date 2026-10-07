@@ -117,6 +117,24 @@ CREATE TABLE IF NOT EXISTS runs (
     notes       TEXT
 );
 
+-- What happened after the decision: annulled or changed by a court, or confirmed. One row per decision (its
+-- primary case_id). Strict rules only: a regulator's own notice (the Garante's "rimosso ... a seguito di sentenza")
+-- or a ruling read by hand; anything less certain goes to review first. The view applies it to fine_eur.
+CREATE TABLE IF NOT EXISTS case_status (
+    case_id      TEXT PRIMARY KEY REFERENCES cases (case_id) ON DELETE CASCADE,
+    status       TEXT NOT NULL CHECK (status IN ('annulled', 'reduced', 'increased', 'confirmed', 'appealed')),
+    amount_before INTEGER,         -- the euro amount first decided, when the source shows a later one (Infobel)
+    amount_after INTEGER,          -- the euro amount that stands after the ruling (reduced / increased)
+    court        TEXT,
+    ruling_ref   TEXT,
+    ruling_date  TEXT,
+    source_url   TEXT NOT NULL,    -- where it is stated: the regulator's page or the ruling
+    quote        TEXT,             -- the sentence that says so, in the original language
+    note         TEXT,             -- shown on the site, in English
+    rule         TEXT NOT NULL,    -- how we know: 'Garante removal notice', 'read by hand', ...
+    checked_at   TEXT NOT NULL
+);
+
 -- ----- VIEWS -----
 
 -- Each real-world decision once. The primary row is kept; a linked duplicate adds its summary/outcome
@@ -125,11 +143,18 @@ DROP VIEW IF EXISTS v_cases;
 CREATE VIEW v_cases AS
 SELECT
     c.case_id, c.pharos_id, c.source, c.country, c.country_code, c.authority, c.decision_date, c.date_precision,
-    -- the primary's fine; when its source gives no amount at all, the linked page's (2021/IT/017, Enel)
+    -- the primary's fine; when its source gives no amount at all, the linked page's (2021/IT/017, Enel).
+    -- What happened next wins (case_status): an annulled fine is no fine; a fine changed on appeal is the new amount
+    CASE WHEN st.status = 'annulled' THEN NULL WHEN st.amount_after IS NOT NULL THEN st.amount_after ELSE
     COALESCE(c.fine_eur, CASE WHEN COALESCE(c.fine_original, '') = '' THEN
              (SELECT g.fine_eur FROM case_links l JOIN cases g ON g.case_id = l.duplicate_id
               WHERE l.primary_id = c.case_id AND l.status != 'rejected' AND g.fine_eur IS NOT NULL
-              ORDER BY g.case_id LIMIT 1) END)                              AS fine_eur,
+              ORDER BY g.case_id LIMIT 1) END) END AS fine_eur,
+    CASE WHEN st.status IS NOT NULL THEN COALESCE(st.amount_before, c.fine_eur, CASE WHEN COALESCE(c.fine_original, '') = '' THEN
+             (SELECT g.fine_eur FROM case_links l JOIN cases g ON g.case_id = l.duplicate_id
+              WHERE l.primary_id = c.case_id AND l.status != 'rejected' AND g.fine_eur IS NOT NULL
+              ORDER BY g.case_id LIMIT 1) END) END AS fine_before,  -- the amount first decided
+    st.status, st.note AS status_note, st.source_url AS status_source,
     c.fine_original, c.currency, c.controller, c.sector, c.sector_tag, c.articles_raw, c.violation_type,
     c.outcome, c.summary, c.source_url, c.source_page, c.attribution, c.first_seen, c.last_seen, c.updated_at,
     COALESCE(NULLIF(c.summary, ''),
@@ -145,7 +170,7 @@ SELECT
      ORDER BY g.case_id LIMIT 1)                                             AS gdprhub_page,
     (SELECT group_concat(article, ', ') FROM case_articles a WHERE a.case_id = c.case_id) AS articles,
     (SELECT group_concat(category, ', ') FROM case_categories k WHERE k.case_id = c.case_id) AS categories
-FROM cases c
+FROM cases c LEFT JOIN case_status st ON st.case_id = c.case_id
 WHERE c.case_id NOT IN (SELECT duplicate_id FROM case_links WHERE status != 'rejected');
 
 DROP VIEW IF EXISTS v_stats;

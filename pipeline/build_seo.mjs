@@ -213,7 +213,8 @@ for (const c of F.CASES) {
   /* several parties named but not yet checked: only the first goes in the title, so no unchecked name is headlined */
   const who = p.person ? `${p.name} (private person)` : p.unchecked ? `${c.parties_named.split('; ')[0]} and others` : p.name;
   const where = [c.country, c.year].filter(Boolean).join(', ');
-  const what = f.none ? (/^(Rejected|Violation found|Reprimand)/.test(c.best_outcome || '') ? `GDPR decision: ${c.best_outcome.toLowerCase()}` : 'GDPR decision') : `GDPR fine of ${f.label}`;
+  const what = (f.none ? (/^(Rejected|Violation found|Reprimand)/.test(c.best_outcome || '') ? `GDPR decision: ${c.best_outcome.toLowerCase()}` : 'GDPR decision') : `GDPR fine of ${f.label}`)
+    + (f.status ? `, ${f.status.toLowerCase()}` : '');
   const title = `${who}: ${what}${where ? ` (${where})` : ''} · Fino`;
   const arts = c.arts.length ? ` Articles ${c.arts.slice(0, 4).join(', ')} GDPR.` : '';
   const desc = c.summary ? cut(c.summary)
