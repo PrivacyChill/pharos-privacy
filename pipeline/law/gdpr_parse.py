@@ -29,7 +29,7 @@ def link(s):
         after = m.string[m.end():m.end()+120]
         # a reference to another act ("Article 25(6) of Directive 95/46/EC") is left as plain text
         # also when chained: "Article 25(6) or Article 26(4) of Directive 95/46/EC"
-        if re.match(r'(?:\s*(?:,|or|and)?\s*Articles?\s+[\d()a-z]+(?:\s*(?:,|or|and)\s*[\d()a-z]+)*)*\s*of (?!this Regulation)', after): return m.group(0)
+        if re.match(r'(?:\s*(?:,|or|and)?\s*Articles?\s+[\d()a-z]+(?:\s*(?:,|or|and)\s*[\d()a-z]+)*)*\s*(?:of (?!this Regulation)|TFEU|TEU)', after): return m.group(0)
         rest=re.sub(r'(?<!\()\b(\d{1,2})\b(?!\))', lambda n: f'<a class="xref" href="#art-{n.group(1)}">{n.group(1)}</a>' if 1<=int(n.group(1))<=99 else n.group(1), rest)
         return word+rest
     s=re.sub(r'\b(Articles? )((?:\d{1,2}\b(?:\(\d+\))*(?:\([a-z]+\))*(?:, | and | or | to )?)+)', rep, s)
