@@ -34,3 +34,6 @@ pipeline/law/aiact/
 
 # pilot of the decision-reading database: downloaded originals stay local
 pipeline/pilot/*/
+
+# downloaded source dumps (CNIL open data etc.): rebuilt by inventory.py
+pipeline/cache/

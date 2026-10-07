@@ -1,0 +1,253 @@
+[
+ {
+  "pharos_id": "2024/ES/002",
+  "country": "ES",
+  "url": "https://www.aepd.es/documento/ps-00484-2023.pdf",
+  "final_url": "https://www.aepd.es/documento/ps-00484-2023.pdf",
+  "http": 200,
+  "type": "application/pdf",
+  "pages": 139,
+  "chars": 467649,
+  "scanned": false
+ },
+ {
+  "pharos_id": "2026/ES/031",
+  "country": "ES",
+  "url": "https://www.aepd.es/documento/ps-00511-2025.pdf",
+  "final_url": "https://www.aepd.es/documento/ps-00511-2025.pdf",
+  "http": 200,
+  "type": "application/pdf",
+  "pages": 32,
+  "chars": 78316,
+  "scanned": false
+ },
+ {
+  "pharos_id": "2022/ES/234",
+  "country": "ES",
+  "url": "https://www.aepd.es/documento/ps-00587-2021.pdf",
+  "final_url": "https://www.aepd.es/documento/ps-00587-2021.pdf",
+  "http": 200,
+  "type": "application/pdf",
+  "pages": 26,
+  "chars": 76908,
+  "scanned": false
+ },
+ {
+  "pharos_id": "2021/IT/059",
+  "country": "IT",
+  "url": "https://www.garanteprivacy.it/web/guest/home/docweb/-/docweb-display/docweb/9570997",
+  "final_url": "https://www.garanteprivacy.it/web/guest/home/docweb/-/docweb-display/docweb/9570997",
+  "http": 200,
+  "type": "text/html",
+  "links": [],
+  "chars": 127489,
+  "scanned": false
+ },
+ {
+  "pharos_id": "2023/IT/011",
+  "country": "IT",
+  "url": "https://gpdp.it/web/guest/home/docweb/-/docweb-display/docweb/9963453",
+  "final_url": "https://gpdp.it/web/guest/home/docweb/-/docweb-display/docweb/9963453",
+  "http": 200,
+  "type": "text/html",
+  "links": [],
+  "chars": 724,
+  "scanned": false
+ },
+ {
+  "pharos_id": "2025/IT/125",
+  "country": "IT",
+  "url": "https://www.garanteprivacy.it/web/guest/home/docweb/-/docweb-display/docweb/10193871",
+  "final_url": "https://www.garanteprivacy.it/web/guest/home/docweb/-/docweb-display/docweb/10193871",
+  "http": 200,
+  "type": "text/html",
+  "links": [],
+  "chars": 28114,
+  "scanned": false
+ },
+ {
+  "pharos_id": "2024/DE/011",
+  "country": "DE",
+  "url": "https://www.datenschutz.sachsen.de/download/taetigkeitsberichte/Taetigkeitsbericht_Datenschutz_2024.pdf",
+  "final_url": "https://www.datenschutz.sachsen.de/download/taetigkeitsberichte/Taetigkeitsbericht_Datenschutz_2024.pdf",
+  "http": 200,
+  "type": "application/pdf",
+  "pages": 220,
+  "chars": 406049,
+  "scanned": false
+ },
+ {
+  "pharos_id": "2021/DE/049",
+  "country": "DE",
+  "url": "https://www.baden-wuerttemberg.datenschutz.de/vfb-stuttgart-bussgeld-erlassen/",
+  "final_url": "https://www.baden-wuerttemberg.datenschutz.de/vfb-stuttgart-bussgeld-erlassen/",
+  "http": 200,
+  "type": "text/html",
+  "links": [
+   [
+    "https://www.baden-wuerttemberg.datenschutz.de/wp-content/uploads/2021/03/20210310_PM_VfB-Stuttgart_Abschluss_Bussgeldverfahren.pdf",
+    "Diese Pressemitteilung als PDF-Dokument aufrufen."
+   ]
+  ],
+  "chars": 3581,
+  "scanned": false
+ },
+ {
+  "pharos_id": "2024/RO/013",
+  "country": "RO",
+  "url": "https://www.dataprotection.ro/?page=Comunicat_Presa_20.06.2024&lang=ro",
+  "final_url": "https://www.dataprotection.ro/?page=Comunicat_Presa_20.06.2024&lang=ro",
+  "http": 200,
+  "type": "text/html",
+  "links": [],
+  "chars": 4411,
+  "scanned": false
+ },
+ {
+  "pharos_id": "2026/BE/004",
+  "country": "BE",
+  "url": "https://www.autoriteprotectiondonnees.be/publications/decision-quant-au-fond-n0-102-2026.pdf",
+  "final_url": "https://www.autoriteprotectiondonnees.be/publications/decision-quant-au-fond-n0-102-2026.pdf",
+  "http": 200,
+  "type": "application/pdf",
+  "pages": 105,
+  "chars": 312226,
+  "scanned": false
+ },
+ {
+  "pharos_id": "2022/GR/004",
+  "country": "GR",
+  "url": "https://www.dpa.gr/el/enimerwtiko/prakseisArxis/epexergasia-dedomenon-meso-pistotikonhreostikon-karton-apo-tin-trapeza-0",
+  "final_url": "https://www.dpa.gr/el/enimerwtiko/prakseisArxis/epexergasia-dedomenon-meso-pistotikonhreostikon-karton-apo-tin-trapeza-0",
+  "http": 200,
+  "type": "text/html",
+  "links": [
+   [
+    "http://www.dpa.gr/sites/default/files/2022-10/55_2022%20anonym.pdf",
+    "55_2022 anonym.pdf"
+   ],
+   [
+    "https://www.linkedin.com/sharing/share-offsite/?url=http://www.dpa.gr/el/enimerwtiko/prakseisArxis/epexergasia-dedomenon-meso-pistotikonhreostikon-karton-apo-tin-trapeza-0&title=Επεξεργασία δεδομένων μέσω πιστωτικών/χρεωστικών καρτών από την Τράπεζα Eurobank – Συμμόρφωση με την υπ’ αριθμ. 48/2018 Απόφαση της Αρχής",
+    ""
+   ],
+   [
+    "https://twitter.com/intent/tweet?url=http://www.dpa.gr/el/enimerwtiko/prakseisArxis/epexergasia-dedomenon-meso-pistotikonhreostikon-karton-apo-tin-trapeza-0&text=Επεξεργασία δεδομένων μέσω πιστωτικών/χρεωστικών καρτών από την Τράπεζα Eurobank – Συμμόρφωση με την υπ’ αριθμ. 48/2018 Απόφαση της Αρχής",
+    ""
+   ],
+   [
+    "mailto:contact@dpa.gr?subject=Επεξεργασία δεδομένων μέσω πιστωτικών/χρεωστικών καρτών από την Τράπεζα Eurobank – Συμμόρφωση με την υπ’ αριθμ. 48/2018 Απόφαση της Αρχής&body=http://www.dpa.gr/el/enimerwtiko/prakseisArxis/epexergasia-dedomenon-meso-pistotikonhreostikon-karton-apo-tin-trapeza-0",
+    ""
+   ]
+  ],
+  "chars": 2827,
+  "scanned": false
+ },
+ {
+  "pharos_id": "2024/PL/008",
+  "country": "PL",
+  "url": "https://www.uodo.gov.pl/decyzje/DKN.5131.57.2022",
+  "final_url": "https://www.uodo.gov.pl/decyzje/DKN.5131.57.2022",
+  "http": 500,
+  "type": "text/html"
+ },
+ {
+  "pharos_id": "2026/FR/001",
+  "country": "FR",
+  "url": "https://www.legifrance.gouv.fr/cnil/id/CNILTEXT000053408671",
+  "final_url": "https://www.legifrance.gouv.fr/cnil/id/CNILTEXT000053408671",
+  "http": 403,
+  "type": "text/html"
+ },
+ {
+  "pharos_id": "2025/AT/028",
+  "country": "AT",
+  "url": "https://www.ris.bka.gv.at/Dokument.wxe?ResultFunctionToken=da17e572-27d4-4c82-abb9-7280d04b6240&Position=1&SkipToDocumentPage=True&Abfrage=Dsk&Entscheidungsart=Undefined&Organ=Undefined&SucheNachRechtssatz=True&SucheNachText=True&GZ=&VonDatum=01.01.1990&BisDatum=&Norm=&ImRisSeitVonDatum=&ImRisSeitBisDatum=&ImRisSeit=EinerWoche&ResultPageSize=100&Suchworte=DSGVO&Dokumentnummer=DSBT_20251105_2025_0_710_441_00",
+  "final_url": "https://www.ris.bka.gv.at/Dokument.wxe?ResultFunctionToken=da17e572-27d4-4c82-abb9-7280d04b6240&Position=1&SkipToDocumentPage=True&Abfrage=Dsk&Entscheidungsart=Undefined&Organ=Undefined&SucheNachRechtssatz=True&SucheNachText=True&GZ=&VonDatum=01.01.1990&BisDatum=&Norm=&ImRisSeitVonDatum=&ImRisSeitBisDatum=&ImRisSeit=EinerWoche&ResultPageSize=100&Suchworte=DSGVO&Dokumentnummer=DSBT_20251105_2025_0_710_441_00",
+  "http": 503,
+  "type": "text/html"
+ },
+ {
+  "pharos_id": "2021/NO/007",
+  "country": "NO",
+  "url": "https://www.datatilsynet.no/contentassets/447e5ad0c7f346fc9cc1c0d62d023bba/vedtak-om-overtredelsesgebyr--st.-olavs-hospital-hf.pdf",
+  "final_url": "https://www.datatilsynet.no/contentassets/447e5ad0c7f346fc9cc1c0d62d023bba/vedtak-om-overtredelsesgebyr--st.-olavs-hospital-hf.pdf",
+  "http": 200,
+  "type": "application/pdf",
+  "pages": 12,
+  "chars": 28607,
+  "scanned": false
+ },
+ {
+  "pharos_id": "2021/HU/007",
+  "country": "HU",
+  "url": "https://naih.hu//hatarozatok-vegzesek?download=380:kamerak-uzemeltetese-idosek-otthonaban",
+  "final_url": "https://naih.hu//hatarozatok-vegzesek?download=380:kamerak-uzemeltetese-idosek-otthonaban",
+  "http": 200,
+  "type": "application/pdf",
+  "pages": 29,
+  "chars": 107071,
+  "scanned": false
+ },
+ {
+  "pharos_id": "2024/IE/003",
+  "country": "IE",
+  "url": "https://www.dataprotection.ie/en/news-media/press-releases/irish-data-protection-commission-fines-meta-eu251-million",
+  "final_url": "https://www.dataprotection.ie/en/news-media/press-releases/irish-data-protection-commission-fines-meta-eu251-million",
+  "http": 200,
+  "type": "text/html",
+  "links": [
+   [
+    "https://www.dataprotection.ie/en/dpc-guidance/decisions",
+    "Decisions"
+   ],
+   [
+    "https://www.dataprotection.ie/en/dpc-guidance/decisions/inquiries-meta-platforms-ireland-limited-token-breach",
+    "Read the full decision and further related information."
+   ]
+  ],
+  "chars": 5243,
+  "scanned": false
+ },
+ {
+  "pharos_id": "2026/NL/015",
+  "country": "NL",
+  "url": "https://autoriteitpersoonsgegevens.nl/actueel/uber-krijgt-boete-van-bijna-825-miljoen-euro-voor-geautomatiseerd-blokkeren-van-chauffeurs",
+  "final_url": "https://autoriteitpersoonsgegevens.nl/actueel/uber-krijgt-boete-van-bijna-825-miljoen-euro-voor-geautomatiseerd-blokkeren-van-chauffeurs",
+  "http": 200,
+  "type": "text/html",
+  "links": [
+   [
+    "https://autoriteitpersoonsgegevens.nl/themas/algoritmes-ai/algoritmes-uitgelegd/automatisch-besluit#regels-automatisch-besluit-voor-bedrijven",
+    "geautomatiseerde besluitvorming"
+   ],
+   [
+    "https://autoriteitpersoonsgegevens.nl/themas/algoritmes-ai/algoritmes-uitgelegd/automatisch-besluit#informeren-over-automatisch-besluit",
+    "informeerde over de automatische besluitvorming"
+   ]
+  ],
+  "chars": 3170,
+  "scanned": false
+ },
+ {
+  "pharos_id": "2021/SE/001",
+  "country": "SE",
+  "url": "https://www.imy.se/globalassets/dokument/beslut/2021/2021-06-21-beslut-sl.pdf",
+  "final_url": "https://www.imy.se/globalassets/dokument/beslut/2021/2021-06-21-beslut-sl.pdf",
+  "http": 200,
+  "type": "application/pdf",
+  "pages": 29,
+  "chars": 93483,
+  "scanned": false
+ },
+ {
+  "pharos_id": "2025/HR/007",
+  "country": "HR",
+  "url": "https://azop.hr/sedam-novih-upravnih-novcanih-kazni-u-iznosu-od-169-000-eura/",
+  "final_url": "https://azop.hr/sedam-novih-upravnih-novcanih-kazni-u-iznosu-od-169-000-eura/",
+  "http": 200,
+  "type": "text/html",
+  "links": [],
+  "chars": 9775,
+  "scanned": false
+ }
+]

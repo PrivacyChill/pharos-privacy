@@ -1,0 +1,42 @@
+code,kind,url,match,changes,note
+EDPB,rss,https://www.edpb.europa.eu/feed/news_en,,,EDPB news
+EDPB,rss,https://www.edpb.europa.eu/feed/publications_en,,,"EDPB documents: guidelines, opinions, binding decisions"
+EDPB,page,https://www.edpb.europa.eu/registers/register-of-final-one-stop-shop-decisions_en,/system/files/,,Register of final one-stop-shop decisions (newest page)
+AT,ris,https://data.bka.gv.at/ris/api/v2.6/Judikatur?Applikation=Dsk&DokumenteProSeite=OneHundred&Seitennummer=1,,,RIS open-data API: DSB decisions
+BE,page,https://www.gegevensbeschermingsautoriteit.be/burger/zoeken?q=&search_category%5B%5D=taxonomy%3Apublications&search_type%5B%5D=decision,/publications/,,"Decisions and Market Court rulings, newest first"
+BG,rss,https://cpdp.bg/feed/,,,CPDP news feed
+HR,sitemap,https://azop.hr/sitemap_index.xml,rjesenj|odluk|decision|kazn,yes,AZOP pages about decisions and fines
+CY,rss,https://www.gov.cy/dataprotection/feed/,,,Commissioner news feed
+CZ,rss,https://uoou.gov.cz/feed/cs-rss.xml,,,UOOU news feed
+CZ,sitemap,https://uoou.gov.cz/sitemap/index.xml,rozhodnut|pokut|kontrol,yes,UOOU decision and inspection pages
+DK,sitemap,https://www.datatilsynet.dk/sitemap.xml,/afgoerelser/afgoerelser/,yes,Datatilsynet decisions
+EE,page,https://www.aki.ee/,\.pdf,,AKI (refuses automated visits on 7 Oct 2026)
+FI,rss,https://tietosuoja.fi/etusivu/-/asset_publisher/GcYqYm2ssJIz/rss,,,Ombudsman news feed
+FI,page,https://finlex.fi/fi/viranomaiset/tsv/,/tsv/,,Finlex: Ombudsman decisions
+FR,dila,https://echanges.dila.gouv.fr/OPENDATA/CNIL/,,,CNIL open data: one file per working day
+FR,page,https://www.cnil.fr/fr/les-sanctions-prononcees-par-la-cnil,/fr/sanction|/sites/cnil/files|simplifi,,CNIL sanctions page (incl. simplified procedure)
+DE,rss,https://www.bfdi.bund.de/SiteGlobals/Functions/RSSFeed/Allgemein/rssnewsfeed.xml?nn=252136,,,BfDI news feed (federal only; the 16 Länder come later)
+GR,rss,http://www.dpa.gr/el/apofaseis/rss.xml,,,HDPA decisions feed
+HU,page,https://naih.hu/hatarozatok-vegzesek,\.pdf|/file|download,,NAIH decisions list
+IE,sitemap,https://www.dataprotection.ie/sitemap.xml,/en/dpc-guidance/law/decisions|/en/news-media/press-releases,yes,DPC decisions and press releases
+IT,rss,https://www.garanteprivacy.it/o/gpdp-rss/rss?t=news,,,Garante news feed
+IT,page,https://www.garanteprivacy.it/home/provvedimenti,docweb,,Garante decisions list
+LV,sitemap,https://www.dvi.gov.lv/sitemap.xml,lemum|sod|parkap,yes,DVI pages about decisions and fines
+LT,page,https://vdai.lrv.lt/,sprend,,VDAI (refuses automated visits on 7 Oct 2026)
+LU,page,https://cnpd.public.lu/fr/decisions-sanctions.html,\.pdf|/decisions,,CNPD decisions
+MT,sitemap,https://idpc.org.mt/sitemap.xml,decision|fine|breach|sanction,yes,IDPC publications about decisions
+NL,rss,https://www.autoriteitpersoonsgegevens.nl/rss,,,AP news feed
+NL,sitemap,https://www.autoriteitpersoonsgegevens.nl/sitemap.xml,/documenten/|/en/documents/,yes,"AP documents (decisions, fine decisions)"
+PL,page,https://uodo.gov.pl/pl/138,/pl/138/\d+,,UODO news (orzeczenia.uodo.gov.pl is a script app: route still to find)
+PT,page,https://www.cnpd.pt/decisoes/deliberacoes/,download,,CNPD deliberations
+RO,rss,https://www.dataprotection.ro/feed,,,ANSPDCP news (fines are announced here)
+SK,sitemap,https://dataprotection.gov.sk/sitemap.xml,rozhodnut|pokut|sankci,yes,UOOU SK pages about decisions
+SI,page,https://www.ip-rs.si/,odlocb|odločb,,IP (decision list still to find)
+ES,page,https://www.aepd.es/informes-y-resoluciones/resoluciones,/documento/,,"AEPD resolutions, newest first"
+SE,rss,https://www.imy.se/nyheter/rss,,,IMY news feed
+SE,page,https://www.imy.se/tillsyner/,/tillsyner/.,,IMY supervision decisions
+UK,sitemap,https://ico.org.uk/sitemap/,/action-weve-taken/enforcement/,yes,ICO enforcement actions
+NO,page,https://www.datatilsynet.no/regelverk-og-verktoy/lover-og-regler/avgjorelser-fra-datatilsynet/,avgjorelser|vedtak,,Datatilsynet decisions
+IS,page,https://www.personuvernd.is/urlausnir/,urlausn|ákvörð,,Persónuvernd rulings
+LI,rss,https://www.datenschutzstelle.li/rss/aktuelles01,,,Datenschutzstelle news feed
+HUB,mediawiki,https://gdprhub.eu/api.php (recent new pages),,,GDPRhub: new pages (decisions and court rulings summarised by volunteers)
