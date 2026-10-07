@@ -128,3 +128,17 @@ statuses in `case_status.csv`:
 - 2026/LT/001: a doctor fined personally; her name was shown and is now removed (private person).
 - 31 of 34 now link to the decision or VDAI's summary of it; the other 3 to VDAI's own news page or annual report.
 - No decision text exists for 2020/LT/001 (EUR 8,000): the 2020 report only says the two largest fines were 15,000 and 8,000.
+
+## Official check: Austria (7 October 2026)
+
+`python inventory.py ris` loads every DSB decision from the RIS open-data API (362 full texts since 25 May 2018;
+the API also holds older DSK decisions and headnotes, left out). Each record says whether the decision is final
+('Anfechtung'), so `pharos.py status` marks pending appeals automatically and drops the label once RIS says final.
+- 110 of Fino's 145 Austrian entries pair with the official record (link or case number); the other 35 come from
+  newsletters, annual reports, news articles, noyb copies or court rulings (the DSB publishes only a selection in RIS).
+- 252 RIS decisions are not in Fino: almost all complaint decisions without a fine.
+- Fines: 25 checked against the text, 23 right. 2024/AT/006 is EUR 11,000 (Fino had 10,000); 2024/AT/010 is
+  EUR 5,000 (Fino had 5,500, which included the 10% procedure costs). With the amount fixed, 2024/AT/010 turned out
+  to be the same decision as 2024/AT/002 (merged).
+- Statuses: 11 under appeal (automatic), 2 confirmed in court (IKEA EUR 1.5m, 2023/AT/027), 5 appeals withdrawn (final).
+- 94 Austrian entries now link the stable official record instead of a search-result address with a session token.

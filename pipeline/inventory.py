@@ -10,6 +10,7 @@ A list or link we cannot open is flagged in review/blocked.xlsx for Lorenzo, nev
     python inventory.py cnil          the CNIL's sanction-type decisions from the French open data
     python inventory.py report        what the inventory holds, per country, next to Fino
     python inventory.py vdai          Lithuania's 2025 and 2026 tables, from pages saved with the browser (cache/vdai/lists)
+    python inventory.py ris           Austria: every DSB decision from the RIS open-data API (about 1 minute)
     python inventory.py match         which listed decisions Fino already has (by link, number, then day)
     python inventory.py blocked       write review/blocked.xlsx
 """
@@ -260,6 +261,45 @@ def vdai(db):
     print(f'  VDAI: {n} decisions in the 2025 and 2026 tables', flush=True)
 
 
+RIS = 'https://data.bka.gv.at/ris/api/v2.6/Judikatur?Applikation=Dsk&DokumenteProSeite=OneHundred&Seitennummer={}'
+
+
+def ris(db, delay=2.0):
+    """Austria: every DSB decision in the federal legal information system (RIS), through its open-data API.
+    Full texts only (no headnotes), decided since the GDPR applied. 'Anfechtung' says whether it is final."""
+    n, page = 0, 1
+    while True:
+        t = get(db, RIS.format(page), 'dsb', delay)
+        if t is None:
+            break
+        res = json.loads(t)['OgdSearchResult']['OgdDocumentResults']
+        docs = res.get('OgdDocumentReference') or []
+        for d in docs if isinstance(docs, list) else [docs]:
+            m = d['Data']['Metadaten']
+            j, dsk = m['Judikatur'], m['Judikatur'].get('Dsk', {})
+            date = j.get('Entscheidungsdatum') or ''
+            if j.get('Dokumenttyp') != 'Text' or date < '2018-05-25':
+                continue
+            gz = (j.get('Geschaeftszahl') or {}).get('item')
+            norms = (j.get('Normen') or {}).get('item') or []
+            urls = (((d.get('Dokumentliste') or {}).get('ContentReference') or {}).get('Urls') or {}).get('ContentUrl') or []
+            save(db, {'publisher': 'dsb', 'ref': m['Technisch']['ID'], 'country_code': 'AT', 'authority': 'DSB',
+                      'decision_date': date, 'party': None, 'outcome': dsk.get('Entscheidungsart'),
+                      'articles': ', '.join(x for x in ([norms] if isinstance(norms, str) else norms) if x.startswith('DSGVO')),
+                      'url': j.get('GesamteEntscheidungUrl'), 'page': RIS.format(page),
+                      'extra': json.dumps({'number': gz if isinstance(gz, str) else ', '.join(gz or []),
+                                           'ecli': j.get('EuropeanCaseLawIdentifier'), 'appeal': dsk.get('Anfechtung'),
+                                           'keywords': j.get('Schlagworte'),
+                                           'files': [u['Url'] for u in urls if u.get('DataType') in ('Pdf', 'Html')]},
+                                          ensure_ascii=False)})
+            n += 1
+        db.commit()
+        if page * 100 >= int(res['Hits']['#text']):
+            break
+        page += 1
+    print(f'  DSB (Austria): {n} decisions since 25 May 2018', flush=True)
+
+
 def report(db):
     fino = dict(db.execute('SELECT country_code, COUNT(*) FROM v_cases GROUP BY 1'))
     print(f"{'':4}{'Fino':>6}  inventory by publisher")
@@ -293,6 +333,9 @@ def refs(text, cc, year=None):
     out = set()
     if cc == 'FR':
         out |= {f'FR:{k.upper()}{y}{int(n):03d}' for k, y, n in re.findall(r'\b(SAN|MED|MEDP)[\s-]*(\d{4})[\s-]*(\d+)', text or '', re.I)}
+    if cc == 'AT':           # 'GZ 2023-0.420.407', older 'DSB-D124.0701/23' or 'D550.037/0003-DSB/2018'
+        out |= {'AT:' + x for x in re.findall(r'\b20\d\d-0\.\d{3}\.\d{3}\b', text or '')}
+        out |= {'AT:' + x for x in re.findall(r'\bD\s?(\d{3}\.\d{3,4})', text or '')}
     if cc == 'LT' and year:
         out |= {f'LT:{year}:{int(n)}' for n in re.findall(r'(?:\b3R-?\s*|Nr\.\s*(?!3R))(\d+)', text or '', re.I)}
     return out
@@ -335,7 +378,7 @@ def match(db):
     for c in cases:
         by_link.setdefault(ids(c['source_url']), set()).add(c['case_id'])
         c_refs = refs(c['case_id'] + ' ' + urllib.parse.unquote(c['source_url'] or ''), c['cc'], (c['d'] or '')[:4])
-        c_refs |= refs(c['txt'], c['cc']) if c['cc'] == 'FR' else set()
+        c_refs |= refs(c['txt'], c['cc']) if c['cc'] in ('FR', 'AT') else set()
         numbers[c['case_id']] = c_refs
         for r in c_refs:
             by_ref.setdefault(r, set()).add(c['case_id'])
@@ -349,7 +392,7 @@ def match(db):
         if r['publisher'] == 'vdai':
             r['decision_date'] = r['decision_date'] or lt_date(r['ref'])
         day_count[(r['publisher'], r['country_code'], r['decision_date'])] = day_count.get((r['publisher'], r['country_code'], r['decision_date']), 0) + 1
-    is_fine = lambda r: bool(re.search(r'fine|^Sanction', r['outcome'] or '', re.I))
+    is_fine = lambda r: bool(re.search(r'fine|^Sanction|Straferkenntnis', r['outcome'] or '', re.I))
     days = lambda d: (int(d[:4]) * 12 + int(d[5:7])) * 31 + int(d[8:10])
     fines_listed = {}
     for r in rows:
@@ -369,7 +412,7 @@ def match(db):
             hit |= by_link.get(ids(u), set()) if u else set()
         how = 'link' if hit else how
         r['year'] = (r['decision_date'] or re.search(r'20\d\d|$', r['ref']).group(0))[:4]
-        r['mine'] = refs(f"{r['ref']} {extra.get('numero', '')} {extra.get('title', '')}", r['country_code'], r['year'])
+        r['mine'] = refs(f"{r['ref']} {extra.get('numero', '')} {extra.get('number', '')} {extra.get('title', '')}", r['country_code'], r['year'])
         if not hit:
             for k in r['mine']:
                 hit |= by_ref.get(k, set())
@@ -443,4 +486,4 @@ KNOWN_BLOCKED = [
 if __name__ == '__main__':
     cmd = sys.argv[1] if len(sys.argv) > 1 else 'report'
     db = connect()
-    {'edpb': edpb, 'gdprhub': gdprhub, 'cnil': cnil, 'report': report, 'match': match, 'vdai': vdai, 'blocked': blocked}[cmd](db)
+    {'edpb': edpb, 'gdprhub': gdprhub, 'cnil': cnil, 'report': report, 'match': match, 'vdai': vdai, 'ris': ris, 'blocked': blocked}[cmd](db)

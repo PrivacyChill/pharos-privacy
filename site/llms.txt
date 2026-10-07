@@ -1,6 +1,6 @@
 # Fino
 
-> Fino is a free, independent website about EU privacy law. It has a searchable database of 4,993 GDPR fines and decisions from data protection authorities in 34 countries (€9.13 billion in fines), the full GDPR text with every article linked to the decisions that cite it, the full EU AI Act as amended in 2026, and plain-English explainers that answer common compliance questions with the rules and real decisions. Made by Lorenzo A., CIPP/E. Not legal advice.
+> Fino is a free, independent website about EU privacy law. It has a searchable database of 4,992 GDPR fines and decisions from data protection authorities in 34 countries (€9.13 billion in fines), the full GDPR text with every article linked to the decisions that cite it, the full EU AI Act as amended in 2026, and plain-English explainers that answer common compliance questions with the rules and real decisions. Made by Lorenzo A., CIPP/E. Not legal advice.
 
 Facts about the data:
 

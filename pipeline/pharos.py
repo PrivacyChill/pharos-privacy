@@ -1064,6 +1064,10 @@ IT_MONTHS = {m: i for i, m in enumerate(['gennaio', 'febbraio', 'marzo', 'aprile
 GARANTE_NOTE = 'The Garante removed this decision from its website after a final court judgment against it.'
 
 
+AT_PARTY = {r'Beschwerdeführer': 'the complainant', r'[Bb]eschwerdegegner': 'the organisation',
+            r'Beschuldigte': 'the fined party', r'Verantwortliche': 'the controller'}
+
+
 def step_status(db):
     """case_status from two places. 1) case_status.csv, read by hand. 2) The Garante's removal notices, only when
     the notice's own number and date ('n. 66 dell'8 febbraio 2024') fit exactly one decision in Fino with that
@@ -1097,6 +1101,25 @@ def step_status(db):
                                'fino_cases': '; '.join(f"{r['pharos_id']} {r['controller'] or ''} {r['decision_date']}" for r in cands) or 'none',
                                'why': 'several decisions share this page' if len(cands) > 1 else 'the notice gives no number and date' if not date else 'no decision with that date',
                                'your_answer': '', 'note': ''})
+        # Austria: the RIS record says whether each decision is final ('Anfechtung'). Pending appeals become
+        # 'appealed' automatically, and drop off again once the record says the decision is final.
+        if db.execute("SELECT 1 FROM sqlite_master WHERE name = 'inventory_match'").fetchone():
+            for cid, extra in db.execute("""SELECT m.case_id, i.extra FROM inventory_match m JOIN inventory i USING (publisher, ref)
+                                            WHERE m.publisher = 'dsb' AND m.how IN ('link', 'number')""").fetchall():
+                a = json.loads(extra).get('appeal') or ''
+                if not re.search(r'nicht rechtskräftig', a, re.I) or not re.search(r'(?:eingebracht|erhoben)', a):
+                    continue
+                run.fetched += 1
+                who = sorted({w for k, w in AT_PARTY.items() if re.search(k, a)})
+                note = (f"Not final: {' and '.join(who) or 'a party'} appealed to the Federal Administrative Court (BVwG)"
+                        + (', only against the amount' if 'Strafhöhe' in a else '') + '; the case is pending.')
+                quote = re.split(r'(?<=eingebracht\.)|(?<=rechtskräftig\.)\s*\n', a)[0].strip()
+                db.execute('INSERT OR IGNORE INTO case_status (case_id, status, court, source_url, quote, note, rule, checked_at) '
+                           "VALUES (?, 'appealed', 'Federal Administrative Court (BVwG)', ?, ?, ?, ?, ?)",
+                           (cid, db.execute("SELECT url FROM inventory i JOIN inventory_match m USING (publisher, ref) "
+                                            "WHERE m.case_id = ? AND m.publisher = 'dsb'", (cid,)).fetchone()[0],
+                            quote, note, 'auto: Austrian RIS record (not final, appeal pending)', now()))
+                run.inserted += 1
         if os.path.exists(STATUS_FILE):
             with open(STATUS_FILE, encoding='utf-8') as f:
                 for r in csv.DictReader(f):
