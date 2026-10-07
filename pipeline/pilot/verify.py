@@ -1,11 +1,13 @@
 """Pilot, step 3: check every quote in <slug>/analysis.json against the original text, word for word.
 
-  python verify.py      prints, per decision, how many quotes were found in the source, and lists the misses
+  python verify.py                    prints, per decision, how many quotes were found in the source, and lists the misses
+  python verify.py analysis_x.json    the same for another analysis file name (a model being tested)
+  python verify.py analysis_x.json 2021-IT-059    only that folder
 
 A quote is found when it appears in the source after spaces, line breaks and hyphenated line ends are normalised.
 Nothing is fixed here: a miss means the fact is not shown until it is checked.
 """
-import json, os, re, glob
+import json, os, re, glob, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 
@@ -29,7 +31,9 @@ def quotes(x, path=''):
 
 total = found = 0
 rows = []
-for f in sorted(glob.glob(os.path.join(HERE, '*', 'analysis.json'))):
+NAME = sys.argv[1] if len(sys.argv) > 1 else 'analysis.json'
+ONLY = sys.argv[2] if len(sys.argv) > 2 else '*'
+for f in sorted(glob.glob(os.path.join(HERE, ONLY, NAME))):
     d = os.path.dirname(f)
     src = ' '.join(open(t, encoding='utf-8').read() for t in sorted(glob.glob(os.path.join(d, '*.txt'))))
     S = norm(src)

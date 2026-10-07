@@ -1,5 +1,6 @@
 """Show the parts of a decision that carry the facts: the opening, passages around key words, the end."""
 import re, sys, glob
+sys.stdout.reconfigure(encoding="utf-8")  # Greek, Polish, ... on a Windows console
 slug, head, tail = sys.argv[1], int(sys.argv[2]), int(sys.argv[3])
 keys = sys.argv[4] if len(sys.argv) > 4 else ''
 files = [f for f in sorted(glob.glob(slug + '/*.txt')) if not f.endswith('_c.txt')]

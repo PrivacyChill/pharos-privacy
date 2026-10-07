@@ -75,3 +75,22 @@ facts are reliable but some details (LaLiga's final turnover figure) were not re
 5. Everything uncertain (scanned pages, a press release covering several fines, an unclear match) goes to
    review, never into Fino directly.
 6. Test a cheaper model on these same 20 cases and compare field by field before it runs on its own.
+
+## Cheaper models tested (7 October 2026)
+
+The reading procedure is now a skill (`C:\Users\angel\AI\Skills\fino-reader\SKILL.md`). Six of the 20 cases
+(IT, ES, BE 105 pages, GR, AT, NL press release) were read blind by Sonnet and by Haiku (texts copied to
+`_test/`, no reference answers in reach) and scored with `python compare.py sonnet|haiku`.
+
+| | Sonnet | Haiku |
+|---|---|---|
+| Fine, date, controller, articles, outcome | same as Opus in every case | same as Opus in every case |
+| Quotes found word for word | 139 / 139 | 112 / 112 |
+| Article 83(2) factors (aggravating / mitigating) | 22 / 15 (Opus 14 / 11) | 8 / 10 |
+| Status (appeal etc.) | right in every case | thinner: 4 of 6 differ or missing |
+| Tokens per decision (agent run) | about 85,000 | about 77,000 |
+
+Sonnet matched Opus and found one infringement Opus missed (Fastweb, Articles 33-34 breach notification).
+"Differences" in the scoring were reference gaps (Spain: no date in the text for either reader).
+**Choice:** Sonnet for the full reading; Haiku is good enough for the official check of the core facts
+(date, amount, party, outcome) only.
