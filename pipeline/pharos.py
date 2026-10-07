@@ -39,6 +39,7 @@ from datetime import datetime, timezone
 HERE = os.path.dirname(os.path.abspath(__file__))
 DB_FILE = os.path.join(HERE, 'gdpr.db')
 SCHEMA_FILE = os.path.join(HERE, 'schema.sql')
+MERGED_FILE = os.path.join(HERE, 'seo_merged.json')  # merged duplicate -> the decision it now belongs to
 LEGACY_FILE = os.path.join(HERE, 'gdpr_database.json')
 EXPORT_DIR = os.path.join(HERE, 'exports')
 # The Pharos website reads a compact copy of the database from its data/ folder
@@ -990,9 +991,29 @@ def step_parties_apply(db):
 DISTINCTIVE_FINE = 100_000  # at or above this, an exact euro amount in one country and month identifies a decision
 
 
+def url_key(url):
+    """The same publication under different addresses: the Garante serves each decision on gpdp.it and
+    garanteprivacy.it, with or without www and /web/guest, so its document number is the key."""
+    m = re.search(r'(?:gpdp|garanteprivacy)\.it/.*docweb/(\d+)', url)
+    if m:
+        return 'garante:' + m.group(1)
+    return re.sub(r'^https?://(www\.)?', '', url.strip()).rstrip('/').lower()
+
+
 def step_link(db):
     """Strict rules only. A linked row is hidden in v_cases, never deleted. Anything ambiguous stays unlinked."""
     with Run(db, 'link') as run:
+        # A link made because the fines were equal goes when a source corrects its amount (2023/IT/011 was
+        # linked to a EUR 500 decision once GDPRhub fixed its figure); the link to the right twin can then form
+        stale = db.execute("""SELECT l.primary_id, l.duplicate_id FROM case_links l
+                              JOIN cases p ON p.case_id = l.primary_id JOIN cases d ON d.case_id = l.duplicate_id
+                              WHERE l.status = 'auto' AND l.rule LIKE '%fine%'
+                                AND (COALESCE(p.fine_eur, -1) != COALESCE(d.fine_eur, -1) OR p.country_code != d.country_code
+                                     OR substr(p.decision_date, 1, 7) != substr(d.decision_date, 1, 7))""").fetchall()
+        for p, d in stale:
+            db.execute('DELETE FROM case_links WHERE primary_id = ? AND duplicate_id = ?', (p, d))
+            print(f'  link removed, the fines no longer match: {p} / {d}')
+            run.updated += 1
         linked = {r[0] for r in db.execute("SELECT duplicate_id FROM case_links WHERE status != 'rejected'")}
         primaries = {r[0] for r in db.execute("SELECT primary_id FROM case_links WHERE status != 'rejected'")}
         rejected = {(r[0], r[1]) for r in db.execute("SELECT primary_id, duplicate_id FROM case_links WHERE status = 'rejected'")}
@@ -1006,11 +1027,12 @@ def step_link(db):
             run.inserted += 1
 
         # Rule 1: identical link to the regulator's publication, used by exactly one case on each side
-        for r in db.execute("""SELECT c.case_id AS p, g.case_id AS d FROM cases c JOIN cases g ON g.source_url = c.source_url
-                               WHERE c.source='cms_tracker' AND g.source='gdprhub' AND c.source_url IS NOT NULL
-                                 AND (SELECT COUNT(*) FROM cases x WHERE x.source='cms_tracker' AND x.source_url=c.source_url) = 1
-                                 AND (SELECT COUNT(*) FROM cases y WHERE y.source='gdprhub' AND y.source_url=g.source_url) = 1"""):
-            add(r['p'], r['d'], 'same original source URL')
+        by_url = {}
+        for r in db.execute("SELECT case_id, source, source_url FROM cases WHERE source_url IS NOT NULL ORDER BY case_id"):
+            by_url.setdefault(url_key(r['source_url']), {'cms_tracker': [], 'gdprhub': []})[r['source']].append(r['case_id'])
+        for g in by_url.values():
+            if len(g['cms_tracker']) == 1 and len(g['gdprhub']) == 1:
+                add(g['cms_tracker'][0], g['gdprhub'][0], 'same original source URL')
 
         # Group fined cases by country + month + exact euro fine
         groups = {}
@@ -1310,6 +1332,14 @@ def step_export(db):
             meta = meta | {'moved': dict(db.execute(
                 """SELECT h.old_id, c.pharos_id FROM id_history h JOIN cases c USING (case_id)
                    WHERE h.old_id NOT IN (SELECT pharos_id FROM cases WHERE pharos_id IS NOT NULL)"""))}
+            # a page merged into its twin from the other source (2021/IT/100 -> 2021/IT/017): build_seo.mjs
+            # forwards the ones that were ever published, so their links keep working
+            with open(MERGED_FILE, 'w', encoding='utf-8') as f:
+                json.dump(dict(db.execute(
+                    """SELECT d.pharos_id, p.pharos_id FROM case_links l JOIN cases d ON d.case_id = l.duplicate_id
+                       JOIN cases p ON p.case_id = l.primary_id
+                       WHERE l.status != 'rejected' AND d.pharos_id IS NOT NULL AND p.pharos_id IS NOT NULL
+                       ORDER BY d.pharos_id""")), f, indent=0)
             for r in rows:
                 fx = conv.get(r['case_id'])
                 r['fine_amount'] = fx['amount'] if fx else None

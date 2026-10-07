@@ -243,6 +243,16 @@ for (const [old, cur] of Object.entries(cases.meta.moved || {})) {
   write(`decisions/${o}.html`, `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Moved · Fino</title><meta name="robots" content="noindex"><link rel="canonical" href="${BASE}/decisions/${n}.html"><meta http-equiv="refresh" content="0; url=/decisions/${n}.html"></head><body><p>This decision now has the number ${cur}: <a href="/decisions/${n}.html">open it</a>.</p></body></html>\n`);
 }
 
+/* a decision merged into its twin from the other source forwards to it, if its page was ever published */
+let merged = {}; try { merged = JSON.parse(fs.readFileSync(path.join(ROOT, 'pipeline', 'seo_merged.json'), 'utf8')); } catch (e) {}
+for (const [old, cur] of Object.entries(merged)) {
+  const o = F.slug(old), n = F.slug(cur), ou = `${BASE}/decisions/${o}.html`;
+  if (!(ou in lastmod) || o === n || F.BY_SLUG.get(o)?.pharos_id === old || !F.BY_SLUG.has(n) || F.BY_SLUG.get(n).pharos_id !== cur) continue;
+  write(`decisions/${o}.html`, `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Moved · Fino</title><meta name="robots" content="noindex"><link rel="canonical" href="${BASE}/decisions/${n}.html"><meta http-equiv="refresh" content="0; url=/decisions/${n}.html"></head><body><p>Two sources published this decision; Fino now shows it once, as ${cur}: <a href="/decisions/${n}.html">open it</a>.</p></body></html>
+`);
+  seen.add(ou);  // remembered, so the forward survives later builds
+}
+
 /* ---------- 5. The GDPR: one page per article, and the whole text with the recitals ---------- */
 clearHtml('gdpr');
 const ELI = 'https://eur-lex.europa.eu/eli/reg/2016/679/oj';

@@ -120,11 +120,18 @@ CREATE TABLE IF NOT EXISTS runs (
 -- ----- VIEWS -----
 
 -- Each real-world decision once. The primary row is kept; a linked duplicate adds its summary/outcome
--- when the primary has none. Correlated subqueries (not joins) so several duplicates never multiply rows.
+-- (and its fine) when the primary has none. Correlated subqueries (not joins) so several duplicates never multiply rows.
 DROP VIEW IF EXISTS v_cases;
 CREATE VIEW v_cases AS
 SELECT
-    c.*,
+    c.case_id, c.pharos_id, c.source, c.country, c.country_code, c.authority, c.decision_date, c.date_precision,
+    -- the primary's fine; when its source gives no amount at all, the linked page's (2021/IT/017, Enel)
+    COALESCE(c.fine_eur, CASE WHEN COALESCE(c.fine_original, '') = '' THEN
+             (SELECT g.fine_eur FROM case_links l JOIN cases g ON g.case_id = l.duplicate_id
+              WHERE l.primary_id = c.case_id AND l.status != 'rejected' AND g.fine_eur IS NOT NULL
+              ORDER BY g.case_id LIMIT 1) END)                              AS fine_eur,
+    c.fine_original, c.currency, c.controller, c.sector, c.sector_tag, c.articles_raw, c.violation_type,
+    c.outcome, c.summary, c.source_url, c.source_page, c.attribution, c.first_seen, c.last_seen, c.updated_at,
     COALESCE(NULLIF(c.summary, ''),
              (SELECT g.summary FROM case_links l JOIN cases g ON g.case_id = l.duplicate_id
               WHERE l.primary_id = c.case_id AND l.status != 'rejected' AND g.summary IS NOT NULL
