@@ -2,4 +2,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://pharosprivacy.com/sitemap.xml
+Sitemap: https://finoprivacy.com/sitemap.xml

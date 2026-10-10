@@ -50,7 +50,7 @@ PARTY_DESC_FILE = os.path.join(HERE, 'party_descriptions.csv')  # who an unnamed
 SITE_DATA_DIR = os.path.normpath(os.path.join(HERE, '..', 'site', 'data'))
 SUMMARY_SHARD = 250  # summaries are split into files of this many cases, loaded only when a case is opened
 
-USER_AGENT = 'PharosPrivacy/1.0 (+https://pharosprivacy.com; angelillolorenzo@gmail.com)'
+USER_AGENT = 'PharosPrivacy/1.0 (+https://finoprivacy.com; angelillolorenzo@gmail.com)'
 CMS_URL = 'https://www.enforcementtracker.com/'
 GDPRHUB_API = 'https://gdprhub.eu/api.php'
 

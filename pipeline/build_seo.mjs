@@ -14,7 +14,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
 
-const BASE = process.env.FINO_BASE || 'https://pharosprivacy.com';   // change once, when the domain changes
+const BASE = process.env.FINO_BASE || 'https://finoprivacy.com';   // change once, when the domain changes
 const ROOT = path.resolve(import.meta.dirname, '..');
 const SITE = path.join(ROOT, 'site');
 const LASTMOD_FILE = path.join(ROOT, 'pipeline', 'seo_lastmod.json');
